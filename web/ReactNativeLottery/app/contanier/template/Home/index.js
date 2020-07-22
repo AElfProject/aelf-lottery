@@ -37,7 +37,8 @@ const Home = () => {
         )}
       </View>
     );
-  }, []);
+  }, [aa]);
+
   const CurrentDraw = useMemo(() => {
     return (
       <View style={styles.box}>
