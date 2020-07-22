@@ -8,7 +8,6 @@ import {pTd} from '../../../../utils/common';
 const titleWidth = 50;
 const Item = memo(props => {
   const {title, playList, showBottomBorder} = props;
-  console.log(showBottomBorder, '======showBottomBorder');
   if (!playList || !Array.isArray(playList)) {
     return null;
   }

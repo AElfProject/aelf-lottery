@@ -1,6 +1,6 @@
-import React, {memo, useMemo} from 'react';
+import React, {memo} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {CommonHeader, Touchable} from '../../../../components/template';
+import {CommonHeader} from '../../../../components/template';
 import {GStyle, Colors} from '../../../../assets/theme';
 import {TextL} from '../../../../components/template/CommonText';
 import {pTd} from '../../../../utils/common';
@@ -15,6 +15,7 @@ const BigSmallSingleDouble = () => {
       </TextL>
       <PlayComponent
         data={[
+          {title: '十位', playList: ['大', '小', '单', '双']},
           {title: '十位', playList: ['大', '小', '单', '双']},
           {title: '十位', playList: ['大', '小', '单', '双']},
         ]}
