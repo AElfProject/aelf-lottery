@@ -16,6 +16,7 @@ import {TextL, TextM} from '../../../components/template/CommonText';
 import {splitString} from '../../../utils/pages';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
+import navigationService from '../../../utils/common/navigationService';
 const Home = () => {
   useSelector(settingsSelectors.getLanguage, shallowEqual); //Language status is controlled with redux
   const LatestDraw = useMemo(() => {
@@ -63,17 +64,26 @@ const Home = () => {
   }, []);
   const PurchaseEntry = useMemo(() => {
     const list = [
-      {title: '五星'},
+      {
+        title: '五星',
+        onPress: () => navigationService.navigate('BigSmallSingleDouble'),
+      },
       {title: '三星'},
       {title: '二星'},
       {title: '一星'},
-      {title: '大小单双'},
+      {
+        title: '大小单双',
+        onPress: () => navigationService.navigate('BigSmallSingleDouble'),
+      },
     ];
     return (
       <View style={styles.bottomBox}>
         {list.map((item, index) => {
           return (
-            <Touchable style={styles.bottomItem} key={index}>
+            <Touchable
+              onPress={item.onPress}
+              style={styles.bottomItem}
+              key={index}>
               <TextL>欢乐时时彩</TextL>
               <TextL style={styles.bottomText}>{item.title}</TextL>
             </Touchable>
