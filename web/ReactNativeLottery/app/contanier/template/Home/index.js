@@ -1,8 +1,6 @@
-import i18n from 'i18n-js';
 import React, {memo, useMemo} from 'react';
 import {
   CommonHeader,
-  CommonButton,
   WordRotation,
   CountDown,
   Touchable,
@@ -37,7 +35,7 @@ const Home = () => {
         )}
       </View>
     );
-  }, [aaa]);
+  }, []);
 
   const CurrentDraw = useMemo(() => {
     return (
