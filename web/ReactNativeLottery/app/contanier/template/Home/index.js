@@ -37,7 +37,7 @@ const Home = () => {
         )}
       </View>
     );
-  }, [aa]);
+  }, [aaa]);
 
   const CurrentDraw = useMemo(() => {
     return (
