@@ -21,7 +21,7 @@ import {GStyle} from '../../../../assets/theme';
 import {permissionDenied} from '../../../../utils/pages';
 import {userSelectors} from '../../../../redux/userRedux';
 const Entrance = props => {
-
+  
   const {addAccount} = props.route.params || {};
   const dispatch = useDispatch();
   const changeLanguage = useCallback(
@@ -44,7 +44,7 @@ const Entrance = props => {
   }));
   const getLocation = useCallback(
     () => dispatch(settingsActions.getLocation()),
-    [hhh],
+    [dispatch],
   );
   useEffect(() => {
     !address && getLocation();
