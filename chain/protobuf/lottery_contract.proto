@@ -21,6 +21,14 @@ service LotteryContract {
     }
     rpc TakeReward (TakeRewardInput) returns (google.protobuf.Empty) {
     }
+    rpc SetMaxRate (google.protobuf.Int32Value) returns (google.protobuf.Empty){
+    }
+    rpc SetMinRate (google.protobuf.Int32Value) returns (google.protobuf.Empty){
+    }
+    rpc SetBonusRate (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
+    }
+    rpc SetAdmin (aelf.Address) returns (google.protobuf.Empty) {
+    }
 
     //View
     rpc GetPeriods (GetPeriodsInput) returns (GetPeriodsOutput) {
@@ -29,22 +37,43 @@ service LotteryContract {
     rpc GetLottery (GetLotteryInput) returns (GetLotteryOutput) {
         option (aelf.is_view) = true;
     }
-    rpc GetLotteries (google.protobuf.Empty) returns (GetLotteriesOutput) {
+    rpc GetLotteries (GetLotteriesInput) returns (GetLotteriesOutput) {
         option (aelf.is_view) = true;
     }
     rpc GetRewardedLotteries (GetLotteriesInput) returns (GetLotteriesOutput) {
         option (aelf.is_view) = true;
     }
-    rpc GetPeriod (google.protobuf.Int64Value) returns (PeriodBody) {
+    rpc GetPeriod (google.protobuf.Int64Value) returns (PeriodDetail) {
         option (aelf.is_view) = true;
     }
-    rpc GetLatestDrawPeriod (google.protobuf.Empty) returns (PeriodBody) {
+    rpc GetLatestDrawPeriod (google.protobuf.Empty) returns (PeriodDetail) {
         option (aelf.is_view) = true;
     }
-    rpc GetCurrentPeriod (google.protobuf.Empty) returns (PeriodBody) {
+    rpc GetCurrentPeriodNumber (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetCurrentPeriod (google.protobuf.Empty) returns (PeriodDetail) {
         option (aelf.is_view) = true;
     }
     rpc GetPrice (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetTokenSymbol (google.protobuf.Empty) returns (google.protobuf.StringValue) {
+        option (aelf.is_view) = true;
+    }    
+    rpc GetCashDuration (google.protobuf.Empty) returns (google.protobuf.Int32Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetBonusRate (google.protobuf.Empty) returns (GetRateOutput) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetMaxRate (google.protobuf.Empty) returns (GetRateOutput) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetMinRate (google.protobuf.Empty) returns (GetRateOutput) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetAdmin (google.protobuf.Empty) returns (aelf.Address) {
         option (aelf.is_view) = true;
     }
 }
@@ -52,6 +81,10 @@ service LotteryContract {
 message InitializeInput {
     string token_symbol = 1;
     int64 price = 2;
+    int32 bonus_rate = 3;
+    int32 cash_duration = 4;
+    int32 max_rate = 5;
+    int32 min_rate = 6;
 }
 
 message BuyInput{
@@ -62,7 +95,11 @@ message BuyInput{
 }
 
 enum LotteryType{
-    ONE_STAR = 0;
+    SIMPLE = 0;
+    ONE_BIT = 10;
+    TWO_BIT = 20;
+    THREE_BIT = 30;
+    FIVE_BIT = 40;
 }
 
 message BetBody {
@@ -74,12 +111,12 @@ message TakeRewardInput {
 }
 
 message GetPeriodsInput {
-    int32 offset = 1;
+    int32 start_period_number = 1;
     int32 limit = 2;
 }
 
 message GetPeriodsOutput {
-    repeated PeriodBody periods = 1;
+    repeated PeriodDetail periods = 1;
 }
 
 message GetLotteriesInput {
@@ -99,14 +136,30 @@ message GetLotteryOutput {
     LotteryDetail lottery = 1;
 }
 
+message GetRateOutput{
+    int32 rate = 1;
+    int32 decimals = 2;
+}
+
 message PeriodBody {
-    string period_name = 1;
-    int64 draw_block_number = 2;
-    aelf.Hash random_hash = 3;
-    int64 lucky_number = 4;
-    int64 block_number = 5;
+     int64 period = 1;
+     int64 block_number = 2;
+     int64 draw_block_number = 3;
+     aelf.Hash random_hash =4;
+     int64 lucky_number = 5;
+     google.protobuf.Timestamp create_time = 6;
+     google.protobuf.Timestamp draw_time = 7;
+}
+
+message PeriodDetail {
+    int64 period = 1;
+    int64 block_number = 2;
+    int64 draw_block_number = 3;
+    aelf.Hash random_hash =4;
+    int64 lucky_number = 5;
     google.protobuf.Timestamp create_time = 6;
     google.protobuf.Timestamp draw_time = 7;
+    int64 start_period_of_day = 8;
 }
 
 message Lottery {              
@@ -114,27 +167,27 @@ message Lottery {
     aelf.Address owner = 2;
     int64 period = 3;
     LotteryType type = 4;
-    int64 price = 12;
-    repeated BetBody bets = 5;
-    bool cashed = 6;
-    aelf.Address seller = 7;
-    int64 bonus = 8;
-    int64 reward = 9;
-    int64 rate = 10;
-    google.protobuf.Timestamp create_time = 11;
+    int64 price = 5;
+    repeated BetBody betInfos = 6;
+    bool cashed = 7;
+    aelf.Address seller = 8;
+    int64 bonus = 9;
+    int64 reward = 10;
+    int64 rate = 11;
+    google.protobuf.Timestamp create_time = 12;
     int64 block_number = 13;                          
 }
 
 message LotteryDetail{
     int64 id = 1;
-    string period_name = 2;
+    int64 start_period_of_day = 2;
     int64 period = 3;
     LotteryType type = 4;
-    int64 price = 12;
-    repeated BetBody bets = 5;
-    bool cashed = 6;
-    int64 reward = 9;
-    google.protobuf.Timestamp create_time = 11;
+    int64 price = 5;
+    repeated BetBody bets = 6;
+    bool cashed = 7;
+    int64 reward = 8;
+    google.protobuf.Timestamp create_time = 9;
 }
 
 message LotteryList {

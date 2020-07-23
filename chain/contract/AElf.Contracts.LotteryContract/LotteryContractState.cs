@@ -18,6 +18,12 @@ namespace AElf.Contracts.LotteryContract
         
         public SingletonState<int> CashDuration { get; set; }
         
+        public SingletonState<int> BonusRate { get; set; }
+        
+        public SingletonState<int> MaxRate { get; set; }
+        
+        public SingletonState<int> MinRate { get; set; }
+        
         public SingletonState<Address> Admin { get; set; }
         
         public MappedState<long, PeriodBody> Periods { get; set; } 
@@ -33,7 +39,5 @@ namespace AElf.Contracts.LotteryContract
         public SingletonState<long> CurrentPeriod { get; set; }
         
         public SingletonState<long> CurrentLotteryId { get; set; }
-        
-        public SingletonState<long> BonusRate { get; set; }
     }
 }
