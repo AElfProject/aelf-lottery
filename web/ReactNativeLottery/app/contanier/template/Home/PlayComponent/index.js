@@ -1,44 +1,90 @@
 import React, {memo} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Touchable} from '../../../../components/template';
-import {TextL} from '../../../../components/template/CommonText';
+import {TextL, TextM} from '../../../../components/template/CommonText';
 import {getWindowWidth} from '../../../../utils/common/device';
 import {Colors} from '../../../../assets/theme';
 import {pTd} from '../../../../utils/common';
 const titleWidth = 50;
+const list = [
+  {title: '大', type: 'big'},
+  {title: '小', type: 'small'},
+  {title: '奇', type: 'odd'},
+  {title: '偶', type: 'even'},
+  {title: '全', type: 'all'},
+  {title: '清', type: 'clear'},
+];
 const Item = memo(props => {
-  const {title, playList, showBottomBorder, first, onPress, selected} = props;
+  const {
+    title,
+    playList,
+    showBottomBorder,
+    first,
+    onSelect,
+    selected,
+    onTool,
+  } = props;
   if (!playList || !Array.isArray(playList)) {
     return null;
   }
   const offset =
-    playList.length > 5 ? playList.length * 1.3 : playList.length * 2.5;
+    playList.length > 5 ? playList.length * 1.4 : playList.length * 2.4;
+
   const width = (getWindowWidth() - titleWidth) / offset;
+  const fontSize = width * 0.55;
   return (
-    <View style={[styles.box, showBottomBorder && styles.bottomBorder]}>
-      <TextL style={styles.titleText}>{title}</TextL>
-      <View style={styles.selectBox}>
-        {playList.map((item, index) => {
-          const current = selected && selected.includes(index);
-          return (
-            <Touchable
-              onPress={() => onPress(first, index)}
-              key={index}
-              style={[
-                styles.itemBox,
-                current && styles.currentStyle,
-                {height: width, width, borderRadius: width / 2},
-              ]}>
-              <TextL>{item}</TextL>
-            </Touchable>
-          );
-        })}
+    <View
+      style={[
+        styles.container,
+        showBottomBorder && styles.bottomBorder,
+        onTool && styles.toolContainer,
+      ]}>
+      <View style={[styles.box]}>
+        <TextL style={styles.titleText}>{title}</TextL>
+        <View style={styles.selectBox}>
+          {playList.map((item, index) => {
+            const current = selected && selected.includes(String(index));
+            return (
+              <Touchable
+                onPress={() => onSelect(String(first), String(index))}
+                key={index}
+                style={[
+                  styles.itemBox,
+                  current && styles.currentStyle,
+                  {height: width, width, borderRadius: width / 2},
+                ]}>
+                <TextL
+                  style={[
+                    styles.selectText,
+                    current && styles.whiteText,
+                    {fontSize},
+                  ]}>
+                  {item}
+                </TextL>
+              </Touchable>
+            );
+          })}
+        </View>
       </View>
+      {onTool ? (
+        <View style={styles.toolBox}>
+          {list.map((item, index) => {
+            return (
+              <Touchable
+                style={styles.toolItem}
+                key={index}
+                onPress={() => onTool(first, item.type)}>
+                <TextM>{item.title}</TextM>
+              </Touchable>
+            );
+          })}
+        </View>
+      ) : null}
     </View>
   );
 });
 const PlayComponent = props => {
-  const {data, onPress, selectedList} = props;
+  const {data, betList} = props;
   return (
     <View>
       {data && data.length
@@ -47,10 +93,10 @@ const PlayComponent = props => {
               <Item
                 {...item}
                 key={index}
-                selected={selectedList[index]}
+                selected={betList[index]}
                 first={index}
-                onPress={onPress}
                 showBottomBorder={index === data.length - 1}
+                {...props}
               />
             );
           })
@@ -60,10 +106,25 @@ const PlayComponent = props => {
 };
 export default memo(PlayComponent);
 const styles = StyleSheet.create({
-  box: {
+  container: {
+    paddingVertical: pTd(12),
     borderTopWidth: 1,
     borderTopColor: Colors.borderColor,
-    paddingVertical: pTd(20),
+  },
+  toolContainer: {
+    paddingBottom: 0,
+  },
+  toolBox: {
+    marginLeft: titleWidth + pTd(80),
+    marginRight: pTd(80),
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  toolItem: {
+    padding: pTd(10),
+    paddingTop: pTd(5),
+  },
+  box: {
     alignItems: 'center',
     flexDirection: 'row',
   },
@@ -88,5 +149,11 @@ const styles = StyleSheet.create({
   },
   currentStyle: {
     backgroundColor: Colors.primaryColor,
+  },
+  selectText: {
+    fontWeight: 'bold',
+  },
+  whiteText: {
+    color: 'white',
   },
 });

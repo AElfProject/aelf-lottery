@@ -5,7 +5,7 @@ import {
   CountDown,
   Touchable,
 } from '../../../components/template';
-import {ScrollView, View} from 'react-native';
+import {ScrollView, View, Image} from 'react-native';
 import {useSelector, shallowEqual} from 'react-redux';
 import {settingsSelectors} from '../../../redux/settingsRedux';
 import {GStyle} from '../../../assets/theme';
@@ -15,6 +15,17 @@ import {splitString} from '../../../utils/pages';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import navigationService from '../../../utils/common/navigationService';
+import {ball} from '../../../assets/images';
+const list = [
+  {title: '五星', onPress: () => navigationService.navigate('FiveStars')},
+  {title: '三星', onPress: () => navigationService.navigate('ThreeStars')},
+  {title: '二星', onPress: () => navigationService.navigate('TwoStars')},
+  {title: '一星', onPress: () => navigationService.navigate('OneStar')},
+  {
+    title: '大小单双',
+    onPress: () => navigationService.navigate('BigSmallSingleDouble'),
+  },
+];
 const Home = () => {
   useSelector(settingsSelectors.getLanguage, shallowEqual); //Language status is controlled with redux
   const LatestDraw = useMemo(() => {
@@ -62,19 +73,6 @@ const Home = () => {
     );
   }, []);
   const PurchaseEntry = useMemo(() => {
-    const list = [
-      {
-        title: '五星',
-        onPress: () => navigationService.navigate('BigSmallSingleDouble'),
-      },
-      {title: '三星'},
-      {title: '二星'},
-      {title: '一星'},
-      {
-        title: '大小单双',
-        onPress: () => navigationService.navigate('BigSmallSingleDouble'),
-      },
-    ];
     return (
       <View style={styles.bottomBox}>
         {list.map((item, index) => {
@@ -83,7 +81,11 @@ const Home = () => {
               onPress={item.onPress}
               style={styles.bottomItem}
               key={index}>
-              <TextL>欢乐时时彩</TextL>
+              <Image
+                resizeMode="contain"
+                style={styles.ballBox}
+                source={ball}
+              />
               <TextL style={styles.bottomText}>{item.title}</TextL>
             </Touchable>
           );

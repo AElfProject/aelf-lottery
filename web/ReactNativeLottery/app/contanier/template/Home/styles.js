@@ -72,7 +72,15 @@ const styles = StyleSheet.create({
     marginTop: pTd(30),
   },
   bottomText: {
+    fontWeight: 'bold',
     marginTop: pTd(30),
+  },
+  ballBox: {
+    width: '100%',
+    height: pTd(100),
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
 });
 
