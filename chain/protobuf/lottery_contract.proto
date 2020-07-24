@@ -76,6 +76,9 @@ service LotteryContract {
     rpc GetAdmin (google.protobuf.Empty) returns (aelf.Address) {
         option (aelf.is_view) = true;
     }
+    rpc GetRewards (google.protobuf.Empty) returns (GetRewardsOutput) {
+        option (aelf.is_view) = true;
+    }
 }
 
 message InitializeInput {
@@ -89,9 +92,9 @@ message InitializeInput {
 
 message BuyInput{
     LotteryType type = 1;
-    repeated BetBody betInfos = 2;
+    repeated BetBody bet_infos = 2;
     aelf.Address seller = 3;
-    int64 rate = 4;
+    int32 rate = 4;
 }
 
 enum LotteryType{
@@ -111,7 +114,7 @@ message TakeRewardInput {
 }
 
 message GetPeriodsInput {
-    int32 start_period_number = 1;
+    int64 start_period_number = 1;
     int32 limit = 2;
 }
 
@@ -141,22 +144,31 @@ message GetRateOutput{
     int32 decimals = 2;
 }
 
+message GetRewardsOutput{
+    repeated Reward rewards = 1;
+}
+
+message Reward{
+    LotteryType type = 1;
+    int64 amount = 2;
+}
+
 message PeriodBody {
-     int64 period = 1;
+     int64 period_number = 1;
      int64 block_number = 2;
      int64 draw_block_number = 3;
      aelf.Hash random_hash =4;
-     int64 lucky_number = 5;
+     int32 lucky_number = 5;
      google.protobuf.Timestamp create_time = 6;
      google.protobuf.Timestamp draw_time = 7;
 }
 
 message PeriodDetail {
-    int64 period = 1;
+    int64 period_number = 1;
     int64 block_number = 2;
     int64 draw_block_number = 3;
     aelf.Hash random_hash =4;
-    int64 lucky_number = 5;
+    int32 lucky_number = 5;
     google.protobuf.Timestamp create_time = 6;
     google.protobuf.Timestamp draw_time = 7;
     int64 start_period_of_day = 8;
@@ -165,29 +177,33 @@ message PeriodDetail {
 message Lottery {              
     int64 id = 1;
     aelf.Address owner = 2;
-    int64 period = 3;
+    int64 period_number = 3;
     LotteryType type = 4;
     int64 price = 5;
-    repeated BetBody betInfos = 6;
+    repeated BetBody bet_infos = 6;
     bool cashed = 7;
     aelf.Address seller = 8;
     int64 bonus = 9;
     int64 reward = 10;
-    int64 rate = 11;
-    google.protobuf.Timestamp create_time = 12;
-    int64 block_number = 13;                          
+    int32 rate = 11;
+    int64 block_number = 12;
+    google.protobuf.Timestamp create_time = 13;
+    bool Expired = 14;
 }
 
 message LotteryDetail{
     int64 id = 1;
     int64 start_period_of_day = 2;
-    int64 period = 3;
+    int64 period_number = 3;
     LotteryType type = 4;
     int64 price = 5;
-    repeated BetBody bets = 6;
+    repeated BetBody bet_infos = 6;
     bool cashed = 7;
     int64 reward = 8;
-    google.protobuf.Timestamp create_time = 9;
+    int32 rate = 9;
+    int64 block_number = 10;
+    google.protobuf.Timestamp create_time = 11;
+    bool Expired = 12;
 }
 
 message LotteryList {

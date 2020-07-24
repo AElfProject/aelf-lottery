@@ -17,7 +17,7 @@ namespace AElf.Contracts.LotteryContract
             while (periodDetails.Count < input.Limit)
             {
                 var periodDetail = GetPeriodDetail(periodNumber);
-                if(periodDetail == null) break;
+                if (periodDetail == null) break;
                 periodDetails.Add(periodDetail);
                 periodNumber--;
             }
@@ -62,7 +62,25 @@ namespace AElf.Contracts.LotteryContract
 
         public override GetLotteriesOutput GetRewardedLotteries(GetLotteriesInput input)
         {
-            return base.GetRewardedLotteries(input);
+            Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
+            Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
+            var address = Context.Sender;
+            var lotteries = State.UnDoneLotteries[address] ?? new LotteryList();
+            var lotteryIdList = lotteries.Ids.OrderByDescending(id => id);
+            var lotteryDetails = new List<LotteryDetail>();
+            foreach (var lotteryId in lotteryIdList)
+            {
+                var lotteryDetail = GetLotteryDetail(lotteryId);
+                if (lotteryDetail == null) break;
+                if (lotteryDetail.Reward == 0 || lotteryDetail.Expired) continue;
+                lotteryDetails.Add(lotteryDetail);
+                if (lotteryDetails.Count >= input.Offset + input.Limit) break;
+            }
+
+            return new GetLotteriesOutput
+            {
+                Lotteries = {lotteryDetails.Skip(input.Offset).Take(input.Limit)}
+            };
         }
 
         public override PeriodDetail GetPeriod(Int64Value input)
@@ -72,12 +90,12 @@ namespace AElf.Contracts.LotteryContract
 
         public override PeriodDetail GetLatestDrawPeriod(Empty input)
         {
-            var currentPeriodId = State.CurrentPeriod.Value;
-            var periodDetail = GetPeriodDetail(currentPeriodId);
+            var currentPeriodNumber = State.CurrentPeriodNumber.Value;
+            var periodDetail = GetPeriodDetail(currentPeriodNumber);
             while (periodDetail != null)
             {
                 if (periodDetail.DrawTime != null) return periodDetail;
-                periodDetail = GetPeriodDetail(periodDetail.Period.Sub(1));
+                periodDetail = GetPeriodDetail(periodDetail.PeriodNumber.Sub(1));
             }
             
             return null;
@@ -87,18 +105,19 @@ namespace AElf.Contracts.LotteryContract
         {
             return new Int64Value
             {
-                Value = State.CurrentPeriod.Value
+                Value = State.CurrentPeriodNumber.Value
             }; 
         }
 
         public override PeriodDetail GetCurrentPeriod(Empty input)
         {
-            return GetPeriodDetail(State.CurrentPeriod.Value);
+            return GetPeriodDetail(State.CurrentPeriodNumber.Value);
         }
 
         public override Int64Value GetPrice(Empty input)
         {
-            return new Int64Value{
+            return new Int64Value
+            {
                 Value = State.Price.Value
             };
         }
@@ -149,6 +168,22 @@ namespace AElf.Contracts.LotteryContract
         public override Address GetAdmin(Empty input)
         {
             return State.Admin.Value;
+        }
+
+        public override GetRewardsOutput GetRewards(Empty input)
+        {
+            var output = new GetRewardsOutput();
+            var lotteryTypes = GetLotteryTypes();
+            foreach (var lotteryType in lotteryTypes)
+            {
+                output.Rewards.Add(new Reward
+                {
+                    Type = lotteryType,
+                    Amount = State.Rewards[lotteryType]
+                });
+            }
+
+            return output;
         }
     }
 }
