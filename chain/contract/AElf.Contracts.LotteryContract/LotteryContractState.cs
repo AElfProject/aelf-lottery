@@ -26,9 +26,9 @@ namespace AElf.Contracts.LotteryContract
         
         public SingletonState<Address> Admin { get; set; }
         
-        public MappedState<long, PeriodBody> Periods { get; set; } 
-        
-        public MappedState<string, long> StartPeriodOfDay { get; set; }
+        public MappedState<long, PeriodBody> Periods { get; set; }
+
+        public MappedState<string, long> StartPeriodNumberOfDay { get; set; }
         
         public MappedState<long, Lottery> Lotteries { get; set; }
         
@@ -36,8 +36,12 @@ namespace AElf.Contracts.LotteryContract
 
         public MappedState<Address, LotteryList> DoneLotteries { get; set; }
         
-        public SingletonState<long> CurrentPeriod { get; set; }
+        public SingletonState<long> CurrentPeriodNumber { get; set; }
         
         public SingletonState<long> CurrentLotteryId { get; set; }
+
+        public MappedState<LotteryType, long> Rewards { get; set; }
+
+        public Int32State Decimals { get; set; }
     }
 }

@@ -1,6 +1,8 @@
+using System;
+using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
-using AElf.ContractTestKit;
+using AElf.ContractTestBase.ContractTestKit;
 using AElf.Types;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
