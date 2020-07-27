@@ -11,11 +11,12 @@ namespace AElf.Contracts.LotteryContract
     {
         private void InitRewards(int decimals)
         {
-            State.Rewards[LotteryType.Simple] = 4 * decimals;
-            State.Rewards[LotteryType.OneBit] = 10 * decimals;
-            State.Rewards[LotteryType.TwoBit] = 100 * decimals;
-            State.Rewards[LotteryType.ThreeBit] = 1000 * decimals;
-            State.Rewards[LotteryType.FiveBit] = 100000 * decimals;
+            long pow = Pow(10, (uint) decimals);
+            State.Rewards[LotteryType.Simple] = pow.Mul(4);
+            State.Rewards[LotteryType.OneBit] = pow.Mul(10);
+            State.Rewards[LotteryType.TwoBit] = pow.Mul(100);
+            State.Rewards[LotteryType.ThreeBit] = pow.Mul(1000);
+            State.Rewards[LotteryType.FiveBit] = pow.Mul(100000);
         }
         
         private PeriodDetail GetPeriodDetail(long periodNumber)
@@ -25,6 +26,7 @@ namespace AElf.Contracts.LotteryContract
             var date = period.CreateTime.ToDateTime().ToString("yyyyMMdd");
             return new PeriodDetail
             {
+                PeriodNumber = period.PeriodNumber,
                 BlockNumber = period.BlockNumber,
                 CreateTime = period.CreateTime,
                 DrawTime = period.DrawTime,
@@ -47,10 +49,32 @@ namespace AElf.Contracts.LotteryContract
             
             return null;
         }
+
+        public void AddDoneLottery(long lotteryId)
+        {
+            var lotteryList = State.DoneLotteries[Context.Sender] ?? new LotteryList();
+            lotteryList.Ids.Add(lotteryId);
+            State.DoneLotteries[Context.Sender] = lotteryList;
+        }
+
+        public void AddUndoneLottery(long lotteryId)
+        {
+            var lotteryList = State.UnDoneLotteries[Context.Sender] ?? new LotteryList();
+            lotteryList.Ids.Add(lotteryId);
+            State.UnDoneLotteries[Context.Sender] = lotteryList;
+        }
+
+        public void RemoveUndoneLottery(long lotteryId)
+        {
+            var lotteryList = State.UnDoneLotteries[Context.Sender] ?? new LotteryList();
+            lotteryList.Ids.Remove(lotteryId);
+            State.UnDoneLotteries[Context.Sender] = lotteryList;
+        }
         
         private void DealUnDoneLotteries()
         {
-            var lotteryIds = State.UnDoneLotteries[Context.Sender].Ids.ToList();
+            var lotteryList = State.UnDoneLotteries[Context.Sender] ?? new LotteryList();
+            var lotteryIds = lotteryList.Ids.ToList();
             var latestDrawPeriod = GetLatestDrawPeriod();
             //TODO consider lotteryIds count is very large.
             foreach (var lotteryId in lotteryIds)
@@ -63,8 +87,8 @@ namespace AElf.Contracts.LotteryContract
                 lottery.Cashed = lottery.Reward == 0;
                 State.Lotteries[lotteryId] = lottery;
                 if (lottery.Reward > 0 && !lottery.Expired) continue;
-                State.UnDoneLotteries[Context.Sender].Ids.Remove(lotteryId);
-                State.DoneLotteries[Context.Sender].Ids.Add(lotteryId);
+                RemoveUndoneLottery(lotteryId);
+                AddDoneLottery(lotteryId);
             }
         }
 
@@ -102,7 +126,12 @@ namespace AElf.Contracts.LotteryContract
             var bit = GetBit(lottery.Type);
             return !bit.CheckWin(luckNumber, lottery.BetInfos)
                 ? 0
-                : State.Rewards[lottery.Type].Mul(lottery.Rate).Div(RateDecimals);
+                : State.Rewards[lottery.Type].Mul(lottery.Rate).Div(GetRateDenominator());
+        }
+
+        private int GetRateDenominator()
+        {
+            return Pow(10, RateDecimals);
         }
 
         private List<LotteryType> GetLotteryTypes()

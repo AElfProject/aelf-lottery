@@ -1,8 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Acs0;
 using AElf.Contracts.MultiToken;
+using AElf.ContractTestBase.ContractTestKit;
+using AElf.Kernel;
 using AElf.Types;
+using Google.Protobuf;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
@@ -13,7 +18,7 @@ namespace AElf.Contracts.LotteryContract
     // ReSharper disable InconsistentNaming
     public class LotteryContractTests : LotteryContractTestBase
     {
-        private const long Price = 10_00000000;
+        private const long Price = 100_000_000;
 
         private LotteryContractContainer.LotteryContractStub AliceLotteryContractStub =>
             GetLotteryContractStub(AliceKeyPair);
@@ -25,202 +30,275 @@ namespace AElf.Contracts.LotteryContract
 
         private TokenContractContainer.TokenContractStub BobTokenContractStub => GetTokenContractStub(BobKeyPair);
 
-        [Fact]
-        public async Task InitializeAndCheckStatus()
+        private async Task<InitializeInput> InitializeAsync()
         {
-            await LotteryContractStub.Initialize.SendAsync(new InitializeInput
+            var initializeInput = new InitializeInput
             {
                 TokenSymbol = "ELF",
-                MaximumAmount = 100,
                 Price = Price,
-                DrawingLag = 1
-            });
-
-            var currentPeriod = await LotteryContractStub.GetCurrentPeriod.CallAsync(new Empty());
-            currentPeriod.StartId.ShouldBe(1);
-            currentPeriod.RandomHash.ShouldBe(Hash.Empty);
-
-            // Transfer some money to Alice & Bob.
+                BonusRate = 100,
+                CashDuration = 60,
+                MaxRate = 20000,
+                MinRate = 10000
+            };
+            await LotteryContractStub.Initialize.SendAsync(initializeInput);
+            
+            //Transfer some money to Alice & Bob.
             await TokenContractStub.Transfer.SendAsync(new TransferInput
             {
                 To = AliceAddress,
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-
+            
             await TokenContractStub.Transfer.SendAsync(new TransferInput
             {
                 To = BobAddress,
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-
+            
             await AliceTokenContractStub.Approve.SendAsync(new ApproveInput
             {
                 Spender = LotteryContractAddress,
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-
+            
             await BobTokenContractStub.Approve.SendAsync(new ApproveInput
             {
                 Spender = LotteryContractAddress,
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
+            
+            return initializeInput;
+        }
+        [Fact]
+        public async Task Initialize_And_CheckStatus_Test()
+        {
+            var initializeInput = await InitializeAsync();
 
-            await LotteryContractStub.AddRewardList.SendAsync(new RewardList
+            var currentPeriod = await LotteryContractStub.GetCurrentPeriod.CallAsync(new Empty());
+            currentPeriod.PeriodNumber.ShouldBe(1);
+            currentPeriod.RandomHash.ShouldBe(Hash.Empty);
+            
+            var periodNumber = await LotteryContractStub.GetCurrentPeriodNumber.CallAsync(new Empty());
+            periodNumber.Value.ShouldBe(1);
+
+            var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value
             {
-                RewardMap =
+                Value = periodNumber.Value
+            });
+            
+            period.ShouldBe(currentPeriod);
+
+            var output = await LotteryContractStub.GetPeriods.CallAsync(new GetPeriodsInput
+            {
+                StartPeriodNumber = 1,
+                Limit = 50
+            });
+            output.Periods.Count.ShouldBe(1);
+            output.Periods[0].ShouldBe(currentPeriod);
+
+            var admin = await LotteryContractStub.GetAdmin.CallAsync(new Empty());
+            admin.ShouldBe(SampleAccount.Accounts[0].Address);
+
+            var priceValue = await LotteryContractStub.GetPrice.CallAsync(new Empty());
+            priceValue.Value.ShouldBe(initializeInput.Price);
+
+            var rateDecimals = 4;
+            
+            var bonusRate = await LotteryContractStub.GetBonusRate.CallAsync(new Empty());
+            bonusRate.Decimals.ShouldBe(rateDecimals);
+            bonusRate.Rate.ShouldBe(initializeInput.BonusRate);
+            
+            var cashDuration = await LotteryContractStub.GetCashDuration.CallAsync(new Empty());
+            cashDuration.Value.ShouldBe(initializeInput.CashDuration);
+            
+            var maxRate = await LotteryContractStub.GetMaxRate.CallAsync(new Empty());
+            maxRate.Decimals.ShouldBe(rateDecimals);
+            maxRate.Rate.ShouldBe(initializeInput.MaxRate);
+            
+            var minRate = await LotteryContractStub.GetMinRate.CallAsync(new Empty());
+            minRate.Decimals.ShouldBe(rateDecimals);
+            minRate.Rate.ShouldBe(initializeInput.MinRate);
+            
+            var symbol = await LotteryContractStub.GetTokenSymbol.CallAsync(new Empty());
+            symbol.Value.ShouldBe(initializeInput.TokenSymbol);
+            
+        }
+        
+        [Fact]
+        public async Task Buy_And_TakeReward_Test()
+        {
+            await InitializeAsync();
+            
+            var output = await LotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 1
+            });
+            output.ShouldBe(new GetLotteryOutput());
+            
+            var seller = Address.FromPublicKey(SampleAccount.Accounts[2].KeyPair.PublicKey);
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Rate = 10000,
+                Seller = seller,
+                Type = LotteryType.OneBit,
+                BetInfos =
                 {
-                    {"啊", "一等奖"},
-                    {"啊啊", "二等奖"},
-                    {"啊啊啊", "三等奖"}
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
                 }
             });
-        }
-
-        [Fact]
-        public async Task PrepareDrawWithoutSelling()
-        {
-            await InitializeAndCheckStatus();
-
-            var result = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
-            result.TransactionResult.Error.ShouldContain("Unable to terminate this period.");
-        }
-
-        [Fact]
-        public async Task BuyTest()
-        {
-            await InitializeAndCheckStatus();
-
+            for (var i = 0; i < 20; i++)
             {
-                var lotteries = await AliceBuy(20, 1);
-                lotteries.Count.ShouldBe(20);
+                await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+                {
+                    Rate = 10000,
+                    Seller = seller,
+                    Type = LotteryType.OneBit,
+                    BetInfos =
+                    {
+                        new BetBody
+                        {
+                            Bets = {1}
+                        }
+                    }
+                });
             }
-
+            output = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
             {
-                var lotteries = await BobBuy(5, 1);
-                lotteries.Count.ShouldBe(5);
-            }
-        }
+                LotteryId = 1
+            });
+            output.Lottery.ShouldNotBeNull();
 
-        [Fact]
-        public async Task PrepareDrawTest()
-        {
-            await BuyTest();
             await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
 
-            var currentPeriodNumber = await LotteryContractStub.GetCurrentPeriodNumber.CallAsync(new Empty());
-            currentPeriodNumber.Value.ShouldBe(2);
+            var period = await LotteryContractStub.GetLatestDrawPeriod.CallAsync(new Empty());
+            period.ShouldBe(new PeriodDetail());
 
-            {
-                var lotteries = await AliceBuy(1, 2);
-                lotteries.Count.ShouldBe(1);
-            }
-
-            {
-                var lotteries = await BobBuy(1, 2);
-                lotteries.Count.ShouldBe(1); // Only return 20 at one time.
-            }
-
-            var result = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
-            result.TransactionResult.Error.ShouldContain("hasn't drew.");
-        }
-
-        [Fact]
-        public async Task DrawTest()
-        {
-            await PrepareDrawTest();
-
-            await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
-            {
-                Period = 1,
-                Rewards =
-                {
-                    {"啊", 1},
-                    {"啊啊", 2},
-                    {"啊啊啊", 5}
-                }
-            });
-
-            await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 1});
-
-            var rewardResult = await LotteryContractStub.GetRewardResult.CallAsync(new Int64Value
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
             {
                 Value = 1
             });
-            var reward =
-                rewardResult.RewardLotteries.First(r => r.Owner == AliceAddress && !string.IsNullOrEmpty(r.RewardName));
-            const string registrationInformation = "hiahiahia";
+            
+            period = await LotteryContractStub.GetLatestDrawPeriod.CallAsync(new Empty());
+            period.ShouldNotBeNull();
+
+            var getRewardedLotteriesOutput = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(new GetLotteriesInput
+            {
+                Offset = 0,
+                Limit = 50
+            });
+            getRewardedLotteriesOutput.Lotteries.Count.ShouldBe(1);
+
             await AliceLotteryContractStub.TakeReward.SendAsync(new TakeRewardInput
             {
-                LotteryId = reward.Id,
-                RegistrationInformation = registrationInformation
+                LotteryId = output.Lottery.Id
             });
-
-            var lottery = await LotteryContractStub.GetLottery.CallAsync(new Int64Value {Value = reward.Id});
-            lottery.RegistrationInformation.ShouldBe(registrationInformation);
-        }
-
-        private async Task<RepeatedField<Lottery>> AliceBuy(int amount, long period)
-        {
-            var boughtInformation = (await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
+            
+            getRewardedLotteriesOutput = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(new GetLotteriesInput
             {
-                Value = amount
-            })).Output;
-
-            boughtInformation.Amount.ShouldBe(amount);
-
-            var boughtInfo = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
-            {
-                Owner = AliceAddress,
-                Period = period
+                Offset = 0,
+                Limit = 50
             });
-            boughtInfo.Lotteries.First().Id.ShouldBe(boughtInformation.StartId);
-            return boughtInfo.Lotteries;
-        }
-
-        private async Task<RepeatedField<Lottery>> BobBuy(int amount, long period)
-        {
-            var boughtInformation = (await BobLotteryContractStub.Buy.SendAsync(new Int64Value
+            getRewardedLotteriesOutput.Lotteries.Count.ShouldBe(0);
+            
+            var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
             {
-                Value = amount
-            })).Output;
-
-            boughtInformation.Amount.ShouldBe(amount);
-
-            var boughtOutput = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
-            {
-                Owner = BobAddress,
-                Period = period
+                Offset = 0,
+                Limit = 50
             });
-            boughtOutput.Lotteries.First().Id.ShouldBe(boughtInformation.StartId);
-            return boughtOutput.Lotteries;
+            lotteriesOutput.Lotteries.Count.ShouldBe(21);
         }
 
         [Fact]
-        public void TestGetRanks()
+        public async Task SetMaxRate_Test()
         {
-            var levelsCount = new List<int> {0, 1, 2, 3, 4};
-            var ranks = GetRanks(levelsCount);
-            ranks.Count.ShouldBe(10);
-            ranks.ShouldBe(new List<int> {2, 3, 3, 4, 4, 4, 5, 5, 5, 5});
+            await InitializeAsync();
+            var maxRate = 30000;
+            var decimals = 4;
+            await LotteryContractStub.SetMaxRate.SendAsync(new Int32Value
+            {
+                Value = maxRate
+            });
+            var output = await LotteryContractStub.GetMaxRate.CallAsync(new Empty());
+            output.Rate.ShouldBe(maxRate);
+            output.Decimals.ShouldBe(decimals);
         }
 
-        private List<int> GetRanks(List<int> levelsCount)
+        [Fact]
+        public async Task SetMinRate_Test()
         {
-            var ranks = new List<int>();
-
-            for (var i = 0; i < levelsCount.Count; i++)
+            await InitializeAsync();
+            var minRate = 12000;
+            var decimals = 4;
+            await LotteryContractStub.SetMinRate.SendAsync(new Int32Value
             {
-                for (var j = 0; j < levelsCount[i]; j++)
+                Value = minRate
+            });
+            var output = await LotteryContractStub.GetMinRate.CallAsync(new Empty());
+            output.Rate.ShouldBe(minRate);
+            output.Decimals.ShouldBe(decimals);
+        }
+
+        [Fact]
+        public async Task SetBonusRate_Test()
+        {
+            await InitializeAsync();
+            var bonusRate = 200;
+            var decimals = 4;
+            await LotteryContractStub.SetBonusRate.SendAsync(new Int32Value
+            {
+                Value = bonusRate
+            });
+            var output = await LotteryContractStub.GetBonusRate.CallAsync(new Empty());
+            output.Rate.ShouldBe(bonusRate);
+            output.Decimals.ShouldBe(decimals);
+        }
+
+        [Fact]
+        public async Task SetAdmin_Test()
+        {
+            await InitializeAsync();
+            await LotteryContractStub.SetAdmin.SendAsync(AliceAddress);
+            var admin = await LotteryContractStub.GetAdmin.CallAsync(new Empty());
+            admin.ShouldBe(AliceAddress);
+        }
+
+        [Fact]
+        public async Task GetRewards_Test()
+        {
+            await InitializeAsync();
+            var output = await LotteryContractStub.GetRewards.CallAsync(new Empty());
+            output.Rewards.Count.ShouldBe(5);
+            foreach (var reward in output.Rewards)
+            {
+                switch (reward.Type)
                 {
-                    ranks.Add(i + 1);
+                      case LotteryType.Simple:
+                          reward.Amount.ShouldBe(400_000_000);
+                          break;
+                      case LotteryType.OneBit:
+                          reward.Amount.ShouldBe(1_000_000_000);
+                          break;
+                      case LotteryType.TwoBit:
+                          reward.Amount.ShouldBe(10_000_000_000);
+                          break;
+                      case LotteryType.ThreeBit:
+                          reward.Amount.ShouldBe(100_000_000_000);
+                          break;
+                      case LotteryType.FiveBit:
+                          reward.Amount.ShouldBe(10_000_000_000_000);
+                          break;
+                      default:
+                          throw new Exception("Invalid lottery type");
                 }
             }
-
-            return ranks;
         }
     }
 }

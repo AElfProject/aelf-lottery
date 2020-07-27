@@ -2,8 +2,9 @@ using System.Threading.Tasks;
 using Acs9;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.Profit;
-using AElf.ContractTestKit;
 using AElf.Contracts.TokenHolder;
+using AElf.ContractTestBase.ContractTestKit;
+using AElf.CSharp.Core.Extension;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
@@ -148,7 +149,7 @@ namespace AElf.Contracts.ACS9DemoContract
                     Owner = UserAddresses[0]
                 });
             var blockTimeProvider = GetRequiredService<IBlockTimeProvider>();
-            blockTimeProvider.SetBlockTime(60000);
+            blockTimeProvider.SetBlockTime(blockTimeProvider.GetBlockTime().AddMilliseconds(60000));
             var withDrawResult = await userTokenHolderStub.Withdraw.SendAsync(ACS9DemoContractAddress);
             withDrawResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Mined);
             var resultBalance = await userTokenStub.GetBalance.CallAsync(new GetBalanceInput
