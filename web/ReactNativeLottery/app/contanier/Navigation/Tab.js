@@ -3,6 +3,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../template/Home';
 import MineScreen from '../template/Mine';
+import DrawScreen from '../template/Draw';
 import {pixelSize} from '../../utils/common/device';
 import i18n from 'i18n-js';
 import {settingsSelectors} from '../../redux/settingsRedux';
@@ -80,6 +81,16 @@ const TabNavigatorStack = () => {
         options={{
           tabBarLabel: i18n.t('home'),
           tabBarIcon: ({color}) => <Icon name="home" size={20} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="DrawPage"
+        component={DrawScreen}
+        options={{
+          tabBarLabel: '开奖',
+          tabBarIcon: ({color}) => (
+            <Icon name="staro" size={20} color={color} />
+          ),
         }}
       />
       <Tab.Screen

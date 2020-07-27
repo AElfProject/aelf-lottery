@@ -19,24 +19,6 @@ const styles = StyleSheet.create({
   textStyle: {
     alignSelf: 'center',
   },
-  prizeNumberBox: {
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  prizeNumberItem: {
-    marginTop: pTd(20),
-    marginHorizontal: pTd(10),
-    backgroundColor: Colors.primaryColor,
-    height: pTd(50),
-    width: pTd(50),
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: pTd(25),
-  },
-  prizeNumberText: {
-    color: 'white',
-  },
   countDownBox: {
     marginTop: pTd(10),
   },

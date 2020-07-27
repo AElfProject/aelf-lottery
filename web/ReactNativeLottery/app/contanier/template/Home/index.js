@@ -4,6 +4,7 @@ import {
   WordRotation,
   CountDown,
   Touchable,
+  WinningNumbers,
 } from '../../../components/template';
 import {ScrollView, View, Image} from 'react-native';
 import {useSelector, shallowEqual} from 'react-redux';
@@ -29,21 +30,10 @@ const list = [
 const Home = () => {
   useSelector(settingsSelectors.getLanguage, shallowEqual); //Language status is controlled with redux
   const LatestDraw = useMemo(() => {
-    const number = splitString('88888');
     return (
       <View style={styles.box}>
         <TextM style={styles.textStyle}>最新开奖</TextM>
-        {number.length && (
-          <View style={styles.prizeNumberBox}>
-            {number.map((item, index) => {
-              return (
-                <View style={styles.prizeNumberItem} key={index}>
-                  <TextM style={styles.prizeNumberText}>{item}</TextM>
-                </View>
-              );
-            })}
-          </View>
-        )}
+        <WinningNumbers winningNumbers="88888" />
       </View>
     );
   }, []);
