@@ -17,6 +17,7 @@ import BounceSpinner from './BounceSpinner';
 import ListComponent from './ListComponent';
 import Communication from './Communication';
 import VerifyPassword from './VerifyPassword';
+import WinningNumbers from './WinningNumbers';
 export {
   Input,
   Loading,
@@ -36,4 +37,5 @@ export {
   BounceSpinner,
   Communication,
   VerifyPassword,
+  WinningNumbers,
 };

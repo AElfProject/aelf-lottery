@@ -58,6 +58,12 @@ const Tool = () => {
         <View style={GStyle.secondContainer}>
           <View style={styles.toolBox}>
             <Touchable
+              onPress={() => navigationService.navigate('MyBet')}
+              style={styles.toolItem}>
+              <Icon name="star" size={30} color={Colors.primaryColor} />
+              <TextL>{'投注'}</TextL>
+            </Touchable>
+            <Touchable
               onPress={() => navigationService.navigate('Receive')}
               style={styles.toolItem}>
               <FontAwesome5
