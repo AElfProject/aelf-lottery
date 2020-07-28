@@ -1,4 +1,3 @@
-using System;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core;
 using AElf.CSharp.Core.Extension;
@@ -28,12 +27,9 @@ namespace AElf.Contracts.LotteryContract
             State.Decimals.Value = tokenInfo.Decimals;
             State.TokenSymbol.Value = input.TokenSymbol;
             State.Price.Value = input.Price;
-
             InitRewards(tokenInfo.Decimals);
             
-            State.BonusRate.Value = input.BonusRate;
-            State.MaxRate.Value = input.MaxRate;
-            State.MinRate.Value = input.MinRate;
+            SetBonusRate(input.BonusRate);
             State.CashDuration.Value = input.CashDuration;
             
             State.CurrentPeriodNumber.Value = 1;
@@ -57,12 +53,11 @@ namespace AElf.Contracts.LotteryContract
         {
             var currentPeriod = State.Periods[State.CurrentPeriodNumber.Value];
             Assert(currentPeriod.DrawTime == null, $"Period {State.CurrentPeriodNumber.Value} has been drew.");
-            Assert(input.Rate <= State.MaxRate.Value, $"Rate should be less than {State.MaxRate.Value}");
-            Assert(input.Rate >= State.MinRate.Value, $"Rate should be greater than {State.MinRate.Value}");
-            var bit = GetBit(input.Type);
+            var lotteryType = (LotteryType) input.Type;
+            var bit = GetBit(lotteryType);
             Assert(bit.ValidateBetInfos(input.BetInfos), "Invalid bet info");
             var betCount = bit.CalculateBetCount(input.BetInfos);
-            var totalAmount = State.Price.Value.Mul(betCount).Mul(input.Rate).Div(GetRateDenominator());
+            var totalAmount = State.Price.Value.Mul(betCount);
             var bonus = totalAmount.Mul(State.BonusRate.Value).Div(GetRateDenominator());
             State.TokenContract.TransferFrom.Send(new TransferFromInput
             {
@@ -88,10 +83,9 @@ namespace AElf.Contracts.LotteryContract
                 Owner = Context.Sender,
                 PeriodNumber = State.CurrentPeriodNumber.Value,
                 Price = State.Price.Value,
-                Rate = input.Rate,
                 BlockNumber = Context.CurrentHeight,
                 CreateTime = Context.CurrentBlockTime,
-                Type = input.Type
+                Type = (LotteryType) input.Type
             };
             State.Lotteries[lotteryId] = lottery;
             AddUndoneLottery(lotteryId);
@@ -187,30 +181,10 @@ namespace AElf.Contracts.LotteryContract
 
             return new Empty();
         }
-        
-        public override Empty SetMaxRate(Int32Value input)
-        {
-            Assert(input.Value > 0, "Invalid input");
-            Assert(input.Value > State.MinRate.Value, "Min rate should be less than max rate");
-            Assert(Context.Sender == State.Admin.Value, "No permission");
-            State.MaxRate.Value = input.Value;
-            return new Empty();
-        }
-
-        public override Empty SetMinRate(Int32Value input)
-        {
-            Assert(input.Value > 0, "Invalid input");
-            Assert(input.Value < State.MaxRate.Value, "Min rate should be less than max rate");
-            Assert(Context.Sender == State.Admin.Value, "No permission");
-            State.MinRate.Value = input.Value;
-            return new Empty();
-        }
 
         public override Empty SetBonusRate(Int32Value input)
         {
-            Assert(input.Value > 0 && input.Value.Div(GetRateDenominator()) < 1, "Invalid input");
-            Assert(Context.Sender == State.Admin.Value, "No permission");
-            State.BonusRate.Value = input.Value;
+            SetBonusRate(input.Value);
             return new Empty();
         }
 
