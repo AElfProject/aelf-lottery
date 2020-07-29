@@ -33,7 +33,7 @@ namespace AElf.Contracts.LotteryContract
                 LuckyNumber = period.LuckyNumber,
                 RandomHash = period.RandomHash,
                 DrawBlockNumber = period.DrawBlockNumber,
-                StartPeriodOfDay = State.StartPeriodNumberOfDay[date]
+                StartPeriodNumberOfDay = State.StartPeriodNumberOfDay[date]
             };
         }
         
@@ -112,13 +112,20 @@ namespace AElf.Contracts.LotteryContract
                 PeriodNumber = lottery.PeriodNumber,
                 Price = lottery.Price,
                 Reward = reward,
-                Type = lottery.Type,
+                Type = (int)lottery.Type,
                 BlockNumber = lottery.BlockNumber,
                 CreateTime = lottery.CreateTime,
-                StartPeriodOfDay = State.StartPeriodNumberOfDay[date],
+                StartPeriodNumberOfDay = State.StartPeriodNumberOfDay[date],
                 Expired = lottery.Expired || period.DrawTime != null &&
                           period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime
             };
+        }
+        
+        private void SetBonusRate(int bonusRate)
+        {
+            Assert(bonusRate > 0 && bonusRate.Div(GetRateDenominator()) < 1, "Invalid input");
+            Assert(Context.Sender == State.Admin.Value, "No permission");
+            State.BonusRate.Value = bonusRate;
         }
 
         private long CalculateReward(Lottery lottery, int luckNumber)
@@ -126,7 +133,7 @@ namespace AElf.Contracts.LotteryContract
             var bit = GetBit(lottery.Type);
             return !bit.CheckWin(luckNumber, lottery.BetInfos)
                 ? 0
-                : State.Rewards[lottery.Type].Mul(lottery.Rate).Div(GetRateDenominator());
+                : State.Rewards[lottery.Type];
         }
 
         private int GetRateDenominator()

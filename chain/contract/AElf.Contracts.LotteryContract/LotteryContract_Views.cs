@@ -147,24 +147,6 @@ namespace AElf.Contracts.LotteryContract
             };
         }
 
-        public override GetRateOutput GetMaxRate(Empty input)
-        {
-            return new GetRateOutput
-            {
-                Rate = State.MaxRate.Value,
-                Decimals = RateDecimals
-            };
-        }
-
-        public override GetRateOutput GetMinRate(Empty input)
-        {
-            return new GetRateOutput
-            {
-                Rate = State.MinRate.Value,
-                Decimals = RateDecimals
-            };
-        }
-
         public override Address GetAdmin(Empty input)
         {
             return State.Admin.Value;

@@ -1,14 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Acs0;
 using AElf.Contracts.MultiToken;
 using AElf.ContractTestBase.ContractTestKit;
-using AElf.Kernel;
 using AElf.Types;
-using Google.Protobuf;
-using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Shouldly;
 using Xunit;
@@ -19,9 +13,6 @@ namespace AElf.Contracts.LotteryContract
     public class LotteryContractTests : LotteryContractTestBase
     {
         private const long Price = 100_000_000;
-
-        private LotteryContractContainer.LotteryContractStub AliceLotteryContractStub =>
-            GetLotteryContractStub(AliceKeyPair);
 
         private TokenContractContainer.TokenContractStub AliceTokenContractStub => GetTokenContractStub(AliceKeyPair);
 
@@ -37,9 +28,7 @@ namespace AElf.Contracts.LotteryContract
                 TokenSymbol = "ELF",
                 Price = Price,
                 BonusRate = 100,
-                CashDuration = 60,
-                MaxRate = 20000,
-                MinRate = 10000
+                CashDuration = 60
             };
             await LotteryContractStub.Initialize.SendAsync(initializeInput);
             
@@ -116,14 +105,6 @@ namespace AElf.Contracts.LotteryContract
             var cashDuration = await LotteryContractStub.GetCashDuration.CallAsync(new Empty());
             cashDuration.Value.ShouldBe(initializeInput.CashDuration);
             
-            var maxRate = await LotteryContractStub.GetMaxRate.CallAsync(new Empty());
-            maxRate.Decimals.ShouldBe(rateDecimals);
-            maxRate.Rate.ShouldBe(initializeInput.MaxRate);
-            
-            var minRate = await LotteryContractStub.GetMinRate.CallAsync(new Empty());
-            minRate.Decimals.ShouldBe(rateDecimals);
-            minRate.Rate.ShouldBe(initializeInput.MinRate);
-            
             var symbol = await LotteryContractStub.GetTokenSymbol.CallAsync(new Empty());
             symbol.Value.ShouldBe(initializeInput.TokenSymbol);
             
@@ -143,9 +124,8 @@ namespace AElf.Contracts.LotteryContract
             var seller = Address.FromPublicKey(SampleAccount.Accounts[2].KeyPair.PublicKey);
             await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
             {
-                Rate = 10000,
                 Seller = seller,
-                Type = LotteryType.OneBit,
+                Type = (int) LotteryType.OneBit,
                 BetInfos =
                 {
                     new BetBody
@@ -158,9 +138,8 @@ namespace AElf.Contracts.LotteryContract
             {
                 await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
                 {
-                    Rate = 10000,
                     Seller = seller,
-                    Type = LotteryType.OneBit,
+                    Type = (int) LotteryType.OneBit,
                     BetInfos =
                     {
                         new BetBody
@@ -214,36 +193,6 @@ namespace AElf.Contracts.LotteryContract
                 Limit = 50
             });
             lotteriesOutput.Lotteries.Count.ShouldBe(21);
-        }
-
-        [Fact]
-        public async Task SetMaxRate_Test()
-        {
-            await InitializeAsync();
-            var maxRate = 30000;
-            var decimals = 4;
-            await LotteryContractStub.SetMaxRate.SendAsync(new Int32Value
-            {
-                Value = maxRate
-            });
-            var output = await LotteryContractStub.GetMaxRate.CallAsync(new Empty());
-            output.Rate.ShouldBe(maxRate);
-            output.Decimals.ShouldBe(decimals);
-        }
-
-        [Fact]
-        public async Task SetMinRate_Test()
-        {
-            await InitializeAsync();
-            var minRate = 12000;
-            var decimals = 4;
-            await LotteryContractStub.SetMinRate.SendAsync(new Int32Value
-            {
-                Value = minRate
-            });
-            var output = await LotteryContractStub.GetMinRate.CallAsync(new Empty());
-            output.Rate.ShouldBe(minRate);
-            output.Decimals.ShouldBe(decimals);
         }
 
         [Fact]
