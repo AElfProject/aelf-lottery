@@ -17,8 +17,12 @@ const keystoreOptions = {
   },
 };
 
-const explorerURL = 'https://explorer-test-side01.aelf.io';
-const walletURL = 'https://tdvv-wallet-test.aelf.io';
+// const explorerURL = 'https://explorer-test-side01.aelf.io';
+// const walletURL = 'https://tdvv-wallet-test.aelf.io';
+
+// test environment
+const explorerURL = 'http://1.119.195.50:11109';
+const walletURL = 'http://1.119.195.50:11109';
 export default {
   commonPrivateKey:
     'b7a6b643f2a66848cb2229bf26c8330d5384e0eac325709a66f4baacc89d3108',
@@ -26,6 +30,11 @@ export default {
   keystoreOptions,
   httpProvider: `${walletURL}/chain`,
   explorerURL,
+  // contractNames & contractAddresses will be init by appInit of `/common/utils/aelfProvider`;
+  contractNames: {
+    consensusContract: 'AElf.ContractNames.Consensus',
+    tokenContract: 'AElf.ContractNames.Token',
+  },
   // You want to init in the app
   contractAddresses: [
     {
@@ -34,22 +43,39 @@ export default {
       contractName: 'bingoGameContract',
     },
     {
-      name: 'App',
-      contractAdress: '2wRDbyVF28VBQoSPgdSEFaL4x7CaXz8TCBujYhgWc9qTMxBE3n',
-      contractName: 'appContract',
+      name: 'lottery',
+      contractAdress: '2onFLTnPEiZrXGomzJ8g74cBre2cJuHrn1yBJF3P6Xu9K5Gbth',
+      contractName: 'lotteryContract',
     },
   ],
   contractNameAddressSets: {
+    // consensusContract: 'BNPFPPwQ3DE9rwxzdY61Q2utU9FZx9KYUnrYHQqCR6N4LLhUE',
+    // tokenContract: '7RzVGiuVWkvL4VfVHdZfQF2Tri3sgLe9U991bohHFfSRZXuGX',
+
+    // test environment
+    // consensusContract: 'pGa4e5hNGsgkfjEGm72TEvbF7aRDqKBd4LuXtab4ucMbXLcgJ',
+    // tokenContract: 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE',
+    // lotteryContract: 'sr4zX6E7yVVL7HevExVcWv2ru3HSZakhsJMXfzxzfpnXofnZw',
+
+    //
     consensusContract: 'BNPFPPwQ3DE9rwxzdY61Q2utU9FZx9KYUnrYHQqCR6N4LLhUE',
     tokenContract: '7RzVGiuVWkvL4VfVHdZfQF2Tri3sgLe9U991bohHFfSRZXuGX',
+    lotteryContract: '2onFLTnPEiZrXGomzJ8g74cBre2cJuHrn1yBJF3P6Xu9K5Gbth',
   },
   address: {
     prefix: 'ELF',
     suffix: 'tDVV',
   },
-  tokenSymbol: 'AEUSD',
-  tokenDecimal: 3,
-  tokenDecimalFormat: 10 ** 3,
+
+  // tokenSymbol: 'AEUSD',
+  // tokenDecimal: 3,
+  // tokenDecimalFormat: 10 ** 3,
+
+  // test environment
+  tokenSymbol: 'ELF',
+  tokenDecimal: 8,
+  tokenDecimalFormat: 10 ** 8,
+
   fetchTimeout: 10000,
   /**
    * The country you want to remind him of Please enter the iSO country code and refer to the link below
@@ -66,5 +92,5 @@ export default {
   /**
    * Each bet is worth a few gold coins
    */
-  betPerValue: 2,
+  lotterySellerAddress: 'RXcxgSXuagn8RrvhQAV81Z652EEYSwR6JLnqHYJ5UVpEptW8Y',
 };

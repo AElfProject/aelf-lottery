@@ -1,4 +1,4 @@
-package com.aelf.aelflottery.generated;
+package com.aelf.aelfrandoman.generated;
 
 import java.util.Arrays;
 import java.util.List;

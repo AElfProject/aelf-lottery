@@ -136,7 +136,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.aelf.aelflottery"
+        applicationId "com.aelf.aelfrandoman"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode versionCodeInt

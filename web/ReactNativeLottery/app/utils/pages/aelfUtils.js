@@ -3,6 +3,7 @@ import config from '../../config';
 import unitConverter from './unitConverter';
 import moment from 'moment';
 import {TIME_FORMAT} from '../../config/constant';
+import {aelfInstance} from '../common/aelfProvider';
 const {explorerURL, address} = config;
 const {prefix, suffix} = address;
 
@@ -72,6 +73,9 @@ const timeConversion = time => {
   }
   return showTime;
 };
+const getTxResult = TransactionId => {
+  return aelfInstance.chain.getTxResult(TransactionId);
+};
 export default {
   checkPassword,
   webURLAddress,
@@ -83,4 +87,5 @@ export default {
   unlockKeystore,
   checkAddress,
   timeConversion,
+  getTxResult,
 };

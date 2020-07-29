@@ -32,8 +32,9 @@ const Referral = () => {
     [dispatch],
   );
   const language = useSelector(settingsSelectors.getLanguage, shallowEqual);
+  const {address} = userInfo;
+
   useEffect(() => {
-    const {address} = userInfo;
     SplashScreen.hide();
     if (language) {
       if (languageList.includes(language)) {
@@ -54,7 +55,7 @@ const Referral = () => {
         changeLanguage(localLanguages);
       }
     }
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       if (address) {
         navigationService.reset(
           securityLock ? [{name: 'Tab'}, {name: 'SecurityLock'}] : 'Tab',
@@ -63,7 +64,10 @@ const Referral = () => {
         navigationService.reset('Entrance');
       }
     }, time);
-  }, [changeLanguage, language, securityLock, userInfo]);
+    return () => {
+      timer && clearTimeout(timer);
+    };
+  }, [changeLanguage, language, securityLock, address]);
   return (
     <ImageBackground style={style} source={launchScreen}>
       <Spinner type={'Circle'} color={Colors.primaryColor} size={60} />

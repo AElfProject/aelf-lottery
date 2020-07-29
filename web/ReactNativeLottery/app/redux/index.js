@@ -7,6 +7,7 @@ export const reducers = combineReducers({
   user: require('./userRedux').reducer,
   settings: require('./settingsRedux').reducer,
   contracts: require('./contractsRedux').reducer,
+  lottery: require('./lotteryRedux').reducer,
 });
 let store;
 export default () => {

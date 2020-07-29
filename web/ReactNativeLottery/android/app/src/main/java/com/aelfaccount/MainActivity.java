@@ -1,4 +1,4 @@
-package com.aelf.aelflottery;
+package com.aelf.aelfrandoman;
 
 import com.facebook.react.ReactActivity;
 import android.os.Bundle; // react-native-splash-screen

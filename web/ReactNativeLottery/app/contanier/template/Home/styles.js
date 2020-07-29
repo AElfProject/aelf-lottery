@@ -64,6 +64,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
+  lotteryBalance: {
+    marginTop: 1,
+    fontSize: 18,
+  },
+  colorText: {
+    color: Colors.fontColor,
+  },
+  tipToolBox: {
+    marginTop: pTd(30),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  toolItem: {
+    flex: 1,
+    alignItems: 'center',
+    borderRightWidth: 1,
+    borderRightColor: Colors.borderColor,
+  },
+  toolBottomText: {
+    fontWeight: 'bold',
+    marginTop: pTd(15),
+  },
 });
 
 export default styles;

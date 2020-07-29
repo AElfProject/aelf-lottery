@@ -30,6 +30,8 @@ const {
   keystoreOptions,
   contractNameAddressSets,
 } = config;
+import lotteryActions from '../redux/lotteryRedux';
+
 function* onRegisteredSaga(actios) {
   Loading.show();
   yield delay(500);
@@ -90,6 +92,7 @@ function* onAppInitSaga({privateKey}) {
 }
 function* getUserBalanceSaga() {
   try {
+    yield put(lotteryActions.initLottery());
     const userInfo = yield select(userSelectors.getUserInfo);
     const {address, contracts, privateKey} = userInfo;
     if (address && privateKey) {
@@ -110,6 +113,22 @@ function* getUserBalanceSaga() {
               isNumber(confirmBlance) ? confirmBlance : 0,
             ),
           );
+        }
+        const res = yield tokenContract.GetAllowance.call({
+          symbol: tokenSymbol,
+          owner: address,
+          spender: contractNameAddressSets.lotteryContract,
+        });
+        const {allowance} = res;
+        if (
+          allowance !== -1 &&
+          unitConverter.toLower(allowance) < confirmBlance
+        ) {
+          yield tokenContract.Approve({
+            symbol: tokenSymbol,
+            spender: contractNameAddressSets.lotteryContract,
+            amount: balance.balance,
+          });
         }
       }
     }
@@ -178,9 +197,7 @@ function* transferSaga({param}) {
     console.log(param);
     const {contracts} = yield select(userSelectors.getUserInfo);
     const transaction = yield contracts.tokenContract.Transfer(param);
-    const result = yield aelfInstance.chain.getTxResult(
-      transaction.TransactionId,
-    );
+    const result = yield aelfUtils.getTxResult(transaction.TransactionId);
     console.log(result, '=====result');
     yield delay(2000);
     Loading.hide();
@@ -238,7 +255,7 @@ function* onApproveSaga({amount, appContractAddress}) {
       spender: appContractAddress,
       amount: unitConverter.toHigher(amount),
     });
-    const result = yield aelfInstance.chain.getTxResult(approve.TransactionId);
+    const result = yield aelfUtils.getTxResult(approve.TransactionId);
     console.log(result, '=====result');
     yield delay(2000);
     Loading.hide();

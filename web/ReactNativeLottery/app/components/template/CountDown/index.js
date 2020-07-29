@@ -59,7 +59,7 @@ class CountDown extends Component {
       if (date) {
         this.setState(date);
       } else {
-        this.stop();
+        // this.stop();
         this.props.onEnd();
       }
     }, 1000);

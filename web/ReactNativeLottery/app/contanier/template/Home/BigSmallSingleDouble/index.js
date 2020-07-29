@@ -7,35 +7,22 @@ import {pTd} from '../../../../utils/common';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import BetBody from '../BetBody';
 import ConfirmModal from '../ConfirmModal';
-const BonusAmount = 100000;
+import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
+import {useSelector, shallowEqual} from 'react-redux';
+import {lotterySelectors} from '../../../../redux/lotteryRedux';
 const data = [
   {title: '十位', playList: ['大', '小', '单', '双']},
   {title: '个位', playList: ['大', '小', '单', '双']},
 ];
-// const data = [
-//   {
-//     title: '万位',
-//     playList: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-//   },
-//   {
-//     title: '千位',
-//     playList: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-//   },
-//   {
-//     title: '百位',
-//     playList: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-//   },
-//   {
-//     title: '十位',
-//     playList: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-//   },
-//   {
-//     title: '个位',
-//     playList: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-//   },
-// ];
+const lotteryType = LOTTERY_TYPE.SIMPLE;
 const BigSmallSingleDouble = () => {
   const [betList, setBetList] = useState([]);
+  const lotteryInfo = useSelector(
+    lotterySelectors.getLotteryInfo,
+    shallowEqual,
+  );
+  const {lotteryRewards} = lotteryInfo;
+  const bonusAmount = lotteryRewards ? lotteryRewards[lotteryType] : 0;
   const onSelect = useCallback(
     (first, second) => {
       setBetList(lotteryUtils.processingNumber(betList, first, second));
@@ -47,20 +34,22 @@ const BigSmallSingleDouble = () => {
       title: '大小单双',
       data,
       betList,
+      lotteryType,
     });
   }, [betList]);
   return (
     <View style={GStyle.container}>
       <CommonHeader title="大小单双" canBack />
       <TextL style={styles.tipStyle}>
-        十、个位至少各选一个号码，单注选号与开奖号码按位一致即中奖 1000金币！
+        十、个位至少各选一个号码，单注选号与开奖号码按位一致即中奖 {bonusAmount}
+        金币！
       </TextL>
       <BetBody
         betList={betList}
         data={data}
         onBet={onBet}
         onClear={() => setBetList([])}
-        bonusAmount={BonusAmount}
+        bonusAmount={bonusAmount}
         onSelect={onSelect}
       />
     </View>

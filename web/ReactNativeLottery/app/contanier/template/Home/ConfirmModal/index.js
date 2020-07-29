@@ -1,12 +1,13 @@
 'use strict';
 
-import React from 'react';
+import React, {useCallback} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {statusBarHeight, getWindowWidth} from '../../../../utils/common/device';
 import {
   OverlayModal,
   Touchable,
   CommonButton,
+  CommonToast,
 } from '../../../../components/template';
 import {TextL, TextM} from '../../../../components/template/CommonText';
 import {pTd} from '../../../../utils/common';
@@ -14,13 +15,33 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {Colors} from '../../../../assets/theme';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import {userSelectors} from '../../../../redux/userRedux';
-import {shallowEqual, useSelector} from 'react-redux';
+import {shallowEqual, useSelector, useDispatch} from 'react-redux';
+import lotteryActions, {lotterySelectors} from '../../../../redux/lotteryRedux';
+import TransactionVerification from '../../../../utils/pages/TransactionVerification';
 const Component = props => {
+  const dispatch = useDispatch();
+  const buy = useCallback(data => dispatch(lotteryActions.buy(data)), [
+    dispatch,
+  ]);
+  const lotteryInfo = useSelector(
+    lotterySelectors.getLotteryInfo,
+    shallowEqual,
+  );
   const balance = useSelector(userSelectors.getBalance, shallowEqual);
-
-  const {data, betList, title} = props;
-  const betNumber = lotteryUtils.getBetNumber(betList);
-  const betValue = lotteryUtils.getBetValue(betNumber);
+  const {data, betList, title, lotteryType} = props;
+  const betNumber = lotteryUtils.getBetNumber(data, betList);
+  const betValue = lotteryUtils.getBetValue(
+    betNumber,
+    lotteryInfo?.lotteryPrice,
+  );
+  const onBuy = useCallback(() => {
+    if (betValue > balance) {
+      return CommonToast.fail('余额不足');
+    }
+    TransactionVerification.show(value => {
+      value && buy({lotteryType, betList});
+    });
+  }, [balance, betList, betValue, buy, lotteryType]);
   return (
     <View style={styles.sheetBox}>
       <View style={styles.topBox}>
@@ -62,7 +83,12 @@ const Component = props => {
         <TextM style={styles.balanceStyle}>账户余额{balance}金币</TextM>
         <View style={styles.bottomBox}>
           <TextL style={[styles.recharge, styles.hideRecharge]}>充值</TextL>
-          <CommonButton title="确认支付" style={styles.buttonBox} />
+          <CommonButton
+            disabled={betValue > balance}
+            onPress={onBuy}
+            title="确认支付"
+            style={styles.buttonBox}
+          />
           <TextL style={styles.recharge}>充值</TextL>
         </View>
       </View>
