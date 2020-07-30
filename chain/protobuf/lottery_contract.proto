@@ -39,6 +39,9 @@ service LotteryContract {
     rpc GetRewardedLotteries (GetLotteriesInput) returns (GetLotteriesOutput) {
         option (aelf.is_view) = true;
     }
+    rpc GetLatestCashedLottery (google.protobuf.Empty) returns (GetLatestCashedLotteryOutput) {
+        option (aelf.is_view) = true;
+    }
     rpc GetPeriod (google.protobuf.Int64Value) returns (PeriodDetail) {
         option (aelf.is_view) = true;
     }
@@ -132,7 +135,7 @@ message GetRateOutput{
 }
 
 message GetRewardsOutput{
-    repeated Reward rewards = 1;
+    repeated RewardDetail rewards = 1;
 }
 
 message Reward{
@@ -194,6 +197,13 @@ message LotteryDetail{
     google.protobuf.Timestamp create_time = 9;
     bool Expired = 10;
     int64 start_period_number_of_day = 11;
+}
+
+message GetLatestCashedLotteryOutput{
+    aelf.Address address = 1;
+    int64 period_number = 2;
+    int32 type = 3;
+    int64 start_period_number_of_day = 4;
 }
 
 message LotteryList {

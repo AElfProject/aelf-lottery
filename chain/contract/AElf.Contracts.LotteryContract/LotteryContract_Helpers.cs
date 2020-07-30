@@ -123,7 +123,7 @@ namespace AElf.Contracts.LotteryContract
         
         private void SetBonusRate(int bonusRate)
         {
-            Assert(bonusRate > 0 && bonusRate.Div(GetRateDenominator()) < 1, "Invalid input");
+            Assert(bonusRate > 0 && bonusRate.Div(GetRateDenominator()) < 1, "Invalid bonus rate");
             Assert(Context.Sender == State.Admin.Value, "No permission");
             State.BonusRate.Value = bonusRate;
         }

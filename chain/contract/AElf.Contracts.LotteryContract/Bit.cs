@@ -56,7 +56,7 @@ namespace AElf.Contracts.LotteryContract
             private const int Low = 2;
             private const int High = 3;
 
-            protected override int MaxNumber => 4;
+            protected override int MaxNumber => 3;
 
             protected override int BitCount => 2;
 

@@ -11,6 +11,7 @@ namespace AElf.Contracts.LotteryContract
     {
         public override Empty Initialize(InitializeInput input)
         {
+            Assert(input.Price > 0 && input.CashDuration > 0, "Invalid input");
             Assert(State.TokenSymbol.Value == null, "Already initialized");
             
             State.GenesisContract.Value = Context.GetZeroSmartContractAddress();
@@ -23,7 +24,7 @@ namespace AElf.Contracts.LotteryContract
             {
                 Symbol = input.TokenSymbol
             });
-            Assert(tokenInfo != null, "Invalid token symbol");
+            Assert(tokenInfo != null && !string.IsNullOrEmpty(tokenInfo.Symbol), "Invalid token symbol");
             State.Decimals.Value = tokenInfo.Decimals;
             State.TokenSymbol.Value = input.TokenSymbol;
             State.Price.Value = input.Price;
@@ -146,6 +147,9 @@ namespace AElf.Contracts.LotteryContract
             };
 
             State.Periods[State.CurrentPeriodNumber.Value] = period;
+            
+            var date = Context.CurrentBlockTime.ToDateTime().ToString("yyyyMMdd");
+            if (State.StartPeriodNumberOfDay[date] == 0) State.StartPeriodNumberOfDay[date] = period.PeriodNumber;
 
             return new Empty();
         }
@@ -170,6 +174,7 @@ namespace AElf.Contracts.LotteryContract
                     Amount = lottery.Reward,
                     Symbol = State.TokenSymbol.Value
                 });
+                State.LatestCashedLotteryId.Value = lottery.Id;
             }
             
             RemoveUndoneLottery(input.LotteryId);
@@ -190,7 +195,6 @@ namespace AElf.Contracts.LotteryContract
 
         public override Empty SetAdmin(Address input)
         {
-            Assert(input != null, "Invalid input");
             Assert(Context.Sender == State.Admin.Value, "No permission");
             State.Admin.Value = input;
             return new Empty();
