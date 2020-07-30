@@ -1,7 +1,7 @@
-package com.aelf.aelflottery;
+package com.aelf.aelfrandoman;
 
 // "com.doingmything" should be your app package name
-import com.aelf.aelflottery.generated.BasePackageList;
+import com.aelf.aelfrandoman.generated.BasePackageList;
 
 import android.app.Application;
 import android.content.Context;
@@ -81,7 +81,7 @@ public class MainApplication extends Application implements ReactApplication {
          We use reflection here to pick up the class that initializes Flipper,
         since Flipper library is not available in release mode
         */
-        Class<?> aClass = Class.forName("com.aelf.aelflottery.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("com.aelf.aelfrandoman.ReactNativeFlipper");
         aClass
             .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
             .invoke(null, context, reactInstanceManager);

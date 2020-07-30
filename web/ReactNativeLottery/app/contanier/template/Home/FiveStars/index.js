@@ -7,7 +7,9 @@ import {pTd} from '../../../../utils/common';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import BetBody from '../BetBody';
 import ConfirmModal from '../ConfirmModal';
-const BonusAmount = 100000;
+import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
+import {useSelector, shallowEqual} from 'react-redux';
+import {lotterySelectors} from '../../../../redux/lotteryRedux';
 const data = [
   {
     title: '万位',
@@ -30,8 +32,15 @@ const data = [
     playList: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
   },
 ];
+const lotteryType = LOTTERY_TYPE.FIVE_BIT;
 const FiveStars = () => {
   const [betList, setBetList] = useState([]);
+  const lotteryInfo = useSelector(
+    lotterySelectors.getLotteryInfo,
+    shallowEqual,
+  );
+  const {lotteryRewards} = lotteryInfo;
+  const bonusAmount = lotteryRewards ? lotteryRewards[lotteryType] : 0;
   const onSelect = useCallback(
     (first, second) => {
       setBetList(lotteryUtils.processingNumber(betList, first, second));
@@ -43,6 +52,7 @@ const FiveStars = () => {
       title: '五星直选',
       data,
       betList,
+      lotteryType,
     });
   }, [betList]);
   const onTool = useCallback(
@@ -60,6 +70,7 @@ const FiveStars = () => {
         </View>
         <TextL style={styles.tipStyle}>
           万、千、百、十、个位至少各选一个号码，单注选号与开奖号码按位一致即中奖
+          {bonusAmount}金币
         </TextL>
         <BetBody
           onTool={onTool}
@@ -67,7 +78,7 @@ const FiveStars = () => {
           data={data}
           onBet={onBet}
           onClear={() => setBetList([])}
-          bonusAmount={BonusAmount}
+          bonusAmount={bonusAmount}
           onSelect={onSelect}
         />
       </CommonHeader>

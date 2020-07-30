@@ -174,8 +174,13 @@ const onCopyText = text => {
 };
 const splitString = str => {
   let strArr = [];
-  if (str && typeof str === 'string') {
+  if (!str) {
+    return strArr;
+  }
+  if (typeof str === 'string') {
     strArr = str.split('');
+  } else if (typeof str === 'number') {
+    strArr = String(str).split('');
   }
   return strArr;
 };

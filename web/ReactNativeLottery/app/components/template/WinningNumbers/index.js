@@ -1,13 +1,13 @@
 import React, {memo} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {TextM} from '../CommonText';
-import {splitString} from '../../../utils/pages';
 import {pTd} from '../../../utils/common';
 import {Colors} from '../../../assets/theme';
+import lotteryUtils from '../../../utils/pages/lotteryUtils';
 
 const WinningNumbers = props => {
   const {winningNumbers} = props;
-  const number = splitString(winningNumbers);
+  const number = lotteryUtils.getWinningNumbersStr(winningNumbers);
   if (number.length) {
     return (
       <View style={styles.prizeNumberBox}>

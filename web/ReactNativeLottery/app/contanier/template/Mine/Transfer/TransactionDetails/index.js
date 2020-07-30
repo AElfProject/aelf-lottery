@@ -38,9 +38,7 @@ const NetworkManagement = props => {
         const {TransactionId} = params || {};
         if (TransactionId) {
           try {
-            const txResult = await aelfInstance.chain.getTxResult(
-              TransactionId,
-            );
+            const txResult = await aelfUtils.getTxResult(TransactionId);
             if (isActive) {
               setState({
                 result: txResult,
