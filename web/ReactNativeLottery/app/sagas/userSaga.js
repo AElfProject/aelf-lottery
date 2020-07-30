@@ -15,7 +15,7 @@ import userActions, {userTypes, userSelectors} from '../redux/userRedux';
 import contractsActions from '../redux/contractsRedux';
 import config from '../config';
 import {removeDuplicates, isNumber} from '../utils/pages';
-import {getContract, aelfInstance} from '../utils/common/aelfProvider';
+import {getContract} from '../utils/common/aelfProvider';
 import navigationService from '../utils/common/navigationService';
 import {Loading, CommonToast} from '../components/template';
 import unitConverter from '../utils/pages/unitConverter';

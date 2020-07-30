@@ -19,6 +19,7 @@ import {ball} from '../../../assets/images';
 import lotteryActions, {lotterySelectors} from '../../../redux/lotteryRedux';
 import lotteryUtils from '../../../utils/pages/lotteryUtils';
 import {LOTTERY_TIME} from '../../../config/lotteryConstant';
+import aelfUtils from '../../../utils/pages/aelfUtils';
 const list = [
   {title: '五星', onPress: () => navigationService.navigate('FiveStars')},
   {title: '三星', onPress: () => navigationService.navigate('ThreeStars')},
@@ -40,8 +41,16 @@ const Home = () => {
     () => dispatch(lotteryActions.initLottery()),
     [dispatch],
   );
-  const {lotteryBalance, currentPeriod, drawPeriod} = lotteryInfo;
-  console.log(lotteryInfo, '======lotteryInfo');
+  const getMyBetList = useCallback(
+    () => dispatch(lotteryActions.getMyBetList()),
+    [dispatch],
+  );
+  const {
+    lotteryBalance,
+    currentPeriod,
+    drawPeriod,
+    lotteryCashed,
+  } = lotteryInfo;
   const LatestDraw = useMemo(() => {
     const {createTime, startPeriodNumberOfDay, periodNumber, luckyNumber} =
       drawPeriod || {};
@@ -63,19 +72,19 @@ const Home = () => {
           <View style={styles.toolItem}>
             <TextM>三星形态</TextM>
             <TextM style={styles.toolBottomText}>
-              {lotteryUtils.GetThreeForm(luckyNumber) ? '包三' : '包六'}
+              {lotteryUtils.getThreeForm(luckyNumber) ? '包三' : '包六'}
             </TextM>
           </View>
           <View style={styles.toolItem}>
             <TextM>三星合值</TextM>
             <TextM style={styles.toolBottomText}>
-              {lotteryUtils.GetCombined(luckyNumber, 3)}
+              {lotteryUtils.getCombined(luckyNumber, 3)}
             </TextM>
           </View>
           <View style={styles.toolItem}>
             <TextM>二星合值</TextM>
             <TextM style={styles.toolBottomText}>
-              {lotteryUtils.GetCombined(luckyNumber, 2)}
+              {lotteryUtils.getCombined(luckyNumber, 2)}
             </TextM>
           </View>
         </View>
@@ -84,7 +93,8 @@ const Home = () => {
   }, [drawPeriod]);
   const onEnd = useCallback(() => {
     initLottery();
-  }, [initLottery]);
+    getMyBetList();
+  }, [getMyBetList, initLottery]);
   const CurrentDraw = useMemo(() => {
     const {createTime, startPeriodNumberOfDay, periodNumber} =
       currentPeriod || {};
@@ -145,18 +155,32 @@ const Home = () => {
       </View>
     );
   }, []);
+  const Express = useMemo(() => {
+    const {createTime, startPeriodNumberOfDay, periodNumber, address, type} =
+      lotteryCashed || {};
+    if (lotteryCashed) {
+      const express = `快报 恭喜${aelfUtils.formatAddressHide(
+        address,
+      )}成功领取第${lotteryUtils.getPeriod(
+        createTime,
+        startPeriodNumberOfDay,
+        periodNumber,
+      )}期 ${lotteryUtils.getBetType(type)}`;
+      return (
+        <WordRotation
+          key={express}
+          textStyle={styles.rotationText}
+          bgViewStyle={styles.rotationBox}>
+          {express}
+        </WordRotation>
+      );
+    }
+  }, [lotteryCashed]);
+  console.log(lotteryCashed, '====lotteryCashed');
   return (
     <View style={GStyle.container}>
-      <CommonHeader
-        title={'欢乐时时彩'}
-        rightTitle={'登录'}
-        leftTitle={'玩法'}
-      />
-      <WordRotation
-        textStyle={styles.rotationText}
-        bgViewStyle={styles.rotationBox}>
-        快报 恭喜xxzxxxxxxxxxxxxxxx
-      </WordRotation>
+      <CommonHeader title={'欢乐时时彩'} leftTitle={'玩法'} />
+      {Express}
       <ScrollView>
         <View style={GStyle.container}>
           {LatestDraw}

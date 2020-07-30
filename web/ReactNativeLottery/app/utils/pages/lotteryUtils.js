@@ -73,7 +73,22 @@ const getBetNumber = (data, betArr) => {
   ) {
     number = 1;
     betArr.filter(item => {
-      number = number * item.length;
+      if (Array.isArray(item)) {
+        number = number * item.length;
+      }
+    });
+  }
+  return number;
+};
+
+const getDrawBetNumber = betArr => {
+  let number = 0;
+  if (Array.isArray(betArr)) {
+    number = 1;
+    betArr.filter(item => {
+      if (Array.isArray(item.bets)) {
+        number = number * item.bets.length;
+      }
     });
   }
   return number;
@@ -124,7 +139,7 @@ const getMillisecond = time => {
   return tim;
 };
 const getPeriod = (time, start, periodNumber) => {
-  if (time === undefined || start === undefined || periodNumber === undefined) {
+  if (!time || start === undefined || periodNumber === undefined) {
     return '';
   }
   let period = periodNumber - start;
@@ -147,7 +162,7 @@ const getWinningNumbersStr = winningNumbers => {
   win = splitString(getWinningNumbers(winningNumbers));
   return win;
 };
-const GetThreeForm = winningNumbers => {
+const getThreeForm = winningNumbers => {
   let arr = getWinningNumbersStr(winningNumbers);
   const length = arr.length;
   let bool = false;
@@ -159,7 +174,7 @@ const GetThreeForm = winningNumbers => {
   });
   return bool;
 };
-const GetCombined = (winningNumbers, number = 3) => {
+const getCombined = (winningNumbers, number = 3) => {
   let arr = getWinningNumbersStr(winningNumbers);
   const length = arr.length;
   arr = arr.splice(length - number, length).sort();
@@ -168,6 +183,85 @@ const GetCombined = (winningNumbers, number = 3) => {
     s = s + Number(item);
   });
   return s;
+};
+const getBetType = type => {
+  let text = '';
+  switch (type) {
+    case 0:
+      text = '大小单双';
+      break;
+    case 10:
+      text = '一星直选';
+      break;
+    case 20:
+      text = '二星直选';
+      break;
+    case 30:
+      text = '三星直选';
+      break;
+    case 40:
+      text = '五星直选';
+  }
+  return text;
+};
+const getStartMonthTime = time => {
+  return moment(getMillisecond(time)).format('MM-DD HH:mm');
+};
+const getWinningSituation = (cashed, Expired, reward, noDraw) => {
+  if (noDraw) {
+    return '未开奖';
+  }
+  let text = '未中奖';
+  if (reward && reward > 0) {
+    text = Expired ? '已过期' : cashed ? '已领奖' : '未领奖';
+  }
+  return text;
+};
+const getCanAward = (cashed, Expired, reward) => {
+  return reward && reward > 0 && !Expired && !cashed;
+};
+const getDrawBetStr = (type, betInfos) => {
+  const TITLE = ['个位', '十位', '百位', '千位', '万位'];
+  const SIMPLE = {
+    3: '大',
+    2: '小',
+    1: '单',
+    0: '双',
+  };
+  let List;
+  if (Array.isArray(betInfos)) {
+    let titleList = TITLE.splice(0, betInfos.length);
+    switch (type) {
+      case 0:
+        List = [
+          ...betInfos.map((item, index) => {
+            if (Array.isArray(item.bets)) {
+              return {
+                title: titleList[index],
+                bets: item.bets.map(i => {
+                  return SIMPLE[i];
+                }),
+              };
+            }
+          }),
+        ];
+        break;
+      default:
+        List = [
+          ...betInfos.map((item, index) => {
+            if (Array.isArray(item.bets)) {
+              return {
+                title: titleList[index],
+                bets: item.bets,
+              };
+            }
+          }),
+        ];
+        break;
+    }
+    List.reverse();
+  }
+  return List;
 };
 export default {
   processingNumber,
@@ -178,6 +272,12 @@ export default {
   getPeriod,
   getWinningNumbers,
   getWinningNumbersStr,
-  GetThreeForm,
-  GetCombined,
+  getThreeForm,
+  getCombined,
+  getBetType,
+  getStartMonthTime,
+  getDrawBetNumber,
+  getWinningSituation,
+  getCanAward,
+  getDrawBetStr,
 };
