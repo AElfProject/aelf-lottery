@@ -83,6 +83,21 @@ namespace AElf.Contracts.LotteryContract
             };
         }
 
+        public override GetLatestCashedLotteryOutput GetLatestCashedLottery(Empty input)
+        {
+            if (State.LatestCashedLotteryId.Value == 0) return new GetLatestCashedLotteryOutput();
+            var lottery = State.Lotteries[State.LatestCashedLotteryId.Value];
+            var period = State.Periods[lottery.PeriodNumber];
+            var date = period.CreateTime.ToDateTime().ToString("yyyyMMdd");
+            return new GetLatestCashedLotteryOutput
+            {
+                Address = lottery.Owner,
+                Type = (int) lottery.Type,
+                PeriodNumber = lottery.PeriodNumber,
+                StartPeriodNumberOfDay = State.StartPeriodNumberOfDay[date]
+            };
+        }
+
         public override PeriodDetail GetPeriod(Int64Value input)
         {
             return GetPeriodDetail(input.Value);
@@ -158,9 +173,9 @@ namespace AElf.Contracts.LotteryContract
             var lotteryTypes = GetLotteryTypes();
             foreach (var lotteryType in lotteryTypes)
             {
-                output.Rewards.Add(new Reward
+                output.Rewards.Add(new RewardDetail
                 {
-                    Type = lotteryType,
+                    Type = (int) lotteryType,
                     Amount = State.Rewards[lotteryType]
                 });
             }

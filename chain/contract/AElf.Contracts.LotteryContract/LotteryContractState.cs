@@ -36,6 +36,8 @@ namespace AElf.Contracts.LotteryContract
 
         public MappedState<Address, LotteryList> DoneLotteries { get; set; }
         
+        public SingletonState<long> LatestCashedLotteryId { get; set; }
+        
         public SingletonState<long> CurrentPeriodNumber { get; set; }
         
         public SingletonState<long> CurrentLotteryId { get; set; }

@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AElf.Contracts.MultiToken" Version="1.0.0-preview3-18470" />
+        <PackageReference Include="AElf.Contracts.MultiToken" Version="1.0.0-preview3-18473" />
     </ItemGroup>
 
     <ItemGroup>
