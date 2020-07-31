@@ -108,7 +108,7 @@ export default class WordRotation extends Component {
 
   textOnLayout(e) {
     this.setState({
-      textWidth: e.nativeEvent.layout.width + 60,
+      textWidth: e.nativeEvent.layout.width,
       textHeight: e.nativeEvent.layout.height,
     });
   }

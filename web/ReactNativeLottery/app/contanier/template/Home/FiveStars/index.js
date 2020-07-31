@@ -8,8 +8,7 @@ import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import BetBody from '../BetBody';
 import ConfirmModal from '../ConfirmModal';
 import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
-import {useSelector, shallowEqual} from 'react-redux';
-import {lotterySelectors} from '../../../../redux/lotteryRedux';
+import {useStateToProps} from '../../../../utils/pages/hooks';
 const data = [
   {
     title: '万位',
@@ -35,11 +34,12 @@ const data = [
 const lotteryType = LOTTERY_TYPE.FIVE_BIT;
 const FiveStars = () => {
   const [betList, setBetList] = useState([]);
-  const lotteryInfo = useSelector(
-    lotterySelectors.getLotteryInfo,
-    shallowEqual,
-  );
-  const {lotteryRewards} = lotteryInfo;
+  const {lotteryRewards} = useStateToProps(base => {
+    const {lottery} = base;
+    return {
+      lotteryRewards: lottery.lotteryRewards,
+    };
+  });
   const bonusAmount = lotteryRewards ? lotteryRewards[lotteryType] : 0;
   const onSelect = useCallback(
     (first, second) => {

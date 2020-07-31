@@ -14,26 +14,26 @@ import {pTd} from '../../../../utils/common';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {Colors} from '../../../../assets/theme';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
-import {userSelectors} from '../../../../redux/userRedux';
-import {shallowEqual, useSelector, useDispatch} from 'react-redux';
-import lotteryActions, {lotterySelectors} from '../../../../redux/lotteryRedux';
+import {useDispatch} from 'react-redux';
+import lotteryActions from '../../../../redux/lotteryRedux';
 import TransactionVerification from '../../../../utils/pages/TransactionVerification';
+import navigationService from '../../../../utils/common/navigationService';
+import {useStateToProps} from '../../../../utils/pages/hooks';
 const Component = props => {
   const dispatch = useDispatch();
   const buy = useCallback(data => dispatch(lotteryActions.buy(data)), [
     dispatch,
   ]);
-  const lotteryInfo = useSelector(
-    lotterySelectors.getLotteryInfo,
-    shallowEqual,
-  );
-  const balance = useSelector(userSelectors.getBalance, shallowEqual);
+  const {lotteryPrice, balance} = useStateToProps(base => {
+    const {user, lottery} = base;
+    return {
+      lotteryPrice: lottery.lotteryPrice,
+      balance: user.balance,
+    };
+  });
   const {data, betList, title, lotteryType} = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
-  const betValue = lotteryUtils.getBetValue(
-    betNumber,
-    lotteryInfo?.lotteryPrice,
-  );
+  const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
   const onBuy = useCallback(() => {
     if (betValue > balance) {
       return CommonToast.fail('余额不足');
@@ -89,7 +89,14 @@ const Component = props => {
             title="确认支付"
             style={styles.buttonBox}
           />
-          <TextL style={styles.recharge}>充值</TextL>
+          <TextL
+            onPress={() => {
+              OverlayModal.hide();
+              navigationService.navigate('Receive');
+            }}
+            style={styles.recharge}>
+            充值
+          </TextL>
         </View>
       </View>
     </View>

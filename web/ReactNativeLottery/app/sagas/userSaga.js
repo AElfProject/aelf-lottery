@@ -79,6 +79,7 @@ function* onAppInitSaga({privateKey}) {
     privateKey = privateKey || userInfo.privateKey;
     if (privateKey) {
       const contract = yield getContract(privateKey, contractNameAddressSets);
+
       if (contract && Object.keys(contract).length > 0) {
         yield put(contractsActions.setContracts({contracts: contract}));
         yield put(userActions.getAllowanceList());
@@ -86,8 +87,9 @@ function* onAppInitSaga({privateKey}) {
       }
     }
   } catch (error) {
-    yield put(userActions.onAppInit());
     console.log(error, 'appInitSaga');
+    yield delay(3000);
+    yield put(userActions.onAppInit());
   }
 }
 function* getUserBalanceSaga() {

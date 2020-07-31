@@ -36,6 +36,12 @@ const {Types, Creators} = createActions({
   setLottery: ['lotteryDetails'],
 
   takeReward: ['lotteryId'],
+
+  getPeriodList: ['loadingPaging', 'callBack'],
+  setPeriodList: ['periodList'],
+
+  getRewardedList: ['loadingPaging', 'callBack'],
+  setRewardedList: ['rewardedList'],
 });
 
 export const lotteryTypes = Types;
@@ -54,6 +60,8 @@ export const INITIAL_STATE = Immutable({
   lotteryDuration: null,
   myBetList: [],
   lotteryDetails: null,
+  periodList: [],
+  rewardedList: [],
 });
 
 /* ------------- Selectors ------------- */
@@ -67,15 +75,24 @@ export const lotterySelectors = {
       ...base,
       myBetList: null,
       lotteryDetails: null,
+      periodList: null,
     }),
   ),
   myBetList: createSelector(
     _baseSelector,
     base => base.myBetList,
   ),
+  periodList: createSelector(
+    _baseSelector,
+    base => base.periodList,
+  ),
   lotteryDetails: createSelector(
     _baseSelector,
     base => base.lotteryDetails,
+  ),
+  rewardedList: createSelector(
+    _baseSelector,
+    base => base.rewardedList,
   ),
 };
 
@@ -153,6 +170,20 @@ export const setLottery = (state, {lotteryDetails}) => {
 export const takeReward = state => {
   return state.merge();
 };
+
+export const getPeriodList = state => {
+  return state.merge();
+};
+export const setPeriodList = (state, {periodList}) => {
+  return state.merge({periodList});
+};
+
+export const getRewardedList = state => {
+  return state.merge();
+};
+export const setRewardedList = (state, {rewardedList}) => {
+  return state.merge({rewardedList});
+};
 /* ------------- Hookup Reducers To Types ------------- */
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.BUY]: buy,
@@ -185,4 +216,10 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.SET_LOTTERY]: setLottery,
 
   [Types.TAKE_REWARD]: takeReward,
+
+  [Types.GET_PERIOD_LIST]: getPeriodList,
+  [Types.SET_PERIOD_LIST]: setPeriodList,
+
+  [Types.GET_REWARDED_LIST]: getRewardedList,
+  [Types.SET_REWARDED_LIST]: setRewardedList,
 });

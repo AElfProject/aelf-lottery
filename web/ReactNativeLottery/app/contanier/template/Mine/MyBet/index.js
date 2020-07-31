@@ -9,11 +9,12 @@ import {GStyle, Colors} from '../../../../assets/theme';
 import {ball} from '../../../../assets/images';
 import {pTd} from '../../../../utils/common';
 import {TextS, TextM} from '../../../../components/template/CommonText';
-import {useSelector, shallowEqual, useDispatch} from 'react-redux';
-import lotteryActions, {lotterySelectors} from '../../../../redux/lotteryRedux';
+import {useDispatch} from 'react-redux';
+import lotteryActions from '../../../../redux/lotteryRedux';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import {useFocusEffect} from '@react-navigation/native';
-
+import {useStateToProps} from '../../../../utils/pages/hooks';
+let isActive;
 const MyBet = () => {
   const list = useRef();
   const dispatch = useDispatch();
@@ -30,12 +31,15 @@ const MyBet = () => {
   );
   const upPullRefresh = useCallback(() => {
     getMyBetList(false, v => {
-      if (v === 1) {
-        setLoadCompleted(false);
-      } else {
-        setLoadCompleted(true);
+      if (isActive) {
+        if (v === 1) {
+          setLoadCompleted(false);
+        } else {
+          setLoadCompleted(true);
+        }
+        list.current && list.current.endUpPullRefresh();
+        list.current && list.current.endBottomRefresh();
       }
-      list.current && list.current.endUpPullRefresh();
     });
   }, [getMyBetList]);
 
@@ -51,14 +55,20 @@ const MyBet = () => {
   }, [getMyBetList]);
   useFocusEffect(
     useCallback(() => {
+      isActive = true;
       upPullRefresh();
+      return () => {
+        isActive = false;
+      };
     }, [upPullRefresh]),
   );
-  const myBetList = useSelector(lotterySelectors.myBetList, shallowEqual);
-  const {currentPeriod} = useSelector(
-    lotterySelectors.getLotteryInfo,
-    shallowEqual,
-  );
+  const {myBetList, currentPeriod} = useStateToProps(base => {
+    const {lottery} = base;
+    return {
+      myBetList: lottery.myBetList,
+      currentPeriod: lottery.currentPeriod,
+    };
+  });
   console.log(currentPeriod, '=====currentPeriod');
   console.log(myBetList, '======myBetList');
   const onGetLottery = useCallback(
@@ -78,7 +88,7 @@ const MyBet = () => {
         cashed,
         Expired,
         reward,
-      } = item;
+      } = item || {};
       const noDraw = currentPeriod?.periodNumber === periodNumber;
       return (
         <Touchable
@@ -130,12 +140,11 @@ const MyBet = () => {
       <CommonHeader title="我的投注" canBack />
       <ListComponent
         ref={list}
-        showFooter
-        // showFooter={!loadCompleted}
         whetherAutomatic
         data={myBetList}
-        allLoadedTips="加载完成"
+        // allLoadedTips="加载完成"
         bottomLoadTip="点击加载更多"
+        showFooter={!loadCompleted}
         loadCompleted={loadCompleted}
         renderItem={renderItem}
         upPullRefresh={upPullRefresh}

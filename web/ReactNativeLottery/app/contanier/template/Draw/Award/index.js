@@ -6,12 +6,13 @@ import {drawBG} from '../../../../assets/images';
 import {pTd} from '../../../../utils/common';
 import {TextM, TextS, TextL} from '../../../../components/template/CommonText';
 import {pixelSize} from '../../../../utils/common/device';
-import {useSelector, shallowEqual, useDispatch} from 'react-redux';
-import lotteryActions, {lotterySelectors} from '../../../../redux/lotteryRedux';
+import {useDispatch} from 'react-redux';
+import lotteryActions from '../../../../redux/lotteryRedux';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import unitConverter from '../../../../utils/pages/unitConverter';
 import aelfUtils from '../../../../utils/pages/aelfUtils';
 import {useFocusEffect} from '@react-navigation/native';
+import {useStateToProps} from '../../../../utils/pages/hooks';
 const TextComponent = memo(props => {
   const {title, details, detailsStyle} = props;
   return (
@@ -24,10 +25,12 @@ const TextComponent = memo(props => {
   );
 });
 const Award = () => {
-  const lotteryDetails = useSelector(
-    lotterySelectors.lotteryDetails,
-    shallowEqual,
-  );
+  const {lotteryDetails} = useStateToProps(base => {
+    const {lottery} = base;
+    return {
+      lotteryDetails: lottery.lotteryDetails,
+    };
+  });
   console.log(lotteryDetails, '=====lotteryDetails');
   const dispatch = useDispatch();
   const setLottery = useCallback(

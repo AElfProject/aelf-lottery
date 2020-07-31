@@ -108,6 +108,7 @@ function* getDrawPeriodSaga({lotteryContract, lotteryInfo}) {
 function* getCurrentPeriodSaga({lotteryContract, lotteryInfo}) {
   try {
     const currentPeriod = yield lotteryContract.GetCurrentPeriod.call();
+
     if (
       JSON.stringify(lotteryInfo.currentPeriod) !==
       JSON.stringify(currentPeriod)
@@ -210,6 +211,8 @@ function* getMyBetListSaga({loadingPaging, callBack}) {
       } else {
         callBack && callBack(0);
       }
+    } else {
+      callBack && callBack(-1);
     }
   } catch (error) {
     callBack && callBack(-1);
@@ -259,12 +262,98 @@ function* takeRewardSaga({lotteryId}) {
       Loading.hide();
       CommonToast.success('领奖成功');
       yield put(userActions.getUserBalance());
+      yield delay(2000);
+      yield put(lotteryActions.getRewardedList());
       navigationService.goBack();
     }
   } catch (error) {
     Loading.hide();
     CommonToast.fail('领奖失败稍后再试');
     console.log('getLotterySaga', error);
+  }
+}
+function* getPeriodListSaga({loadingPaging, callBack}) {
+  try {
+    const userInfo = yield select(userSelectors.getUserInfo);
+    const {lotteryContract} = userInfo.contracts || {};
+    if (lotteryContract) {
+      const periodList = yield select(lotterySelectors.periodList);
+      const {drawPeriod} = yield select(lotterySelectors.getLotteryInfo);
+      let startPeriodNumber = drawPeriod?.periodNumber || 0;
+      if (loadingPaging && Array.isArray(periodList)) {
+        const period = periodList[periodList.length - 1];
+        const {periodNumber} = period || {};
+        startPeriodNumber = periodNumber ? periodNumber - 1 : startPeriodNumber;
+      }
+      const result = yield lotteryContract.GetPeriods.call({
+        startPeriodNumber,
+        limit: LOTTERY_LIMIT,
+      });
+      console.log(result, '=====result');
+      const {periods} = result || {};
+      if (Array.isArray(periods)) {
+        let list = [];
+        if (loadingPaging) {
+          if (Array.isArray(periodList)) {
+            list = list.concat(periodList);
+          }
+        }
+        list = list.concat(periods);
+        if (periods.length < LOTTERY_LIMIT) {
+          callBack && callBack(0);
+        } else {
+          callBack && callBack(1);
+        }
+        yield put(lotteryActions.setPeriodList(list));
+      } else {
+        callBack && callBack(0);
+      }
+    } else {
+      callBack && callBack(-1);
+    }
+  } catch (error) {
+    console.log(error, '======getPeriodListSaga');
+    callBack && callBack(-1);
+  }
+}
+function* getRewardedListSaga({loadingPaging, callBack}) {
+  try {
+    const userInfo = yield select(userSelectors.getUserInfo);
+    const {lotteryContract} = userInfo.contracts || {};
+    if (lotteryContract) {
+      const rewardedList = yield select(lotterySelectors.rewardedList);
+      let offset = 0;
+      if (loadingPaging && Array.isArray(rewardedList)) {
+        offset = rewardedList.length;
+      }
+      const result = yield lotteryContract.GetRewardedLotteries.call({
+        offset,
+        limit: LOTTERY_LIMIT,
+      });
+      const {lotteries} = result || {};
+      if (Array.isArray(lotteries)) {
+        let list = [];
+        if (loadingPaging) {
+          if (Array.isArray(rewardedList)) {
+            list = list.concat(rewardedList);
+          }
+        }
+        list = list.concat(lotteries);
+        if (lotteries.length < LOTTERY_LIMIT) {
+          callBack && callBack(0);
+        } else {
+          callBack && callBack(1);
+        }
+        yield put(lotteryActions.setRewardedList(list));
+      } else {
+        callBack && callBack(0);
+      }
+    } else {
+      callBack && callBack(-1);
+    }
+  } catch (error) {
+    callBack && callBack(-1);
+    console.log(error, '======getRewardedListSaga');
   }
 }
 export default function* SettingsSaga() {
@@ -280,5 +369,8 @@ export default function* SettingsSaga() {
     yield takeLatest(lotteryTypes.GET_MY_BET_LIST, getMyBetListSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY, getLotterySaga),
     yield takeLatest(lotteryTypes.TAKE_REWARD, takeRewardSaga),
+
+    yield takeLatest(lotteryTypes.GET_PERIOD_LIST, getPeriodListSaga),
+    yield takeLatest(lotteryTypes.GET_REWARDED_LIST, getRewardedListSaga),
   ]);
 }

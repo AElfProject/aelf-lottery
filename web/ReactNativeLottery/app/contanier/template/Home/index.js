@@ -7,8 +7,7 @@ import {
   WinningNumbers,
 } from '../../../components/template';
 import {ScrollView, View, Image} from 'react-native';
-import {useSelector, shallowEqual, useDispatch} from 'react-redux';
-import {settingsSelectors} from '../../../redux/settingsRedux';
+import {useDispatch} from 'react-redux';
 import {GStyle} from '../../../assets/theme';
 import styles from './styles';
 import {TextL, TextM} from '../../../components/template/CommonText';
@@ -16,10 +15,11 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import navigationService from '../../../utils/common/navigationService';
 import {ball} from '../../../assets/images';
-import lotteryActions, {lotterySelectors} from '../../../redux/lotteryRedux';
+import lotteryActions from '../../../redux/lotteryRedux';
 import lotteryUtils from '../../../utils/pages/lotteryUtils';
 import {LOTTERY_TIME} from '../../../config/lotteryConstant';
 import aelfUtils from '../../../utils/pages/aelfUtils';
+import {useStateToProps} from '../../../utils/pages/hooks';
 const list = [
   {title: '五星', onPress: () => navigationService.navigate('FiveStars')},
   {title: '三星', onPress: () => navigationService.navigate('ThreeStars')},
@@ -32,11 +32,21 @@ const list = [
 ];
 const Home = () => {
   const dispatch = useDispatch();
-  useSelector(settingsSelectors.getLanguage, shallowEqual); //Language status is controlled with redux
-  const lotteryInfo = useSelector(
-    lotterySelectors.getLotteryInfo,
-    shallowEqual,
-  );
+  const {
+    lotteryBalance,
+    currentPeriod,
+    drawPeriod,
+    lotteryCashed,
+  } = useStateToProps(base => {
+    const {settings, lottery} = base;
+    return {
+      language: settings.language,
+      lotteryBalance: lottery.lotteryBalance,
+      currentPeriod: lottery.currentPeriod,
+      drawPeriod: lottery.drawPeriod,
+      lotteryCashed: lottery.lotteryCashed,
+    };
+  });
   const initLottery = useCallback(
     () => dispatch(lotteryActions.initLottery()),
     [dispatch],
@@ -45,12 +55,10 @@ const Home = () => {
     () => dispatch(lotteryActions.getMyBetList()),
     [dispatch],
   );
-  const {
-    lotteryBalance,
-    currentPeriod,
-    drawPeriod,
-    lotteryCashed,
-  } = lotteryInfo;
+  const getPeriodList = useCallback(
+    () => dispatch(lotteryActions.getPeriodList()),
+    [dispatch],
+  );
   const LatestDraw = useMemo(() => {
     const {createTime, startPeriodNumberOfDay, periodNumber, luckyNumber} =
       drawPeriod || {};
@@ -94,7 +102,8 @@ const Home = () => {
   const onEnd = useCallback(() => {
     initLottery();
     getMyBetList();
-  }, [getMyBetList, initLottery]);
+    getPeriodList();
+  }, [getMyBetList, getPeriodList, initLottery]);
   const CurrentDraw = useMemo(() => {
     const {createTime, startPeriodNumberOfDay, periodNumber} =
       currentPeriod || {};
@@ -176,10 +185,13 @@ const Home = () => {
       );
     }
   }, [lotteryCashed]);
-  console.log(lotteryCashed, '====lotteryCashed');
   return (
     <View style={GStyle.container}>
-      <CommonHeader title={'欢乐时时彩'} leftTitle={'玩法'} />
+      <CommonHeader
+        title={'欢乐时时彩'}
+        leftTitle={'玩法'}
+        leftOnPress={() => navigationService.navigate('HowToPlay')}
+      />
       {Express}
       <ScrollView>
         <View style={GStyle.container}>

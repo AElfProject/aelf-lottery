@@ -87,10 +87,10 @@ const getMillisecond = time => {
   }
   return tim;
 };
-const timeConversion = time => {
+const timeConversion = (time, format) => {
   let showTime = '';
   if (time) {
-    showTime = moment(getMillisecond(time)).format(TIME_FORMAT);
+    showTime = moment(getMillisecond(time)).format(format || TIME_FORMAT);
   }
   return showTime;
 };

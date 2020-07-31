@@ -5,19 +5,17 @@ import {Colors} from '../../../../assets/theme';
 import {pTd} from '../../../../utils/common';
 import {CommonButton} from '../../../../components/template';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
-import {useSelector, shallowEqual} from 'react-redux';
-import {lotterySelectors} from '../../../../redux/lotteryRedux';
+import {useStateToProps} from '../../../../utils/pages/hooks';
 const ShowBetComponent = props => {
-  const lotteryInfo = useSelector(
-    lotterySelectors.getLotteryInfo,
-    shallowEqual,
-  );
+  const {lotteryPrice} = useStateToProps(base => {
+    const {lottery} = base;
+    return {
+      lotteryPrice: lottery.lotteryPrice,
+    };
+  });
   const {betList, data, onClear, onBet, bonusAmount} = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
-  const betValue = lotteryUtils.getBetValue(
-    betNumber,
-    lotteryInfo?.lotteryPrice,
-  );
+  const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
   const disabled = data.every((item, index) => {
     return Array.isArray(betList[index]) && betList[index].length > 0;
   });
