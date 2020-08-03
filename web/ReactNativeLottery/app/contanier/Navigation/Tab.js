@@ -87,7 +87,7 @@ const TabNavigatorStack = () => {
         name="DrawPage"
         component={DrawScreen}
         options={{
-          tabBarLabel: '开奖',
+          tabBarLabel: i18n.t('lottery.drawT'),
           tabBarIcon: ({color}) => (
             <Icon name="staro" size={20} color={color} />
           ),

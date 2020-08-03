@@ -42,18 +42,18 @@ function* buySaga({data}) {
       const buy = yield lotteryContract.Buy(BuyInput);
       yield delay(3000);
       const result = yield aelfUtils.getTxResult(buy.TransactionId);
+      console.log(result, '======result');
       Loading.hide();
       OverlayModal.hide();
-      CommonToast.success('购买成功');
-      console.log(result, '======result');
+      CommonToast.success(i18n.t('lottery.lotterySaga.betSuccess'));
     } else {
       Loading.hide();
-      CommonToast.fail('购买失败,请稍后再试');
+      CommonToast.fail(i18n.t('lottery.lotterySaga.betFailed'));
     }
   } catch (error) {
     OverlayModal.hide();
     Loading.hide();
-    CommonToast.fail('购买失败');
+    CommonToast.fail(i18n.t('lottery.lotterySaga.betFailed'));
     console.log('buySaga', error);
   }
 }
@@ -260,24 +260,24 @@ function* takeRewardSaga({lotteryId}) {
     const userInfo = yield select(userSelectors.getUserInfo);
     const {lotteryContract} = userInfo.contracts || {};
     if (lotteryContract) {
-      console.log(lotteryId, '=====lotteryId');
       const reward = yield lotteryContract.TakeReward({
         lotteryId,
       });
-      console.log(reward, '=====reward');
       yield delay(3000);
       const result = yield aelfUtils.getTxResult(reward.TransactionId);
       console.log(result, '======result');
       Loading.hide();
-      CommonToast.success('领奖成功');
+      CommonToast.success(i18n.t('lottery.lotterySaga.acceptedSuccess'));
       yield put(userActions.getUserBalance());
       yield delay(2000);
       yield put(lotteryActions.getRewardedList());
       navigationService.goBack();
+    } else {
+      CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedSuccess'));
     }
   } catch (error) {
     Loading.hide();
-    CommonToast.fail('领奖失败稍后再试');
+    CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedSuccess'));
     console.log('getLotterySaga', error);
   }
 }

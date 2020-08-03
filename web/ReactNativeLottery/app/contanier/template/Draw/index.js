@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {memo, useMemo, useCallback, useRef, useState} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {GStyle, Colors} from '../../../assets/theme';
@@ -14,14 +15,15 @@ import lotteryActions from '../../../redux/lotteryRedux';
 import lotteryUtils from '../../../utils/pages/lotteryUtils';
 import aelfUtils from '../../../utils/pages/aelfUtils';
 import {useStateToProps} from '../../../utils/pages/hooks';
-
+import i18n from 'i18n-js';
 const Draw = () => {
   const [loadCompleted, setLoadCompleted] = useState(false);
   const dispatch = useDispatch();
   const list = useRef();
-  const {drawPeriod, periodList} = useStateToProps(state => {
-    const {lottery} = state;
+  const {drawPeriod, periodList, language} = useStateToProps(state => {
+    const {lottery, settings} = state;
     return {
+      language: settings.language,
       drawPeriod: lottery.drawPeriod,
       periodList: lottery.periodList,
     };
@@ -34,14 +36,18 @@ const Draw = () => {
   const ListHeaderComponent = useMemo(() => {
     return (
       <View style={styles.listHeaderBox}>
-        <TextM style={[styles.equallyBox, styles.leftBox]}>期数</TextM>
-        <TextM style={[styles.equallyBox, styles.intermediateBox]}>
-          中奖号码
+        <TextM style={[styles.equallyBox, styles.leftBox]}>
+          {i18n.t('lottery.draw.period')}
         </TextM>
-        <TextL style={[styles.equallyBox, styles.rightBox]}>开奖时间</TextL>
+        <TextM style={[styles.equallyBox, styles.intermediateBox]}>
+          {i18n.t('lottery.draw.prizeNumber')}
+        </TextM>
+        <TextL style={[styles.equallyBox, styles.rightBox]}>
+          {i18n.t('lottery.draw.drawTime')}
+        </TextL>
       </View>
     );
-  }, []);
+  }, [language]);
   const LatestDraw = useMemo(() => {
     const {
       createTime,
@@ -59,12 +65,13 @@ const Draw = () => {
             startPeriodNumberOfDay,
             periodNumber,
           )}
-          期 开奖时间 {lotteryUtils.getStartMonthTime(drawTime)}
+          {i18n.t('lottery.period')} {i18n.t('lottery.draw.drawTime')}{' '}
+          {lotteryUtils.getStartMonthTime(drawTime)}
         </TextM>
         <WinningNumbers winningNumbers={luckyNumber} />
       </View>
     );
-  }, [drawPeriod]);
+  }, [drawPeriod, language]);
   const upPullRefresh = useCallback(() => {
     getPeriodList();
     list.current && list.current.endUpPullRefresh();
@@ -109,9 +116,9 @@ const Draw = () => {
   return (
     <View style={GStyle.container}>
       <CommonHeader
-        title={'开奖公告'}
-        rightTitle={'去领奖'}
-        leftTitle={'玩法'}
+        title={i18n.t('lottery.draw.title')}
+        rightTitle={i18n.t('lottery.draw.acceptAward')}
+        leftTitle={i18n.t('lottery.play')}
         leftOnPress={() => navigationService.navigate('HowToPlay')}
         rightOnPress={() => navigationService.navigate('AwardList')}
       />
@@ -123,8 +130,7 @@ const Draw = () => {
         whetherAutomatic
         showFooter={!loadCompleted}
         loadCompleted={loadCompleted}
-        // allLoadedTips="加载完成"
-        bottomLoadTip="点击加载更多"
+        bottomLoadTip={i18n.t('lottery.loadMore')}
         renderItem={renderItem}
         upPullRefresh={upPullRefresh}
         onEndReached={onEndReached}

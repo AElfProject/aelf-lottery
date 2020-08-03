@@ -6,6 +6,7 @@ import {pTd} from '../../../../utils/common';
 import {CommonButton} from '../../../../components/template';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import {useStateToProps} from '../../../../utils/pages/hooks';
+import i18n from 'i18n-js';
 const ShowBetComponent = props => {
   const {lotteryPrice} = useStateToProps(base => {
     const {lottery} = base;
@@ -22,12 +23,17 @@ const ShowBetComponent = props => {
   return (
     <View style={styles.bottomBox}>
       <TextL>
-        您当前选择了<TextL style={styles.colorText}>{betNumber}</TextL>
-        注, 共<TextL style={styles.colorText}>{betValue}</TextL>
-        金币
+        {i18n.t('lottery.currentlySelected')}
+        <TextL style={styles.colorText}>{betNumber}</TextL>
+        {i18n.t('lottery.note')}, {i18n.t('lottery.total')}
+        <TextL style={styles.colorText}>{betValue}</TextL>
+        {i18n.t('lottery.unit')}
       </TextL>
       <TextM style={styles.winningTip}>
-        如果中奖, 奖金金额为{bonusAmount}, 盈利{(bonusAmount || 1) - betValue}
+        {i18n.t('lottery.winningTip', {
+          bonusAmount,
+          profit: (bonusAmount || 1) - betValue,
+        })}
       </TextM>
       <View style={styles.container}>
         <View style={styles.showBox}>
@@ -54,12 +60,12 @@ const ShowBetComponent = props => {
             : null}
         </View>
         <TextL onPress={onClear} style={styles.clearBox}>
-          清除选号
+          {i18n.t('lottery.clearSelection')}
         </TextL>
         <CommonButton
           disabled={!disabled}
           onPress={onBet}
-          title="下单"
+          title={i18n.t('lottery.order')}
           style={styles.buttonStyle}
         />
       </View>

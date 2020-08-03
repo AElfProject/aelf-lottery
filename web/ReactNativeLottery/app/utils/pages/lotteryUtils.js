@@ -1,6 +1,7 @@
 import moment from 'moment';
 import {LOTTERY_DAY} from '../../config/lotteryConstant';
 import {splitString} from '.';
+import i18n from 'i18n-js';
 /**
  * processing Number
  * @param  {Array}   list         operation array
@@ -69,7 +70,9 @@ const getBetNumber = (data, betArr) => {
   if (
     Array.isArray(data) &&
     Array.isArray(betArr) &&
-    data.length === betArr.length
+    data.every((item, index) => {
+      return betArr[index];
+    })
   ) {
     number = 1;
     betArr.filter(item => {
@@ -188,19 +191,23 @@ const getBetType = type => {
   let text = '';
   switch (type) {
     case 0:
-      text = '大小单双';
+      text = i18n.t('lottery.simple');
       break;
     case 10:
-      text = '一星直选';
+      text = `${i18n.t('lottery.oneStar')}${i18n.t('lottery.directElection')}`;
       break;
     case 20:
-      text = '二星直选';
+      text = `${i18n.t('lottery.twoStars')}${i18n.t('lottery.directElection')}`;
       break;
     case 30:
-      text = '三星直选';
+      text = `${i18n.t('lottery.threeStars')}${i18n.t(
+        'lottery.directElection',
+      )}`;
       break;
     case 40:
-      text = '五星直选';
+      text = `${i18n.t('lottery.fiveStars')}${i18n.t(
+        'lottery.directElection',
+      )}`;
   }
   return text;
 };
@@ -209,11 +216,15 @@ const getStartMonthTime = time => {
 };
 const getWinningSituation = (cashed, Expired, reward, noDraw) => {
   if (noDraw) {
-    return '未开奖';
+    return i18n.t('lottery.lotteryUtils.noDraw');
   }
-  let text = '未中奖';
+  let text = i18n.t('lottery.lotteryUtils.notWinning');
   if (reward && reward > 0) {
-    text = Expired ? '已过期' : cashed ? '已领奖' : '未领奖';
+    text = Expired
+      ? i18n.t('lottery.lotteryUtils.expired')
+      : cashed
+      ? i18n.t('lottery.lotteryUtils.awarded')
+      : i18n.t('lottery.lotteryUtils.noPrize');
   }
   return text;
 };
@@ -221,12 +232,18 @@ const getCanAward = (cashed, Expired, reward) => {
   return reward && reward > 0 && !Expired && !cashed;
 };
 const getDrawBetStr = (type, betInfos) => {
-  const TITLE = ['个位', '十位', '百位', '千位', '万位'];
+  const TITLE = [
+    i18n.t('lottery.onesPlace'),
+    i18n.t('lottery.tenPlace'),
+    i18n.t('lottery.hundreds'),
+    i18n.t('lottery.thousands'),
+    i18n.t('lottery.tenThousand'),
+  ];
   const SIMPLE = {
-    3: '大',
-    2: '小',
-    1: '单',
-    0: '双',
+    3: i18n.t('lottery.big'),
+    2: i18n.t('lottery.small'),
+    1: i18n.t('lottery.odd'),
+    0: i18n.t('lottery.even'),
   };
   let List;
   if (Array.isArray(betInfos)) {

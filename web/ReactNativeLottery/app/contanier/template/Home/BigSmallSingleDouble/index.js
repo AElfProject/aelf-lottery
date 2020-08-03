@@ -9,12 +9,29 @@ import BetBody from '../BetBody';
 import ConfirmModal from '../ConfirmModal';
 import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
 import {useStateToProps} from '../../../../utils/pages/hooks';
-const data = [
-  {title: '十位', playList: ['大', '小', '单', '双']},
-  {title: '个位', playList: ['大', '小', '单', '双']},
-];
+import i18n from 'i18n-js';
 const lotteryType = LOTTERY_TYPE.SIMPLE;
 const BigSmallSingleDouble = () => {
+  const [data] = useState([
+    {
+      title: i18n.t('lottery.tenPlace'),
+      playList: [
+        i18n.t('lottery.big'),
+        i18n.t('lottery.small'),
+        i18n.t('lottery.odd'),
+        i18n.t('lottery.even'),
+      ],
+    },
+    {
+      title: i18n.t('lottery.onesPlace'),
+      playList: [
+        i18n.t('lottery.big'),
+        i18n.t('lottery.small'),
+        i18n.t('lottery.odd'),
+        i18n.t('lottery.even'),
+      ],
+    },
+  ]);
   const [betList, setBetList] = useState([]);
   const {lotteryRewards} = useStateToProps(base => {
     const {lottery} = base;
@@ -31,18 +48,18 @@ const BigSmallSingleDouble = () => {
   );
   const onBet = useCallback(() => {
     ConfirmModal.show({
-      title: '大小单双',
+      title: i18n.t('lottery.simple'),
       data,
       betList,
       lotteryType,
     });
-  }, [betList]);
+  }, [betList, data]);
   return (
     <View style={GStyle.container}>
-      <CommonHeader title="大小单双" canBack />
+      <CommonHeader title={i18n.t('lottery.simple')} canBack />
       <TextL style={styles.tipStyle}>
-        十、个位至少各选一个号码，单注选号与开奖号码按位一致即中奖 {bonusAmount}
-        金币！
+        {i18n.t('lottery.simpleTip')} {bonusAmount}
+        {i18n.t('lottery.unit')}!
       </TextL>
       <BetBody
         betList={betList}

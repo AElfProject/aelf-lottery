@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useRef, useState, useEffect} from 'react';
+import React, {memo, useCallback, useRef, useState} from 'react';
 import {View, StyleSheet, Image} from 'react-native';
 import {
   CommonHeader,
@@ -14,6 +14,7 @@ import lotteryActions from '../../../../redux/lotteryRedux';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import {useFocusEffect} from '@react-navigation/native';
 import {useStateToProps} from '../../../../utils/pages/hooks';
+import i18n from 'i18n-js';
 let isActive;
 const MyBet = () => {
   const list = useRef();
@@ -101,15 +102,15 @@ const MyBet = () => {
           <View style={styles.leftBox}>
             <Image resizeMode="contain" style={styles.ballBox} source={ball} />
             <View style={styles.titleBox}>
-              <TextM>时时彩</TextM>
+              <TextM>{i18n.t('lottery.draw.lottery')}</TextM>
               <TextS style={styles.marginText}>
                 {lotteryUtils.getBetType(type)}
               </TextS>
             </View>
           </View>
           <View style={styles.intermediateBox}>
-            <TextM>
-              第
+            <TextM style={styles.intermediateText}>
+              {i18n.t('lottery.first')}
               <TextM style={styles.colorText}>
                 {lotteryUtils.getPeriod(
                   createTime,
@@ -117,7 +118,7 @@ const MyBet = () => {
                   periodNumber,
                 )}
               </TextM>
-              期
+              {i18n.t('lottery.period')}
             </TextM>
           </View>
           <View style={styles.rightBox}>
@@ -140,13 +141,12 @@ const MyBet = () => {
   );
   return (
     <View style={GStyle.container}>
-      <CommonHeader title="我的投注" canBack />
+      <CommonHeader title={i18n.t('lottery.draw.myBet')} canBack />
       <ListComponent
         ref={list}
         whetherAutomatic
         data={myBetList}
-        // allLoadedTips="加载完成"
-        bottomLoadTip="点击加载更多"
+        bottomLoadTip={i18n.t('lottery.loadMore')}
         showFooter={!loadCompleted}
         loadCompleted={loadCompleted}
         renderItem={renderItem}
@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
     width: pTd(100),
   },
   titleBox: {
+    flex: 1,
     marginLeft: pTd(10),
   },
   leftBox: {
@@ -180,8 +181,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   intermediateBox: {
+    flexDirection: 'row',
     width: '40%',
     alignItems: 'center',
+  },
+  intermediateText: {
+    flex: 1,
   },
   rightBox: {
     alignItems: 'flex-end',

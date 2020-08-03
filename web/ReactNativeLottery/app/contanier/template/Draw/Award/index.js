@@ -13,6 +13,7 @@ import unitConverter from '../../../../utils/pages/unitConverter';
 import aelfUtils from '../../../../utils/pages/aelfUtils';
 import {useFocusEffect} from '@react-navigation/native';
 import {useStateToProps} from '../../../../utils/pages/hooks';
+import i18n from 'i18n-js';
 const TextComponent = memo(props => {
   const {title, details, detailsStyle} = props;
   return (
@@ -68,23 +69,36 @@ const Award = () => {
         source={drawBG}
         style={styles.drawBG}>
         <View style={styles.topBox}>
-          <TextS style={styles.whiteColor}>购买期数 {periods}</TextS>
-          <TextS style={styles.whiteColor}>{betNumber}注</TextS>
+          <TextS style={styles.whiteColor}>
+            {i18n.t('lottery.draw.purchasePeriod')} {periods}
+          </TextS>
+          <TextS style={styles.whiteColor}>
+            {betNumber}
+            {i18n.t('lottery.note')}
+          </TextS>
         </View>
         <View style={styles.intermediateBox}>
           <TextComponent
-            title="购买金额"
-            details={`${betNumber * unitConverter.toLower(price)}金币`}
+            title={i18n.t('lottery.draw.purchasingPrice')}
+            details={`${betNumber * unitConverter.toLower(price)}${i18n.t(
+              'lottery.unit',
+            )}`}
           />
           <TextComponent
             detailsStyle={reward && reward > 0 ? {} : {color: Colors.fontBlack}}
-            title="中奖情况"
+            title={i18n.t('lottery.draw.winningSituation')}
             details={lotteryUtils.getWinningSituation(cashed, Expired, reward)}
           />
-          <TextComponent title="奖金" details={`${bonusAmount}金币`} />
+          <TextComponent
+            title={i18n.t('lottery.draw.bonus')}
+            details={`${bonusAmount}${i18n.t('lottery.unit')}`}
+          />
         </View>
         <View style={styles.bottomBox}>
-          <TextM style={styles.whiteColor}>{periods}期开奖号码</TextM>
+          <TextM style={styles.whiteColor}>
+            {periods}
+            {i18n.t('lottery.draw.lotteryNumbers')}
+          </TextM>
           <TextM style={[styles.colorText, styles.numberText]}>
             {lotteryUtils.getWinningNumbers(luckyNumber)}
           </TextM>
@@ -101,11 +115,13 @@ const Award = () => {
   );
   return (
     <View style={GStyle.container}>
-      <CommonHeader title="领奖" canBack>
+      <CommonHeader title={i18n.t('lottery.draw.receive')} canBack>
         <View style={styles.container}>
           {CardComponent}
           <View style={styles.box}>
-            <TextM style={styles.myBetText}>我的投注</TextM>
+            <TextM style={styles.myBetText}>
+              {i18n.t('lottery.draw.myBet')}
+            </TextM>
             <View style={styles.bettingBox}>
               <TextL>{lotteryUtils.getBetType(type)}</TextL>
               {betList
@@ -131,17 +147,18 @@ const Award = () => {
                 : null}
             </View>
             <TextS style={styles.timeText}>
-              下单时间：{aelfUtils.timeConversion(createTime)}
+              {i18n.t('lottery.draw.orderTime')}
+              {aelfUtils.timeConversion(createTime)}
             </TextS>
           </View>
           <CommonButton
             onPress={() => takeReward(id)}
             disabled={!lotteryUtils.getCanAward(cashed, Expired, reward)}
             style={styles.buttonBox}
-            title="领奖"
+            title={i18n.t('lottery.draw.receive')}
           />
           <TextS style={[styles.timeText, styles.awardTip]}>
-            领奖后可在【我的】页面查看余额
+            {i18n.t('lottery.draw.receiveTip')}
           </TextS>
         </View>
       </CommonHeader>

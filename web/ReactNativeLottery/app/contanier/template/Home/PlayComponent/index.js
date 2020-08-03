@@ -1,4 +1,4 @@
-import React, {memo} from 'react';
+import React, {memo, useState} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Touchable} from '../../../../components/template';
 import {TextL, TextM} from '../../../../components/template/CommonText';
@@ -6,15 +6,16 @@ import {getWindowWidth} from '../../../../utils/common/device';
 import {Colors} from '../../../../assets/theme';
 import {pTd} from '../../../../utils/common';
 const titleWidth = 50;
-const list = [
-  {title: '大', type: 'big'},
-  {title: '小', type: 'small'},
-  {title: '奇', type: 'odd'},
-  {title: '偶', type: 'even'},
-  {title: '全', type: 'all'},
-  {title: '清', type: 'clear'},
-];
+import i18n from 'i18n-js';
 const Item = memo(props => {
+  const [list] = useState([
+    {title: i18n.t('lottery.big'), type: 'big'},
+    {title: i18n.t('lottery.small'), type: 'small'},
+    {title: i18n.t('lottery.odd'), type: 'odd'},
+    {title: i18n.t('lottery.even'), type: 'even'},
+    {title: i18n.t('lottery.all'), type: 'all'},
+    {title: i18n.t('lottery.clear'), type: 'clear'},
+  ]);
   const {
     title,
     playList,

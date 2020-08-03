@@ -2,7 +2,11 @@
 import React, {memo} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import navigationService from '../../../utils/common/navigationService';
-import {statusBarHeight, pixelSize} from '../../../utils/common/device';
+import {
+  statusBarHeight,
+  pixelSize,
+  bottomBarHeigth,
+} from '../../../utils/common/device';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {pTd} from '../../../utils/common';
 import {Colors} from '../../../assets/theme';
@@ -141,6 +145,7 @@ const CommonHeader = props => {
           keyboardOpeningTime={0}
           extraHeight={50}>
           {children}
+          <View style={{height: bottomBarHeigth}} />
         </KeyboardAwareScrollView>
       </>
     );
