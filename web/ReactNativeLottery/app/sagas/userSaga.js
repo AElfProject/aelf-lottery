@@ -62,6 +62,7 @@ function* onRegisteredSaga(actios) {
     );
     Loading.hide();
     CommonToast.success(i18n.t('userSaga.registrationSuccess'));
+    yield delay(500);
     navigationService.reset([{name: 'Tab'}, {name: 'GenerateQRCode'}]);
   } catch (error) {
     Loading.hide();
@@ -74,9 +75,14 @@ function* onAppInitSaga({privateKey}) {
   try {
     const userInfo = yield select(userSelectors.getUserInfo);
     if (userInfo.contracts && Object.keys(userInfo.contracts).length > 0) {
+      yield put(lotteryActions.initLottery());
       return;
     }
     privateKey = privateKey || userInfo.privateKey;
+    console.log(
+      privateKey,
+      'onAppInitSagaonAppInitSagaonAppInitSagaonAppInitSaga',
+    );
     if (privateKey) {
       const contract = yield getContract(privateKey, contractNameAddressSets);
 
@@ -84,6 +90,7 @@ function* onAppInitSaga({privateKey}) {
         yield put(contractsActions.setContracts({contracts: contract}));
         yield put(userActions.getAllowanceList());
         yield put(userActions.getUserBalance());
+        yield put(lotteryActions.initLottery());
       }
     }
   } catch (error) {
@@ -94,7 +101,6 @@ function* onAppInitSaga({privateKey}) {
 }
 function* getUserBalanceSaga() {
   try {
-    yield put(lotteryActions.initLottery());
     const userInfo = yield select(userSelectors.getUserInfo);
     const {address, contracts, privateKey} = userInfo;
     if (address && privateKey) {
@@ -140,6 +146,14 @@ function* getUserBalanceSaga() {
 }
 function* onLoginSuccessSaga({data}) {
   try {
+    yield put(
+      contractsActions.setContracts({
+        contracts: {},
+      }),
+    );
+    yield put(userActions.setAllowanceList([]));
+    yield put(lotteryActions.reLottery());
+
     data.address = aelfUtils.formatAddress(data.address);
     let userList = [];
     const List = yield select(userSelectors.getUserList);
@@ -189,7 +203,10 @@ function* logOutSaga({address}) {
     yield put(contractsActions.setContracts(contractsObj));
     yield put(settingsActions.reSetSettings());
     yield put(userActions.setAllowanceList([]));
-    navigationService.reset('Entrance');
+    yield put(lotteryActions.reLottery());
+    if (address) {
+      navigationService.reset('Entrance');
+    }
   } catch (error) {
     console.log(error, 'logOutSaga');
   }

@@ -21,7 +21,7 @@ const keystoreOptions = {
 // const walletURL = 'https://tdvv-wallet-test.aelf.io';
 
 // test environment
-const explorerURL = 'http://1.119.195.50:11109';
+const explorerURL = 'http://1.119.195.50:11107';
 const walletURL = 'http://1.119.195.50:11109';
 export default {
   commonPrivateKey:

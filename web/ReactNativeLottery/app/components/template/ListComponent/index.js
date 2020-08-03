@@ -40,7 +40,7 @@ export default class ListComponent extends Component {
     };
   }
   componentWillUnmount() {
-    this.timer && clearTimeout(this.timer);
+    this.endRefresh && clearTimeout(this.endRefresh);
   }
   onEndReached = touch => {
     if (touch || (this.canLoadMore && !this.props.loadCompleted)) {

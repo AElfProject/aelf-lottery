@@ -108,6 +108,7 @@ const Home = () => {
     const {createTime, startPeriodNumberOfDay, periodNumber} =
       currentPeriod || {};
     const {seconds} = createTime || {};
+    const date = seconds ? Number(seconds + '000') + LOTTERY_TIME : 0;
     return (
       <View style={styles.box}>
         <TextM style={styles.textStyle}>
@@ -126,8 +127,9 @@ const Home = () => {
             <MaterialIcons name="access-time" size={30} />
             <TextM style={styles.endTip}>距离购买截止</TextM>
             <CountDown
+              key={date}
               style={styles.countDownBox}
-              date={seconds ? Number(seconds + '000') + LOTTERY_TIME : 0}
+              date={date}
               mins="分"
               segs="秒"
               onEnd={onEnd}

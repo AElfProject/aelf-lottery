@@ -23,7 +23,6 @@ export default () => {
   const sagaMiddleware = createSagaMiddleware();
   store = createStore(finalReducers, applyMiddleware(sagaMiddleware));
   sagaMiddleware.run(sagas);
-  console.log(module,'=====module');
   if (module.hot) {
     module.hot.accept(() => {
       const nextRootReducer = require('./').reducers;

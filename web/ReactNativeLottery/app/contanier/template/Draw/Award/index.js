@@ -31,7 +31,6 @@ const Award = () => {
       lotteryDetails: lottery.lotteryDetails,
     };
   });
-  console.log(lotteryDetails, '=====lotteryDetails');
   const dispatch = useDispatch();
   const setLottery = useCallback(
     lottery => dispatch(lotteryActions.setLottery(lottery)),

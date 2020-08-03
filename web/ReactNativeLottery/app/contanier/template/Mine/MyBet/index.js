@@ -31,28 +31,27 @@ const MyBet = () => {
   );
   const upPullRefresh = useCallback(() => {
     getMyBetList(false, v => {
-      if (isActive) {
-        if (v === 1) {
-          setLoadCompleted(false);
-        } else {
-          setLoadCompleted(true);
-        }
-        list.current && list.current.endUpPullRefresh();
-        list.current && list.current.endBottomRefresh();
+      if (v === 1) {
+        onSetLoadCompleted(false);
+      } else {
+        onSetLoadCompleted(true);
       }
+      list.current && list.current.endUpPullRefresh();
+      list.current && list.current.endBottomRefresh();
     });
-  }, [getMyBetList]);
+  }, [getMyBetList, onSetLoadCompleted]);
 
   const onEndReached = useCallback(() => {
     getMyBetList(true, v => {
+      console.log(v, '=====v');
       if (v === 1) {
-        setLoadCompleted(false);
+        onSetLoadCompleted(false);
       } else {
-        setLoadCompleted(true);
+        onSetLoadCompleted(true);
       }
       list.current && list.current.endBottomRefresh();
     });
-  }, [getMyBetList]);
+  }, [getMyBetList, onSetLoadCompleted]);
   useFocusEffect(
     useCallback(() => {
       isActive = true;
@@ -62,6 +61,11 @@ const MyBet = () => {
       };
     }, [upPullRefresh]),
   );
+  const onSetLoadCompleted = useCallback(value => {
+    if (isActive) {
+      setLoadCompleted(value);
+    }
+  }, []);
   const {myBetList, currentPeriod} = useStateToProps(base => {
     const {lottery} = base;
     return {
@@ -70,7 +74,6 @@ const MyBet = () => {
     };
   });
   console.log(currentPeriod, '=====currentPeriod');
-  console.log(myBetList, '======myBetList');
   const onGetLottery = useCallback(
     item => {
       const {id, periodNumber} = item;

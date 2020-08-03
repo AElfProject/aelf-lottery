@@ -40,29 +40,32 @@ const AwardList = () => {
       };
     }, [upPullRefresh]),
   );
+  const onSetLoadCompleted = useCallback(value => {
+    if (isActive) {
+      setLoadCompleted(value);
+    }
+  }, []);
   const upPullRefresh = useCallback(() => {
     getRewardedList(false, v => {
-      if (isActive) {
-        if (v === 1) {
-          setLoadCompleted(false);
-        } else {
-          setLoadCompleted(true);
-        }
-        list.current && list.current.endUpPullRefresh();
-        list.current && list.current.endBottomRefresh();
+      if (v === 1) {
+        onSetLoadCompleted(false);
+      } else {
+        onSetLoadCompleted(true);
       }
+      list.current && list.current.endUpPullRefresh();
+      list.current && list.current.endBottomRefresh();
     });
-  }, [getRewardedList]);
+  }, [getRewardedList, onSetLoadCompleted]);
   const onEndReached = useCallback(() => {
     getRewardedList(true, v => {
       if (v === 1) {
-        setLoadCompleted(false);
+        onSetLoadCompleted(false);
       } else {
-        setLoadCompleted(true);
+        onSetLoadCompleted(true);
       }
       list.current && list.current.endBottomRefresh();
     });
-  }, [getRewardedList]);
+  }, [getRewardedList, onSetLoadCompleted]);
   // const ItemComponent = useMemo(() => {
   //   return (
   //     <Touchable
@@ -174,7 +177,7 @@ const AwardList = () => {
         whetherAutomatic
         data={rewardedList}
         bottomLoadTip="点击加载更多"
-        message="空"
+        message=" "
         showFooter={!loadCompleted}
         loadCompleted={loadCompleted}
         renderItem={renderItem}

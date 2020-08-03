@@ -14,7 +14,9 @@ const {Types, Creators} = createActions({
   getCurrentPeriod: ['lotteryContract', 'lotteryInfo'],
   setCurrentPeriod: ['currentPeriod'],
 
+  getLotterySymbol: ['lotteryContract', 'lotteryInfo'],
   setLotterySymbol: ['lotterySymbol'],
+
   setLotteryBalance: ['lotteryBalance'],
 
   getLotteryPrice: ['lotteryContract', 'lotteryInfo'],
@@ -42,6 +44,8 @@ const {Types, Creators} = createActions({
 
   getRewardedList: ['loadingPaging', 'callBack'],
   setRewardedList: ['rewardedList'],
+
+  reLottery: [],
 });
 
 export const lotteryTypes = Types;
@@ -119,9 +123,13 @@ export const setCurrentPeriod = (state, {currentPeriod}) => {
   return state.merge({currentPeriod});
 };
 
+export const getLotterySymbol = state => {
+  return state.merge();
+};
 export const setLotterySymbol = (state, {lotterySymbol}) => {
   return state.merge({lotterySymbol});
 };
+
 export const setLotteryBalance = (state, {lotteryBalance}) => {
   return state.merge({lotteryBalance});
 };
@@ -184,6 +192,13 @@ export const getRewardedList = state => {
 export const setRewardedList = (state, {rewardedList}) => {
   return state.merge({rewardedList});
 };
+export const reLottery = state => {
+  return state.merge({
+    myBetList: [],
+    lotteryDetails: null,
+    rewardedList: [],
+  });
+};
 /* ------------- Hookup Reducers To Types ------------- */
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.BUY]: buy,
@@ -194,7 +209,9 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_CURRENT_PERIOD]: getCurrentPeriod,
   [Types.SET_CURRENT_PERIOD]: setCurrentPeriod,
 
+  [Types.GET_LOTTERY_SYMBOL]: getLotterySymbol,
   [Types.SET_LOTTERY_SYMBOL]: setLotterySymbol,
+
   [Types.SET_LOTTERY_BALANCE]: setLotteryBalance,
 
   [Types.GET_LOTTERY_PRICE]: getLotteryPrice,
@@ -222,4 +239,6 @@ export const reducer = createReducer(INITIAL_STATE, {
 
   [Types.GET_REWARDED_LIST]: getRewardedList,
   [Types.SET_REWARDED_LIST]: setRewardedList,
+
+  [Types.RE_LOTTERY]: reLottery,
 });

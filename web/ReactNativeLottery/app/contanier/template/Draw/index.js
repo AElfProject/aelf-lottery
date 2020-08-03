@@ -49,7 +49,7 @@ const Draw = () => {
       periodNumber,
       drawTime,
       luckyNumber,
-    } = drawPeriod;
+    } = drawPeriod || {};
     console.log(drawPeriod, '=====drawPeriod');
     return (
       <View style={styles.titleBox}>

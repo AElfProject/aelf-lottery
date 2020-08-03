@@ -27,7 +27,7 @@ const ShowBetComponent = props => {
         金币
       </TextL>
       <TextM style={styles.winningTip}>
-        如果中奖, 奖金金额为{bonusAmount}, 盈利{bonusAmount - betValue}
+        如果中奖, 奖金金额为{bonusAmount}, 盈利{(bonusAmount || 1) - betValue}
       </TextM>
       <View style={styles.container}>
         <View style={styles.showBox}>

@@ -24,7 +24,7 @@ import aelfUtils from '../utils/pages/aelfUtils';
 import unitConverter from '../utils/pages/unitConverter';
 import {LOTTERY_LIMIT} from '../config/lotteryConstant';
 import navigationService from '../utils/common/navigationService';
-const {contractNameAddressSets, lotterySellerAddress} = config;
+const {contractNameAddressSets, lotterySellerAddress, tokenSymbol} = config;
 function* buySaga({data}) {
   try {
     Loading.show();
@@ -46,6 +46,9 @@ function* buySaga({data}) {
       OverlayModal.hide();
       CommonToast.success('购买成功');
       console.log(result, '======result');
+    } else {
+      Loading.hide();
+      CommonToast.fail('购买失败,请稍后再试');
     }
   } catch (error) {
     OverlayModal.hide();
@@ -71,18 +74,14 @@ function* initLotterySaga() {
 
       yield put(lotteryActions.getLotteryCashed(lotteryContract, lotteryInfo));
 
+      yield put(lotteryActions.getLotterySymbol(lotteryContract, lotteryInfo));
+
       yield put(
         lotteryActions.getLotteryDuration(lotteryContract, lotteryInfo),
       );
-
-      const symbol = yield lotteryContract.GetTokenSymbol.call();
-      const lotterySymbol = (symbol || {}).value;
-      if (lotteryInfo.lotterySymbol !== lotterySymbol) {
-        yield put(lotteryActions.setLotterySymbol(lotterySymbol));
-      }
-
+      const {lotterySymbol} = lotteryInfo || {};
       const lotteryBalance = yield tokenContract.GetBalance.call({
-        symbol: lotterySymbol,
+        symbol: lotterySymbol || tokenSymbol,
         owner: contractNameAddressSets.lotteryContract,
       });
       const confirmBlance = unitConverter.toLower(lotteryBalance.balance);
@@ -108,7 +107,6 @@ function* getDrawPeriodSaga({lotteryContract, lotteryInfo}) {
 function* getCurrentPeriodSaga({lotteryContract, lotteryInfo}) {
   try {
     const currentPeriod = yield lotteryContract.GetCurrentPeriod.call();
-
     if (
       JSON.stringify(lotteryInfo.currentPeriod) !==
       JSON.stringify(currentPeriod)
@@ -125,6 +123,17 @@ function* getLotteryPriceSaga({lotteryContract, lotteryInfo}) {
     const lotteryPrice = unitConverter.toLower(price?.value);
     if (lotteryInfo.lotteryPrice !== lotteryPrice) {
       yield put(lotteryActions.setLotteryPrice(lotteryPrice));
+    }
+  } catch (error) {
+    console.log('getCurrentPeriodSaga', error);
+  }
+}
+function* getLotterySymbolSaga({lotteryContract, lotteryInfo}) {
+  try {
+    const symbol = yield lotteryContract.GetTokenSymbol.call();
+    const lotterySymbol = (symbol || {}).value;
+    if (lotteryInfo.lotterySymbol !== lotterySymbol) {
+      yield put(lotteryActions.setLotterySymbol(lotterySymbol));
     }
   } catch (error) {
     console.log('getCurrentPeriodSaga', error);
@@ -363,6 +372,7 @@ export default function* SettingsSaga() {
     yield takeLatest(lotteryTypes.GET_DRAW_PERIOD, getDrawPeriodSaga),
     yield takeLatest(lotteryTypes.GET_CURRENT_PERIOD, getCurrentPeriodSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY_PRICE, getLotteryPriceSaga),
+    yield takeLatest(lotteryTypes.GET_LOTTERY_SYMBOL, getLotterySymbolSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY_REWARDS, getLotteryRewardsSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY_CASHED, getLotteryCashedSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY_DURATION, getLotteryDurationSaga),
