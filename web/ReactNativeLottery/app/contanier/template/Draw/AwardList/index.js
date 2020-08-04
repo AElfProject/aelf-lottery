@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     marginLeft: pTd(10),
   },
   leftBox: {
-    width: '34%',
+    width: '36%',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   },
   rightBox: {
     alignItems: 'flex-end',
-    width: '26%',
+    width: '24%',
   },
   colorText: {
     color: Colors.fontColor,

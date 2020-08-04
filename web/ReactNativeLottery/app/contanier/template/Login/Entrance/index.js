@@ -15,7 +15,7 @@ import {localLanguage} from '../../../../i18n/config';
 import {useDispatch} from 'react-redux';
 import settingsActions from '../../../../redux/settingsRedux';
 import {BarCodeScanner} from 'expo-barcode-scanner';
-import {GStyle} from '../../../../assets/theme';
+import {GStyle, Colors} from '../../../../assets/theme';
 import {permissionDenied} from '../../../../utils/pages';
 import {useStateToProps} from '../../../../utils/pages/hooks';
 const Entrance = props => {
@@ -108,6 +108,7 @@ const Entrance = props => {
               onPress={onLogin}
             />
             <CommonButton
+              style={{backgroundColor: Colors.purpleColor}}
               title={i18n.t('login.register')}
               onPress={onRegister}
             />

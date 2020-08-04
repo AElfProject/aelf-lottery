@@ -18,7 +18,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: pTd(80),
-    backgroundColor: '#ab7ee6',
+    backgroundColor: '#FC6D30',
   },
   toolBox: {
     backgroundColor: 'white',

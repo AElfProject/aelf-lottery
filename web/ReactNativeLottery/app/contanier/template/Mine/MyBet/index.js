@@ -94,6 +94,7 @@ const MyBet = () => {
         reward,
       } = item || {};
       const noDraw = currentPeriod?.periodNumber === periodNumber;
+      const rewardStyle = reward && reward > 0 ? styles.colorText : {};
       return (
         <Touchable
           disabled={noDraw}
@@ -111,7 +112,7 @@ const MyBet = () => {
           <View style={styles.intermediateBox}>
             <TextM style={styles.intermediateText}>
               {i18n.t('lottery.first')}
-              <TextM style={styles.colorText}>
+              <TextM style={rewardStyle}>
                 {lotteryUtils.getPeriod(
                   createTime,
                   startPeriodNumberOfDay,
@@ -122,7 +123,7 @@ const MyBet = () => {
             </TextM>
           </View>
           <View style={styles.rightBox}>
-            <TextM style={reward && reward > 0 ? styles.colorText : {}}>
+            <TextM style={rewardStyle}>
               {lotteryUtils.getWinningSituation(
                 cashed,
                 Expired,
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
     marginLeft: pTd(10),
   },
   leftBox: {
-    width: '34%',
+    width: '36%',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
   },
   rightBox: {
     alignItems: 'flex-end',
-    width: '26%',
+    width: '24%',
   },
   colorText: {
     color: Colors.fontColor,

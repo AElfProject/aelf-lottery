@@ -266,9 +266,9 @@ function* takeRewardSaga({lotteryId}) {
       yield delay(3000);
       const result = yield aelfUtils.getTxResult(reward.TransactionId);
       console.log(result, '======result');
-      Loading.hide();
       CommonToast.success(i18n.t('lottery.lotterySaga.acceptedSuccess'));
       yield put(userActions.getUserBalance());
+      Loading.hide();
       yield delay(2000);
       yield put(lotteryActions.getRewardedList());
       navigationService.goBack();

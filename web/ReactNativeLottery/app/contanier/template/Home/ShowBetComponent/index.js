@@ -14,14 +14,14 @@ const ShowBetComponent = props => {
       lotteryPrice: lottery.lotteryPrice,
     };
   });
-  const {betList, data, onClear, onBet, bonusAmount} = props;
+  const {betList, data, onClear, onBet, bonusAmount, betComponentStyle} = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
   const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
   const disabled = data.every((item, index) => {
     return Array.isArray(betList[index]) && betList[index].length > 0;
   });
   return (
-    <View style={styles.bottomBox}>
+    <View style={[styles.bottomBox, betComponentStyle]}>
       <TextL>
         {i18n.t('lottery.currentlySelected')}
         <TextL style={styles.colorText}>{betNumber}</TextL>
@@ -76,6 +76,7 @@ export default memo(ShowBetComponent);
 
 const styles = StyleSheet.create({
   bottomBox: {
+    marginHorizontal: pTd(20),
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   container: {
-    width: '85%',
+    width: '89%',
     alignItems: 'center',
   },
   clearBox: {

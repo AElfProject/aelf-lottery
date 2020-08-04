@@ -21,6 +21,7 @@ export default StyleSheet.create({
     marginTop: -offset,
   },
   loginButton: {
+    backgroundColor: Colors.purpleColor,
     marginBottom: pTd(50),
   },
   BottomBox: {

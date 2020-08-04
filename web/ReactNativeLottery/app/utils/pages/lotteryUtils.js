@@ -180,12 +180,12 @@ const getThreeForm = winningNumbers => {
 const getCombined = (winningNumbers, number = 3) => {
   let arr = getWinningNumbersStr(winningNumbers);
   const length = arr.length;
-  arr = arr.splice(length - number, length).sort();
+  arr = arr.splice(length - number, length);
   let s = 0;
   arr.forEach(item => {
-    s = s + Number(item);
+    s = s + parseInt(item, 10);
   });
-  return s;
+  return s.toString();
 };
 const getBetType = type => {
   let text = '';

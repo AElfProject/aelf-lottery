@@ -78,6 +78,7 @@ const ThreeStars = () => {
           onClear={() => setBetList([])}
           bonusAmount={bonusAmount}
           onSelect={onSelect}
+          betComponentStyle={styles.betComponentStyle}
         />
       </CommonHeader>
     </View>
@@ -98,5 +99,8 @@ const styles = StyleSheet.create({
   },
   titleStyle: {
     color: Colors.fontColor,
+  },
+  betComponentStyle: {
+    marginTop: pTd(10),
   },
 });
