@@ -20,13 +20,7 @@ const HowToPlay = () => {
     <View style={GStyle.container}>
       <CommonHeader title={i18n.t('lottery.howToPlay.title')} canBack>
         <View style={styles.container}>
-          <TextL
-            onPress={() => {
-              const {bb} = language.a;
-              console.log(bb);
-            }}>
-            {howPlay?.details}
-          </TextL>
+          <TextL>{howPlay?.details}</TextL>
         </View>
       </CommonHeader>
     </View>

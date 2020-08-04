@@ -93,4 +93,7 @@ export default {
    * Each bet is worth a few gold coins
    */
   lotterySellerAddress: 'RXcxgSXuagn8RrvhQAV81Z652EEYSwR6JLnqHYJ5UVpEptW8Y',
+
+  dingtalkAccessToken:
+    'c75314783288717c36b5828026872d5ca3cb92c15b3aced4d7202b97f16e9bb2',
 };

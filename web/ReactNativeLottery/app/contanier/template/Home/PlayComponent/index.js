@@ -7,7 +7,14 @@ import {Colors} from '../../../../assets/theme';
 import {pTd} from '../../../../utils/common';
 const titleWidth = 50;
 import i18n from 'i18n-js';
+import {useStateToProps} from '../../../../utils/pages/hooks';
 const Item = memo(props => {
+  const {language} = useStateToProps(base => {
+    const {settings} = base;
+    return {
+      language: settings.language,
+    };
+  });
   const [list] = useState([
     {title: i18n.t('lottery.big'), type: 'big'},
     {title: i18n.t('lottery.small'), type: 'small'},
@@ -28,11 +35,16 @@ const Item = memo(props => {
   if (!playList || !Array.isArray(playList)) {
     return null;
   }
-  const offset =
-    playList.length > 5 ? playList.length * 1.4 : playList.length * 2.4;
+  const simple = playList.length < 5;
+  const offset = !simple
+    ? playList.length * 1.4
+    : !language || language === 'en'
+    ? playList.length * 1.8
+    : playList.length * 2.4;
 
   const width = (getWindowWidth() - titleWidth) / offset;
-  const fontSize = width * 0.55;
+  const fontSize =
+    simple && (!language || language === 'en') ? width * 0.3 : width * 0.55;
   return (
     <View
       style={[

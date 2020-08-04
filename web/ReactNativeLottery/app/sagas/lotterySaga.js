@@ -339,6 +339,7 @@ function* getRewardedListSaga({loadingPaging, callBack}) {
         offset,
         limit: LOTTERY_LIMIT,
       });
+      console.log(result, '=====result');
       const {lotteries} = result || {};
       if (Array.isArray(lotteries)) {
         let list = [];
@@ -355,12 +356,21 @@ function* getRewardedListSaga({loadingPaging, callBack}) {
         }
         yield put(lotteryActions.setRewardedList(list));
       } else {
+        if (!loadingPaging) {
+          yield put(lotteryActions.setRewardedList([]));
+        }
         callBack && callBack(0);
       }
     } else {
+      if (!loadingPaging) {
+        yield put(lotteryActions.setRewardedList([]));
+      }
       callBack && callBack(-1);
     }
   } catch (error) {
+    if (!loadingPaging) {
+      yield put(lotteryActions.setRewardedList([]));
+    }
     callBack && callBack(-1);
     console.log(error, '======getRewardedListSaga');
   }
