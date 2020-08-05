@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
   logoStyle: {
     width: '50%',
     marginBottom: pTd(20),
+    tintColor: Colors.primaryColor,
   },
   itemBox: {
     marginBottom: pTd(20),

@@ -108,7 +108,6 @@ const Entrance = props => {
               onPress={onLogin}
             />
             <CommonButton
-              style={{backgroundColor: Colors.purpleColor}}
               title={i18n.t('login.register')}
               onPress={onRegister}
             />

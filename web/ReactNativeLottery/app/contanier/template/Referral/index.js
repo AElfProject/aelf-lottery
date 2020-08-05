@@ -70,7 +70,7 @@ const Referral = () => {
   }, [changeLanguage, language, securityLock, address]);
   return (
     <ImageBackground style={style} source={launchScreen}>
-      <Spinner type={'Circle'} color={Colors.purpleColor} size={60} />
+      <Spinner type={'Circle'} color={Colors.primaryColor} size={60} />
     </ImageBackground>
   );
 };

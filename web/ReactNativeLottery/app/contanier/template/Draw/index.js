@@ -16,6 +16,8 @@ import lotteryUtils from '../../../utils/pages/lotteryUtils';
 import aelfUtils from '../../../utils/pages/aelfUtils';
 import {useStateToProps} from '../../../utils/pages/hooks';
 import i18n from 'i18n-js';
+import {useFocusEffect} from '@react-navigation/native';
+let isActive;
 const Draw = () => {
   const [loadCompleted, setLoadCompleted] = useState(false);
   const dispatch = useDispatch();
@@ -28,6 +30,15 @@ const Draw = () => {
       periodList: lottery.periodList,
     };
   });
+  useFocusEffect(
+    useCallback(() => {
+      isActive = true;
+      upPullRefresh();
+      return () => {
+        isActive = false;
+      };
+    }, [upPullRefresh]),
+  );
   const getPeriodList = useCallback(
     (loadingPaging, callBack) =>
       dispatch(lotteryActions.getPeriodList(loadingPaging, callBack)),
@@ -73,9 +84,15 @@ const Draw = () => {
     );
   }, [drawPeriod, language]);
   const upPullRefresh = useCallback(() => {
-    getPeriodList();
-    list.current && list.current.endUpPullRefresh();
-    list.current && list.current.endBottomRefresh();
+    getPeriodList(false, v => {
+      if (v === 1) {
+        setLoadCompleted(false);
+      } else {
+        setLoadCompleted(true);
+      }
+      list.current && list.current.endUpPullRefresh();
+      list.current && list.current.endBottomRefresh();
+    });
   }, [getPeriodList]);
   const onEndReached = useCallback(() => {
     getPeriodList(true, v => {
@@ -175,7 +192,7 @@ const styles = StyleSheet.create({
     color: Colors.fontColor,
   },
   leftItem: {
-    paddingLeft: pTd(20),
+    paddingLeft: pTd(60),
   },
   rightItem: {
     textAlign: 'right',

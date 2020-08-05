@@ -145,12 +145,14 @@ const getPeriod = (time, start, periodNumber) => {
   if (!time || start === undefined || periodNumber === undefined) {
     return '';
   }
-  let period = periodNumber - start;
-  if (time) {
-    period =
-      moment(getMillisecond(time)).format(LOTTERY_DAY) + padLeft(period + 1, 3);
-  }
-  return period;
+  // The UTC time zone stored in the contract is not synchronized with the App local time zone
+  // let period = periodNumber - start;
+  // if (time) {
+  //   period =
+  //     moment(getMillisecond(time)).format(LOTTERY_DAY) + padLeft(period + 1, 3);
+  // }
+  // return period;
+  return periodNumber;
 };
 const getWinningNumbers = winningNumbers => {
   let win = '';

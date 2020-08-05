@@ -268,8 +268,8 @@ function* takeRewardSaga({lotteryId}) {
       console.log(result, '======result');
       CommonToast.success(i18n.t('lottery.lotterySaga.acceptedSuccess'));
       yield put(userActions.getUserBalance());
-      Loading.hide();
       yield delay(2000);
+      Loading.hide();
       yield put(lotteryActions.getRewardedList());
       navigationService.goBack();
     } else {
