@@ -68,66 +68,76 @@ const howToPlay = {
   },
   en: {
     details: `
-    Happy time lottery betting is divided into ten thousand digits, thousand digits, hundred digits, tens digits and ones digits. The range of each number is 0-9. One number is drawn from everyone in each period as the winning number, that is, the winning number is 5 digits. The gameplay of Happy Time Lottery is to guess all the numbers, some numbers or some of the features of the 5-digit winning numbers. Happy time lottery points lottery game play and big and small odd and double play. The star color gameplay includes four game modes: one-star, two-star, three-star, and five-star.
+    The bets of Happy Lottery is divided into 5 digit, 4 digit, 3 digit, 2 digit and 1 digit. Each digit range is 0-9. We will draw a number from each digit as the winning number, that is, the winning number is 5 digits. The happy lottery is to guess all the numbers or part number of the 5-digit winning numbers. There are two ways to play Happy Lottery, including ‘pick number’ and ‘big, small, odd, even’. ‘Pick number’ includes pick 1, pick 2, pick 3 and pick 5.
 
-    <1>Direct selection: Place the betting numbers in a unique arrangement.
-    <2>Group selection: All arrangements of betting numbers are used as a betting number for betting. Example: 123, there are 123, 132, 213, 231, 312, 321, 6 types in total.
-    <3> Group selection three: In the three-star group selection, if two numbers of the 3 numbers of a group selection number are the same, there are 3 different arrangements, so there are 3 chances of winning. This kind of group selection betting The method is referred to as “Group Selection Three”. Example: 112, the arrangement is 112, 121, 211.
-    <4> Group selection six: In the three-star group selection, if the 3 numbers of a group selection number are different, there are 6 different arrangements, so there are 6 chances of winning. This group selection betting method is referred to as Group choose six. Example: 123, there are 123, 132, 213, 231, 312, 321, 6 types in total.
-    <5> Size Odd and Even: Among the numbers 0-9, 0-4 are small, 5-9 are big, 1, 3, 5, 7, 9 are odd, and 0, 2, 4, 6, 8 are double.
-    
-    1、Betting method
-    1. Single and double size
-    For tens and ones, choose one of the four characteristics of odd and even numbers as one bet. Up to four characteristics can be selected as a bet. If the selected characteristic is consistent with the characteristics of the last two numbers of the lottery number, you will win. gold. Example: The last two digits of the lottery number are 78, then big, big double, odd-even, single big
-    
-    2. One star
-     Choose 1 number for the ones place as a bet. You can select all from 0-9 at most. If the betting number is the same as the last one of the lottery number, you will win the prize.
-    
-    3. Two-star direct election
-    One bet for each of the ten and one digits is a bet. Each number can be selected from 0 to 9 at most. The betting number is the same as the last two digits of the winning number.
-    
-    4. Two-star sum value
-    The sum value refers to the sum of the digits of the number, such as the number 01, the sum value is 1. Two-star sum betting refers to betting with all the numbers corresponding to a certain two-star sum value. The selected sum value is consistent with the last two sum values of the winning number, and the winning is a single bet of 100 gold coins. Example: Choose a two-star sum value 1 bet, that is, use the number (01, 10) corresponding to the sum value 1, such as the winning number.
-    
-    5. Two-star group selection
-    Choose two digits from 0-9 to bet on the tens place and the ones place, and you can choose all from 0-9 at most. The selected number is the same as the last two digits of the lottery number, and the order is not limited, that is, winning, a single bet of 50 gold coins. Example: Select 12, a total of 1 bet, if the last two numbers of the winning number are 12 or 21, you will win.
-    
-    6. Three-star direct election
-    One bet is to choose one number each for the hundreds, tens and ones digits. Each number can be selected from 0-9 at most. If the betting number matches the last three digits of the lottery number, it is the winning. A single bet will be awarded with 1,000 gold coins.
-    
-    7. Three-star and value
-    The sum value refers to the sum of the digits of the number, such as the number 001, the sum value is 1. Three-star sum betting refers to betting with all the numbers corresponding to a certain three-star sum value. The selected sum value is consistent with the last three digits of the winning number to win the prize. A single bet is awarded with 1000 gold coins. Example: Choose a three-star sum value 1 to bet, that is, use the number (001, 010, 100) corresponding to the sum value 1 to bet. If the sum of the last three digits of the winning number is 1, the prize is won.
-    
-    8. Group three package number
-    Group three pack numbers refer to group three betting with all group three arrangements of the selected numbers. If the winning number is group three and is included in the selected number, it means winning, and a single bet will be rewarded with 320 gold coins. Example: Group three pack number 12, a total of 2 bets (112, 122), such as the last three numbers 112, 121, 211, 122, 212, 221 are all winning.
-    
-    9. Group six pack number
-    Group six pack numbers refer to group six betting with all six groups of the selected numbers. If the winning number is group six and it is included in the selected number, it means winning, and a single bet will be rewarded with 160 gold coins. Example: Group of six packs of number 123, a total of 1 bet, if the last three digits of the winning numbers are 123, 132, 213, 231, 312, 321, all wins.
-    
-    10. Five-star direct election
-    Choose 1 number each for ten thousand, thousand, hundred, ten, and ones. Each number can be selected from 0-9. The betting number is consistent with the lottery number, that is, winning, single bet The bonus is 100,000 gold coins.
-    
-    11. Five-star general election
-    Choose 1 number each for ten thousand, thousand, hundred, ten, and ones. Each number can be selected from 0-9 at most. If the betting number matches the lottery number according to the position, the first prize will be won. The bonus is 20,000 gold coins. If the first three digits of the betting number are consistent with the first three digits of the winning number or the last three digits of the betting number are consistent with the last three digits of the winning number, the second prize will be won and a single bet will be awarded 200 gold coins. If the first two digits of the betting number match the first two digits of the winning number or the last two digits of the betting number match the last two digits of the winning number, the third prize will be won and a single bet will be awarded 20 gold coins. Five stars can choose one bet number, and the three prize levels can take all. There are 5 chances to win the prize. That is, they won the first prize, and also won 2 second prizes and 2 third prizes. In the same way, 1 bet of the second prize was won, and 1 bet of the third prize was also won.
-    
-    2、 Set and win prizes
-    Odd and even size——middle tens and singles odd and even——4 gold coins
-    One star——middle single number——10 gold coins
-    Two-star direct selection award——positioning the middle and last two yards——100 gold coins
-    Two-star group selection award——do not locate the middle and last two yards——50 gold coins
-    Three-star Direct Selection Award——Positioning the middle and last three yards——1000 gold coins
-    Three-star group selection three award——do not locate the middle and last three yards——320 gold coins
-    Three-star group selection six award——do not locate the middle and last three yards——160 gold coins
-    Five-star direct selection award——5 yards in positioning——100,000 gold coins
-    Five-star selection first prize——5 yards in the positioning——20000 gold coins
-    Five-star general selection second prize——positioning the first three yards or the last three yards——200 gold coins
-    Five-star selection third prize——the first two yards or the last two yards in the positioning——20 gold coins
-    
-    Note:
-    <1>Assuming that the current lottery number is 45678 (the applicable lottery number for group selection is 45668).
-    <2>The first three codes and the last three codes: the first three codes refer to the first three numbers of the winning number, and the last three codes refer to the last three numbers of the winning number. Example: The winning number is 45678, the first three digits are 456, and the last three digits are 678.
-    <3>The first two codes and the last two codes: the first two codes refer to the first two numbers of the winning number, and the last two codes refer to the last two numbers of the winning number. Example: The winning number is 45678, the first two codes are 45, and the last two codes are 78.
-    <4> Positioning and non-positioning: Positioning means that the betting number is consistent with the lottery number, and non-positioning means that the betting number is the same as the lottery number, and the order is not limited. Example: The winning number is 45678, 78 means the bottom two digits are located, 78 or 87 means the bottom two digits are not located.`,
+<1> Straight: Your digits must match all the digits drawn in exact order to win a prize.
+
+<2> Box – Your digits must match all the digits drawn in any order to win a prize. EXAMPLE: 123, winning combination arranged in six ways: 123, 132, 213, 231, 312, 321.
+
+<3> Box 3-Way – Two of the three digits must be the same. If the 2 identical digits you selected match the winning numbers in any order, you will win.  EXAMPLE: 112, winning combination: 112, 121, 211.
+
+<4> Box 6-Way – All three of the numbers you select must be different. You numbers can match the winning numbers in any order to win. For example: 123, winning combination arranged in six ways: 123, 132, 213, 231, 312, 321.
+
+< 5 > Big, small, odd, even: In the number 0 ~ 9, 0 ~ 4 is small, 5 ~ 9 is large, 1,3,5,7,9 is odd, 0,2,4,6,8 is even.
+A. How to Bet
+
+1. Big, Small, Odd, Even
+We need to guess the features of tens and ones digits. We can choose features from the ‘big-small-odd-even’ to place a single bet, with a maximum of four features. If the feature you choose matches the last two digits of the winning number, you win. The prize for a single bet is 4 gold coins. EXAMPLE: The last two digits of winning number are 78, then big-big, big-even, odd-even, odd-big will win.
+
+2. Pick 1
+Place a bet, select one digit from 0 to 9. If the bet number is the same as the last one digit of winning number, you will win. The prize for a single bet is 10 gold coins.
+
+3. Pick 2 (Straight)
+Place a bet, select 2 number from 0 to 9 for the ten digits and one digit. If the bet number is consistent with the last two digits of the winning number, it is the winner. The prize for a single bet is 100 gold coins.
+
+4. The Sum of ‘Pick 2’ (sum digits up)
+The sum value refers to the sum values of digits, such as number ‘01’, and the sum value is 1. The sum of ‘Pick 2’ is a bet on the sum of two digit. If the sum value selected matches the sum value of the last two digits of the winning number, it is the winner. The prize for a single bet is 100 gold coins. Example: You might bet the sum value of the 'Pick 2' is 1, that is, bet with the number (01, 10) corresponding to the sum value of 1. If the sum value of the last two digits of the winning number is 1, it is the winner.
+
+5. Box 2-Way (2 digits in any order)
+From the number 0-9, you can choose any two digits to bet. If the 2 digits you choose match the last 2 digits of winning number in any order, you can win. The prize for a single bet is 50 gold coins. Example: you choose 12 to bet, If the last two digits of the winning number are 12 or 21, you will win.
+
+6. Pick 3 - Straight (Exact Order) 
+Select 3 digits from 0 to 9. If the 3 digits you choose match the last three digits of winning number in exact order, you can win. The prize for a single bet is 1000 gold coins.
+
+7. The Sum of ‘Pick 3’ (sum digits up)
+The Sum of ‘Pick 3’ refers to the sum value of digits, such as number ‘001’, and the sum is 1. The Sum of ‘Pick 3’ is a bet on the sum of three digits. If the sum value you choose matches the sum of the last three digits of the winning number, you will win. The prize for a single bet is 1000 gold coins. Example: You might bet the sum value of the 'Pick 3' is 1, that is, bet with the 3 digits (001, 010, 100). If the sum value of the last three digits of the winning number is 1, you will win.
+
+8. 3-Way Combo (any order)
+3-Way Combo refers to betting on 2 identical digits in any order. If the 2 digits you choose match the winning number in exact order, you will win. The prize for a single bet is 320 gold coins. Example: Select the 2 identical digits ‘12’, that is, 2 bets (112, 122), winning combination will be 112, 121, 211, 122, 212, 221.
+Note: Number of Bets = a (n, 2)
+
+9. 6-Way Combo (any order)
+6-Way Combo refers to betting on 3 unique digits in any order. If the 3 digits you choose match the winning number in exact order, you will win. The prize for a single bet is 160 gold coins. Example: Select the 3 unique digits ‘123’, that is, winning combination will be 123、132, 213, 231, 312, 321.
+
+10. Pick 5 - Straight (Exact Order) 
+Select 5 digits from 0 to 9. If the 5 digits you choose match the winning number in exact order, you can win. The prize for a single bet is 100,000 gold coins.
+
+11. Pick 5 (Straight/Front/Back)
+For 1st prize: Select 5 digits from 0 to 9. If the 5 digits you choose match the winning number in exact order, you can win. The 1st prize is 20,000 gold coins.
+For 2nd prize: select the first/last 3 digits from 0 to 9. If the first/last 3 digits you choose match the winning number in exact order, you can win. The 2nd prize is 200 gold coins.
+For 3rd prize - select the first/last 2 digits from 0 to 9. If the first/last 2 digits you choose match the winning number in exact order, you can win. The 2nd prize is 20 gold coins.
+
+B. Prize setting and winning
+
+Big, small, odd, even - one or two digits - 4 gold coins
+pick 1 - one digit - 10 gold coins
+pick 2 (Straight) - last two digits (exact order) - 100 gold coins
+Box 2-Way - last two digits (any order) - 100 gold coins
+pick 3 (Straight) - last three digits (exact order) - 1000 gold coins
+Box 3-Way - 2 identical digits (any order) - 320 gold coins
+Box 6-Way - last three digits (any order) - 160 gold coins
+Pick 5 (Straight) -  fivev digits (exact order)
+Pick 5 (Straight/Front/Back)1st prize - 5 digits (exact order) - 20,000 gold coins.
+Pick 5 (Straight/Front/Back)2nd prize - first/last 3 digits (exact order) - 200 gold coins.
+Pick 5 (Straight/Front/Back)3rd prize - first/last 2 digits (exact order) - 20 gold coins.
+
+<1> Suppose that the winning number is 45678 (For Box-3 way: the assuming winning number is 45668).
+
+<2> The front 3 digits and the back 3 digits: The front 3 digits refer to the first 3 digits of the winning number, and the back 3 digits refer to the last 3 digits of the winning number. Example: the winning number is 45678, The front 3 digits are 456, and the back 3 digits are 678.
+
+<3> The front 2 digits and the back 2 digits: The front 2 digits refer to the first 2 digits of the winning number, and the back 2 digits refer to the last 2 digits of the winning number. Example: the winning number is 45678, The front 2 digits are 45, and the back 3 digits are 78.
+
+<4> Exact order and Any order: Winning combination can be divided into in order and out of order. Exact order = in order, Any order = out of order. Example: winning number is ‘45678’, the last two digits of winning number in order should be ‘78’.`,
   },
 };
 

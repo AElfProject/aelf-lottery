@@ -14,7 +14,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		221631E0AFFBA3921B1EAF8C /* libPods-aelfAccount.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 044769FD47173B5FA8E24C2A /* libPods-aelfAccount.a */; };
-		2B55AD8124DA81EF00B3C731 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2B55AD8024DA81EE00B3C731 /* GoogleService-Info.plist */; };
+		2BE99C2924DBA6B40035C00B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2BE99C2824DBA6B40035C00B /* GoogleService-Info.plist */; };
 		2BF4E02B24ADA48A00CEB4FA /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BF4E02A24ADA48A00CEB4FA /* SplashScreen.storyboard */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -55,7 +55,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = aelfAccount/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = aelfAccount/main.m; sourceTree = "<group>"; };
 		24A2C7DD47965391054F7759 /* Pods-aelfAccount-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-aelfAccount-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-aelfAccount-tvOSTests/Pods-aelfAccount-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
-		2B55AD8024DA81EE00B3C731 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		2BE99C2824DBA6B40035C00B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2BF4E02A24ADA48A00CEB4FA /* SplashScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = SplashScreen.storyboard; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* aelfAccount-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "aelfAccount-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* aelfAccount-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "aelfAccount-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,6 +131,7 @@
 		13B07FAE1A68108700A75B9A /* aelfAccount */ = {
 			isa = PBXGroup;
 			children = (
+				2BE99C2824DBA6B40035C00B /* GoogleService-Info.plist */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -166,7 +167,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				2B55AD8024DA81EE00B3C731 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* aelfAccount */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* aelfAccountTests */,
@@ -354,7 +354,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2BF4E02B24ADA48A00CEB4FA /* SplashScreen.storyboard in Resources */,
-				2B55AD8124DA81EF00B3C731 /* GoogleService-Info.plist in Resources */,
+				2BE99C2924DBA6B40035C00B /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);

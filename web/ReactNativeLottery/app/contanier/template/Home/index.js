@@ -202,6 +202,7 @@ const Home = () => {
       return (
         <WordRotation
           key={express}
+          duration={20000}
           textStyle={styles.rotationText}
           bgViewStyle={styles.rotationBox}>
           {express}
