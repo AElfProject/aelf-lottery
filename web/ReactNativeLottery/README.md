@@ -5,6 +5,7 @@
 ```bash
 npm run postinstall
 ```
+## Track Crash
 
 ## Firebase
 ### Android
