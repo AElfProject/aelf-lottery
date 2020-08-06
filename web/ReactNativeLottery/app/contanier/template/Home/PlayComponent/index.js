@@ -1,4 +1,4 @@
-import React, {memo} from 'react';
+import React, {memo, useState} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Touchable} from '../../../../components/template';
 import {TextL, TextM} from '../../../../components/template/CommonText';
@@ -6,15 +6,23 @@ import {getWindowWidth} from '../../../../utils/common/device';
 import {Colors} from '../../../../assets/theme';
 import {pTd} from '../../../../utils/common';
 const titleWidth = 50;
-const list = [
-  {title: '大', type: 'big'},
-  {title: '小', type: 'small'},
-  {title: '奇', type: 'odd'},
-  {title: '偶', type: 'even'},
-  {title: '全', type: 'all'},
-  {title: '清', type: 'clear'},
-];
+import i18n from 'i18n-js';
+import {useStateToProps} from '../../../../utils/pages/hooks';
 const Item = memo(props => {
+  const {language} = useStateToProps(base => {
+    const {settings} = base;
+    return {
+      language: settings.language,
+    };
+  });
+  const [list] = useState([
+    {title: i18n.t('lottery.big'), type: 'big'},
+    {title: i18n.t('lottery.small'), type: 'small'},
+    {title: i18n.t('lottery.odd'), type: 'odd'},
+    {title: i18n.t('lottery.even'), type: 'even'},
+    {title: i18n.t('lottery.all'), type: 'all'},
+    {title: i18n.t('lottery.clear'), type: 'clear'},
+  ]);
   const {
     title,
     playList,
@@ -27,11 +35,16 @@ const Item = memo(props => {
   if (!playList || !Array.isArray(playList)) {
     return null;
   }
-  const offset =
-    playList.length > 5 ? playList.length * 1.4 : playList.length * 2.4;
+  const simple = playList.length < 5;
+  const offset = !simple
+    ? playList.length * 1.4
+    : !language || language === 'en'
+    ? playList.length * 1.8
+    : playList.length * 2.4;
 
   const width = (getWindowWidth() - titleWidth) / offset;
-  const fontSize = width * 0.55;
+  const fontSize =
+    simple && (!language || language === 'en') ? width * 0.3 : width * 0.55;
   return (
     <View
       style={[

@@ -5,31 +5,35 @@ import {Colors} from '../../../../assets/theme';
 import {pTd} from '../../../../utils/common';
 import {CommonButton} from '../../../../components/template';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
-import {useSelector, shallowEqual} from 'react-redux';
-import {lotterySelectors} from '../../../../redux/lotteryRedux';
+import {useStateToProps} from '../../../../utils/pages/hooks';
+import i18n from 'i18n-js';
 const ShowBetComponent = props => {
-  const lotteryInfo = useSelector(
-    lotterySelectors.getLotteryInfo,
-    shallowEqual,
-  );
-  const {betList, data, onClear, onBet, bonusAmount} = props;
+  const {lotteryPrice} = useStateToProps(base => {
+    const {lottery} = base;
+    return {
+      lotteryPrice: lottery.lotteryPrice,
+    };
+  });
+  const {betList, data, onClear, onBet, bonusAmount, betComponentStyle} = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
-  const betValue = lotteryUtils.getBetValue(
-    betNumber,
-    lotteryInfo?.lotteryPrice,
-  );
+  const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
   const disabled = data.every((item, index) => {
     return Array.isArray(betList[index]) && betList[index].length > 0;
   });
   return (
-    <View style={styles.bottomBox}>
+    <View style={[styles.bottomBox, betComponentStyle]}>
       <TextL>
-        您当前选择了<TextL style={styles.colorText}>{betNumber}</TextL>
-        注, 共<TextL style={styles.colorText}>{betValue}</TextL>
-        金币
+        {i18n.t('lottery.currentlySelected')}
+        <TextL style={styles.colorText}>{betNumber}</TextL>
+        {i18n.t('lottery.note')}, {i18n.t('lottery.total')}
+        <TextL style={styles.colorText}>{betValue}</TextL>
+        {i18n.t('lottery.unit')}
       </TextL>
       <TextM style={styles.winningTip}>
-        如果中奖, 奖金金额为{bonusAmount}, 盈利{bonusAmount - betValue}
+        {i18n.t('lottery.winningTip', {
+          bonusAmount,
+          profit: (bonusAmount || 1) - betValue,
+        })}
       </TextM>
       <View style={styles.container}>
         <View style={styles.showBox}>
@@ -56,12 +60,12 @@ const ShowBetComponent = props => {
             : null}
         </View>
         <TextL onPress={onClear} style={styles.clearBox}>
-          清除选号
+          {i18n.t('lottery.clearSelection')}
         </TextL>
         <CommonButton
           disabled={!disabled}
           onPress={onBet}
-          title="下单"
+          title={i18n.t('lottery.order')}
           style={styles.buttonStyle}
         />
       </View>
@@ -72,6 +76,7 @@ export default memo(ShowBetComponent);
 
 const styles = StyleSheet.create({
   bottomBox: {
+    marginHorizontal: pTd(20),
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -100,7 +105,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   container: {
-    width: '85%',
+    width: '89%',
     alignItems: 'center',
   },
   clearBox: {

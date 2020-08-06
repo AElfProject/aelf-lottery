@@ -39,11 +39,24 @@ const formatRestoreAddress = addressInput => {
     .replace(new RegExp(tail, 'g'), '');
 };
 const formatAddress = addressInput => {
-  if (!addressInput) {
+  if (!addressInput || typeof addressInput !== 'string') {
     return '';
   }
   addressInput = formatRestoreAddress(addressInput);
   return prefix + '_' + addressInput + '_' + suffix;
+};
+const formatAddressHide = addressInput => {
+  const length = 20;
+  if (checkAddress(addressInput)) {
+    addressInput = formatAddress(addressInput);
+    if (typeof addressInput === 'string') {
+      return (
+        addressInput.substr(0, length) +
+        '***' +
+        addressInput.substr(addressInput.length - length, addressInput.length)
+      );
+    }
+  }
 };
 //checkAddress
 const checkAddress = addressInput => {
@@ -66,10 +79,18 @@ const webURLTx = addressInput => {
   addressInput = formatRestoreAddress(addressInput);
   return `${explorerURL}/tx/${addressInput}`;
 };
-const timeConversion = time => {
+const getMillisecond = time => {
+  const {seconds} = time || {};
+  let tim = seconds || time;
+  if (String(tim).length <= 10) {
+    return tim * 1000;
+  }
+  return tim;
+};
+const timeConversion = (time, format) => {
   let showTime = '';
   if (time) {
-    showTime = moment(time).format(TIME_FORMAT);
+    showTime = moment(getMillisecond(time)).format(format || TIME_FORMAT);
   }
   return showTime;
 };
@@ -80,6 +101,7 @@ export default {
   checkPassword,
   webURLAddress,
   formatAddress,
+  formatAddressHide,
   formatRestoreAddress,
   webURLTx,
   getTransactionFee,

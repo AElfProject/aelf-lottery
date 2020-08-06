@@ -53,17 +53,27 @@ class CountDown extends Component {
       };
     }
   }
+  componentDidUpdate(prevProps) {
+    const date = this.getDateData(prevProps.date);
+    if (JSON.stringify(date) !== JSON.stringify(this.state)) {
+      this.setTimer();
+    }
+  }
   componentDidMount() {
+    this.setTimer();
+  }
+  setTimer = () => {
+    this.interval && clearInterval(this.interval);
     this.interval = setInterval(() => {
       const date = this.getDateData(this.props.date);
       if (date) {
         this.setState(date);
       } else {
-        // this.stop();
+        this.stop();
         this.props.onEnd();
       }
     }, 1000);
-  }
+  };
   componentWillUnmount() {
     this.stop();
   }

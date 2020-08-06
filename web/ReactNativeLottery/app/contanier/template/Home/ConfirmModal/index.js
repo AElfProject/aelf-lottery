@@ -14,29 +14,30 @@ import {pTd} from '../../../../utils/common';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {Colors} from '../../../../assets/theme';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
-import {userSelectors} from '../../../../redux/userRedux';
-import {shallowEqual, useSelector, useDispatch} from 'react-redux';
-import lotteryActions, {lotterySelectors} from '../../../../redux/lotteryRedux';
+import {useDispatch} from 'react-redux';
+import lotteryActions from '../../../../redux/lotteryRedux';
 import TransactionVerification from '../../../../utils/pages/TransactionVerification';
+import navigationService from '../../../../utils/common/navigationService';
+import {useStateToProps} from '../../../../utils/pages/hooks';
+import i18n from 'i18n-js';
 const Component = props => {
   const dispatch = useDispatch();
   const buy = useCallback(data => dispatch(lotteryActions.buy(data)), [
     dispatch,
   ]);
-  const lotteryInfo = useSelector(
-    lotterySelectors.getLotteryInfo,
-    shallowEqual,
-  );
-  const balance = useSelector(userSelectors.getBalance, shallowEqual);
+  const {lotteryPrice, balance} = useStateToProps(base => {
+    const {user, lottery} = base;
+    return {
+      lotteryPrice: lottery.lotteryPrice,
+      balance: user.balance,
+    };
+  });
   const {data, betList, title, lotteryType} = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
-  const betValue = lotteryUtils.getBetValue(
-    betNumber,
-    lotteryInfo?.lotteryPrice,
-  );
+  const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
   const onBuy = useCallback(() => {
     if (betValue > balance) {
-      return CommonToast.fail('余额不足');
+      return CommonToast.fail(i18n.t('lottery.insufficientBalance'));
     }
     TransactionVerification.show(value => {
       value && buy({lotteryType, betList});
@@ -45,7 +46,9 @@ const Component = props => {
   return (
     <View style={styles.sheetBox}>
       <View style={styles.topBox}>
-        <TextL style={styles.titleStyle}>当前投注组合</TextL>
+        <TextL style={styles.titleStyle}>
+          {i18n.t('lottery.betCombination')}
+        </TextL>
         <Touchable onPress={() => OverlayModal.hide()} style={styles.iconStyle}>
           <FontAwesome name="close" color={Colors.fontGray} size={pTd(50)} />
         </Touchable>
@@ -76,20 +79,35 @@ const Component = props => {
       </View>
       <View style={styles.betBox}>
         <TextL>
-          本次消耗{'   '}
+          {i18n.t('lottery.consumption')}
+          {'   '}
           <TextL style={styles.colorText}>{betValue}</TextL>
-          {'    '} 金币
+          {'    '}
+          {i18n.t('lottery.unit')}
         </TextL>
-        <TextM style={styles.balanceStyle}>账户余额{balance}金币</TextM>
+        <TextM style={styles.balanceStyle}>
+          {i18n.t('lottery.accountBalance')}
+          {balance}
+          {i18n.t('lottery.unit')}
+        </TextM>
         <View style={styles.bottomBox}>
-          <TextL style={[styles.recharge, styles.hideRecharge]}>充值</TextL>
+          <TextL style={[styles.recharge, styles.hideRecharge]}>
+            {i18n.t('lottery.recharge')}
+          </TextL>
           <CommonButton
             disabled={betValue > balance}
             onPress={onBuy}
-            title="确认支付"
+            title={i18n.t('lottery.confirmPayment')}
             style={styles.buttonBox}
           />
-          <TextL style={styles.recharge}>充值</TextL>
+          <TextL
+            onPress={() => {
+              OverlayModal.hide();
+              navigationService.navigate('Receive');
+            }}
+            style={styles.recharge}>
+            {i18n.t('lottery.recharge')}
+          </TextL>
         </View>
       </View>
     </View>

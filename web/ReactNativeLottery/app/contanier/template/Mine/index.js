@@ -2,31 +2,37 @@ import React, {useEffect, memo, useMemo} from 'react';
 import {View, StatusBar, ScrollView} from 'react-native';
 import {GStyle, Colors} from '../../../assets/theme';
 import styles from './styles';
-import {connect, useSelector, shallowEqual} from 'react-redux';
+import {connect} from 'react-redux';
 import Icon from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Constants from 'expo-constants';
-import settingsActions, {settingsSelectors} from '../../../redux/settingsRedux';
+import settingsActions from '../../../redux/settingsRedux';
 import {pTd} from '../../../utils/common';
 import {TextL} from '../../../components/template/CommonText';
 import {Touchable, ListItem} from '../../../components/template';
 import navigationService from '../../../utils/common/navigationService';
 import i18n from 'i18n-js';
-import userActions, {userSelectors} from '../../../redux/userRedux';
+import userActions from '../../../redux/userRedux';
 import config from '../../../config';
+import {useStateToProps} from '../../../utils/pages/hooks';
 const {tokenSymbol} = config;
 const Tool = () => {
-  const language = useSelector(settingsSelectors.getLanguage, shallowEqual);
+  const {language} = useStateToProps(base => {
+    const {settings} = base;
+    return {
+      language: settings.language,
+    };
+  });
   const Element = useMemo(() => {
     const List = [
       {
         title: i18n.t('mineModule.transactionManagementT'),
         onPress: () => navigationService.navigate('TransactionManagement'),
       },
-      {
-        title: i18n.t('mineModule.authorizeManagementT'),
-        onPress: () => navigationService.navigate('AuthorizeManagement'),
-      },
+      // {
+      //   title: i18n.t('mineModule.authorizeManagementT'),
+      //   onPress: () => navigationService.navigate('AuthorizeManagement'),
+      // },
       {
         title: i18n.t('mineModule.securityCenterT'),
         onPress: () => navigationService.navigate('SecurityCenter'),
@@ -61,7 +67,7 @@ const Tool = () => {
               onPress={() => navigationService.navigate('MyBet')}
               style={styles.toolItem}>
               <Icon name="star" size={30} color={Colors.primaryColor} />
-              <TextL>{'投注'}</TextL>
+              <TextL>{i18n.t('lottery.bet')}</TextL>
             </Touchable>
             <Touchable
               onPress={() => navigationService.navigate('Receive')}
@@ -104,14 +110,16 @@ const Tool = () => {
   return Element;
 };
 const Mine = props => {
-  const {
-    navigation,
-    changeBarStyle,
-    userInfo,
-    getUserBalance,
-    onAppInit,
-  } = props;
-  const {userName, balance} = userInfo;
+  const {balance, userName} = useStateToProps(base => {
+    const {settings, user} = base;
+    return {
+      balance: user.balance,
+      userName: user.userName,
+      language: settings.language,
+      barStyle: settings.barStyle,
+    };
+  });
+  const {navigation, changeBarStyle, getUserBalance, onAppInit} = props;
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       changeBarStyle('light-content');
@@ -156,19 +164,12 @@ const Mine = props => {
     </View>
   );
 };
-const mapStateToProps = state => {
-  return {
-    language: settingsSelectors.getLanguage(state),
-    barStyle: settingsSelectors.getBarStyle(state),
-    userInfo: userSelectors.getUserInfo(state),
-  };
-};
 const mapDispatchToProps = {
   changeBarStyle: settingsActions.changeBarStyle,
   getUserBalance: userActions.getUserBalance,
   onAppInit: userActions.onAppInit,
 };
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps,
 )(memo(Mine));

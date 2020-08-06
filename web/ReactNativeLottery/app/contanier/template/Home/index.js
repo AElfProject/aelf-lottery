@@ -1,3 +1,5 @@
+//We need to know when we switch languages
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {memo, useMemo, useCallback} from 'react';
 import {
   CommonHeader,
@@ -7,48 +9,57 @@ import {
   WinningNumbers,
 } from '../../../components/template';
 import {ScrollView, View, Image} from 'react-native';
-import {useSelector, shallowEqual, useDispatch} from 'react-redux';
-import {settingsSelectors} from '../../../redux/settingsRedux';
+import {useDispatch} from 'react-redux';
 import {GStyle} from '../../../assets/theme';
 import styles from './styles';
+import i18n from 'i18n-js';
 import {TextL, TextM} from '../../../components/template/CommonText';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import navigationService from '../../../utils/common/navigationService';
 import {ball} from '../../../assets/images';
-import lotteryActions, {lotterySelectors} from '../../../redux/lotteryRedux';
+import lotteryActions from '../../../redux/lotteryRedux';
 import lotteryUtils from '../../../utils/pages/lotteryUtils';
 import {LOTTERY_TIME} from '../../../config/lotteryConstant';
-const list = [
-  {title: '五星', onPress: () => navigationService.navigate('FiveStars')},
-  {title: '三星', onPress: () => navigationService.navigate('ThreeStars')},
-  {title: '二星', onPress: () => navigationService.navigate('TwoStars')},
-  {title: '一星', onPress: () => navigationService.navigate('OneStar')},
-  {
-    title: '大小单双',
-    onPress: () => navigationService.navigate('BigSmallSingleDouble'),
-  },
-];
+import aelfUtils from '../../../utils/pages/aelfUtils';
+import {useStateToProps} from '../../../utils/pages/hooks';
 const Home = () => {
   const dispatch = useDispatch();
-  useSelector(settingsSelectors.getLanguage, shallowEqual); //Language status is controlled with redux
-  const lotteryInfo = useSelector(
-    lotterySelectors.getLotteryInfo,
-    shallowEqual,
-  );
+  const {
+    lotteryBalance,
+    currentPeriod,
+    drawPeriod,
+    lotteryCashed,
+    language,
+  } = useStateToProps(base => {
+    const {settings, lottery} = base;
+    return {
+      language: settings.language,
+      lotteryBalance: lottery.lotteryBalance,
+      currentPeriod: lottery.currentPeriod,
+      drawPeriod: lottery.drawPeriod,
+      lotteryCashed: lottery.lotteryCashed,
+    };
+  });
   const initLottery = useCallback(
     () => dispatch(lotteryActions.initLottery()),
     [dispatch],
   );
-  const {lotteryBalance, currentPeriod, drawPeriod} = lotteryInfo;
-  console.log(lotteryInfo, '======lotteryInfo');
+  const getMyBetList = useCallback(
+    () => dispatch(lotteryActions.getMyBetList()),
+    [dispatch],
+  );
+  const getPeriodList = useCallback(
+    () => dispatch(lotteryActions.getPeriodList()),
+    [dispatch],
+  );
   const LatestDraw = useMemo(() => {
     const {createTime, startPeriodNumberOfDay, periodNumber, luckyNumber} =
       drawPeriod || {};
     return (
       <View style={styles.box}>
         <TextM style={styles.textStyle}>
-          最新开奖第
+          {i18n.t('lottery.latestDraw')}
           <TextM style={styles.colorText}>
             {lotteryUtils.getPeriod(
               createTime,
@@ -56,43 +67,48 @@ const Home = () => {
               periodNumber,
             )}
           </TextM>
-          期
+          {i18n.t('lottery.period')}
         </TextM>
         <WinningNumbers winningNumbers={luckyNumber} />
         <View style={styles.tipToolBox}>
           <View style={styles.toolItem}>
-            <TextM>三星形态</TextM>
+            <TextM>{i18n.t('lottery.threeFrom')}</TextM>
             <TextM style={styles.toolBottomText}>
-              {lotteryUtils.GetThreeForm(luckyNumber) ? '包三' : '包六'}
+              {lotteryUtils.getThreeForm(luckyNumber)
+                ? i18n.t('lottery.threePackage')
+                : i18n.t('lottery.sixPackage')}
             </TextM>
           </View>
           <View style={styles.toolItem}>
-            <TextM>三星合值</TextM>
+            <TextM>{i18n.t('lottery.threeCombined')}</TextM>
             <TextM style={styles.toolBottomText}>
-              {lotteryUtils.GetCombined(luckyNumber, 3)}
+              {lotteryUtils.getCombined(luckyNumber, 3)}
             </TextM>
           </View>
           <View style={styles.toolItem}>
-            <TextM>二星合值</TextM>
+            <TextM>{i18n.t('lottery.twoCombined')}</TextM>
             <TextM style={styles.toolBottomText}>
-              {lotteryUtils.GetCombined(luckyNumber, 2)}
+              {lotteryUtils.getCombined(luckyNumber, 2)}
             </TextM>
           </View>
         </View>
       </View>
     );
-  }, [drawPeriod]);
+  }, [drawPeriod, language]);
   const onEnd = useCallback(() => {
     initLottery();
-  }, [initLottery]);
+    getMyBetList();
+    getPeriodList();
+  }, [getMyBetList, getPeriodList, initLottery]);
   const CurrentDraw = useMemo(() => {
     const {createTime, startPeriodNumberOfDay, periodNumber} =
       currentPeriod || {};
     const {seconds} = createTime || {};
+    const date = seconds ? Number(seconds + '000') + LOTTERY_TIME : 0;
     return (
       <View style={styles.box}>
         <TextM style={styles.textStyle}>
-          当前第
+          {i18n.t('lottery.current')}
           <TextM style={styles.colorText}>
             {lotteryUtils.getPeriod(
               createTime,
@@ -100,31 +116,56 @@ const Home = () => {
               periodNumber,
             )}
           </TextM>
-          期
+          {i18n.t('lottery.period')}
         </TextM>
         <View style={styles.currentBox}>
           <View style={styles.currentItem}>
             <MaterialIcons name="access-time" size={30} />
-            <TextM style={styles.endTip}>距离购买截止</TextM>
+            <TextM style={styles.endTip}>
+              {i18n.t('lottery.distanceCutoff')}
+            </TextM>
             <CountDown
+              key={date}
               style={styles.countDownBox}
-              date={seconds ? Number(seconds + '000') + LOTTERY_TIME : 0}
-              mins="分"
-              segs="秒"
+              date={date}
+              mins={i18n.t('lottery.minute')}
+              segs={i18n.t('lottery.second')}
               onEnd={onEnd}
             />
           </View>
           <View style={styles.borderView} />
           <View style={styles.currentItem}>
             <Octicons name="database" size={30} />
-            <TextM style={styles.endTip}>奖池</TextM>
+            <TextM style={styles.endTip}>{i18n.t('lottery.prizePool')}</TextM>
             <TextL style={styles.lotteryBalance}>{lotteryBalance}</TextL>
           </View>
         </View>
       </View>
     );
-  }, [currentPeriod, lotteryBalance, onEnd]);
+  }, [currentPeriod, lotteryBalance, onEnd, language]);
   const PurchaseEntry = useMemo(() => {
+    const list = [
+      {
+        title: i18n.t('lottery.fiveStars'),
+        onPress: () => navigationService.navigate('FiveStars'),
+      },
+      {
+        title: i18n.t('lottery.threeStars'),
+        onPress: () => navigationService.navigate('ThreeStars'),
+      },
+      {
+        title: i18n.t('lottery.twoStars'),
+        onPress: () => navigationService.navigate('TwoStars'),
+      },
+      {
+        title: i18n.t('lottery.oneStar'),
+        onPress: () => navigationService.navigate('OneStar'),
+      },
+      {
+        title: i18n.t('lottery.simple'),
+        onPress: () => navigationService.navigate('BigSmallSingleDouble'),
+      },
+    ];
     return (
       <View style={styles.bottomBox}>
         {list.map((item, index) => {
@@ -144,19 +185,38 @@ const Home = () => {
         })}
       </View>
     );
-  }, []);
+  }, [language]);
+  const Express = useMemo(() => {
+    const {createTime, startPeriodNumberOfDay, periodNumber, address, type} =
+      lotteryCashed || {};
+    if (lotteryCashed) {
+      const express = i18n.t('lottery.express', {
+        address: aelfUtils.formatAddressHide(address),
+        period: lotteryUtils.getPeriod(
+          createTime,
+          startPeriodNumberOfDay,
+          periodNumber,
+        ),
+        details: lotteryUtils.getBetType(type),
+      });
+      return (
+        <WordRotation
+          key={express}
+          textStyle={styles.rotationText}
+          bgViewStyle={styles.rotationBox}>
+          {express}
+        </WordRotation>
+      );
+    }
+  }, [lotteryCashed, language]);
   return (
     <View style={GStyle.container}>
       <CommonHeader
-        title={'欢乐时时彩'}
-        rightTitle={'登录'}
-        leftTitle={'玩法'}
+        title={i18n.t('lottery.lottery')}
+        leftTitle={i18n.t('lottery.play')}
+        leftOnPress={() => navigationService.navigate('HowToPlay')}
       />
-      <WordRotation
-        textStyle={styles.rotationText}
-        bgViewStyle={styles.rotationBox}>
-        快报 恭喜xxzxxxxxxxxxxxxxxx
-      </WordRotation>
+      {Express}
       <ScrollView>
         <View style={GStyle.container}>
           {LatestDraw}

@@ -53,7 +53,7 @@ export default class WordRotation extends Component {
     let state = null;
     const newText = nextProps.text || nextProps.children || '';
     if (newText !== prevState.text) {
-      prevState.animation.stop();
+      prevState.animation && prevState.animation.stop();
       state = {
         text: newText,
         textWidth: 0,
@@ -108,7 +108,7 @@ export default class WordRotation extends Component {
 
   textOnLayout(e) {
     this.setState({
-      textWidth: e.nativeEvent.layout.width + 60,
+      textWidth: e.nativeEvent.layout.width,
       textHeight: e.nativeEvent.layout.height,
     });
   }

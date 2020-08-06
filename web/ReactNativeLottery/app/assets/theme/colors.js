@@ -2,7 +2,7 @@ const Colors = {
   primaryColor: '#FC4D30',
   bottonPressColor: '##FC2000',
   disabledColor: '#d7d7d7',
-  
+
   purpleColor: '#5c28a9',
 
   borderColor: '#d0d0d0',

@@ -1,6 +1,7 @@
 import moment from 'moment';
 import {LOTTERY_DAY} from '../../config/lotteryConstant';
 import {splitString} from '.';
+import i18n from 'i18n-js';
 /**
  * processing Number
  * @param  {Array}   list         operation array
@@ -69,11 +70,28 @@ const getBetNumber = (data, betArr) => {
   if (
     Array.isArray(data) &&
     Array.isArray(betArr) &&
-    data.length === betArr.length
+    data.every((item, index) => {
+      return betArr[index];
+    })
   ) {
     number = 1;
     betArr.filter(item => {
-      number = number * item.length;
+      if (Array.isArray(item)) {
+        number = number * item.length;
+      }
+    });
+  }
+  return number;
+};
+
+const getDrawBetNumber = betArr => {
+  let number = 0;
+  if (Array.isArray(betArr)) {
+    number = 1;
+    betArr.filter(item => {
+      if (Array.isArray(item.bets)) {
+        number = number * item.bets.length;
+      }
     });
   }
   return number;
@@ -124,15 +142,17 @@ const getMillisecond = time => {
   return tim;
 };
 const getPeriod = (time, start, periodNumber) => {
-  if (time === undefined || start === undefined || periodNumber === undefined) {
+  if (!time || start === undefined || periodNumber === undefined) {
     return '';
   }
-  let period = periodNumber - start;
-  if (time) {
-    period =
-      moment(getMillisecond(time)).format(LOTTERY_DAY) + padLeft(period + 1, 3);
-  }
-  return period;
+  // The UTC time zone stored in the contract is not synchronized with the App local time zone
+  // let period = periodNumber - start;
+  // if (time) {
+  //   period =
+  //     moment(getMillisecond(time)).format(LOTTERY_DAY) + padLeft(period + 1, 3);
+  // }
+  // return period;
+  return periodNumber;
 };
 const getWinningNumbers = winningNumbers => {
   let win = '';
@@ -147,7 +167,7 @@ const getWinningNumbersStr = winningNumbers => {
   win = splitString(getWinningNumbers(winningNumbers));
   return win;
 };
-const GetThreeForm = winningNumbers => {
+const getThreeForm = winningNumbers => {
   let arr = getWinningNumbersStr(winningNumbers);
   const length = arr.length;
   let bool = false;
@@ -159,15 +179,108 @@ const GetThreeForm = winningNumbers => {
   });
   return bool;
 };
-const GetCombined = (winningNumbers, number = 3) => {
+const getCombined = (winningNumbers, number = 3) => {
   let arr = getWinningNumbersStr(winningNumbers);
   const length = arr.length;
-  arr = arr.splice(length - number, length).sort();
+  arr = arr.splice(length - number, length);
   let s = 0;
   arr.forEach(item => {
-    s = s + Number(item);
+    s = s + parseInt(item, 10);
   });
-  return s;
+  return s.toString();
+};
+const getBetType = type => {
+  let text = '';
+  switch (type) {
+    case 0:
+      text = i18n.t('lottery.simple');
+      break;
+    case 10:
+      text = `${i18n.t('lottery.oneStar')}${i18n.t('lottery.directElection')}`;
+      break;
+    case 20:
+      text = `${i18n.t('lottery.twoStars')}${i18n.t('lottery.directElection')}`;
+      break;
+    case 30:
+      text = `${i18n.t('lottery.threeStars')}${i18n.t(
+        'lottery.directElection',
+      )}`;
+      break;
+    case 40:
+      text = `${i18n.t('lottery.fiveStars')}${i18n.t(
+        'lottery.directElection',
+      )}`;
+  }
+  return text;
+};
+const getStartMonthTime = time => {
+  return moment(getMillisecond(time)).format('MM-DD HH:mm');
+};
+const getWinningSituation = (cashed, Expired, reward, noDraw) => {
+  if (noDraw) {
+    return i18n.t('lottery.lotteryUtils.noDraw');
+  }
+  let text = i18n.t('lottery.lotteryUtils.notWinning');
+  if (reward && reward > 0) {
+    text = Expired
+      ? i18n.t('lottery.lotteryUtils.expired')
+      : cashed
+      ? i18n.t('lottery.lotteryUtils.awarded')
+      : i18n.t('lottery.lotteryUtils.noPrize');
+  }
+  return text;
+};
+const getCanAward = (cashed, Expired, reward) => {
+  return reward && reward > 0 && !Expired && !cashed;
+};
+const getDrawBetStr = (type, betInfos) => {
+  const TITLE = [
+    i18n.t('lottery.onesPlace'),
+    i18n.t('lottery.tenPlace'),
+    i18n.t('lottery.hundreds'),
+    i18n.t('lottery.thousands'),
+    i18n.t('lottery.tenThousand'),
+  ];
+  const SIMPLE = {
+    3: i18n.t('lottery.big'),
+    2: i18n.t('lottery.small'),
+    1: i18n.t('lottery.odd'),
+    0: i18n.t('lottery.even'),
+  };
+  let List;
+  if (Array.isArray(betInfos)) {
+    let titleList = TITLE.splice(0, betInfos.length);
+    switch (type) {
+      case 0:
+        List = [
+          ...betInfos.map((item, index) => {
+            if (Array.isArray(item.bets)) {
+              return {
+                title: titleList[index],
+                bets: item.bets.map(i => {
+                  return SIMPLE[i];
+                }),
+              };
+            }
+          }),
+        ];
+        break;
+      default:
+        List = [
+          ...betInfos.map((item, index) => {
+            if (Array.isArray(item.bets)) {
+              return {
+                title: titleList[index],
+                bets: item.bets,
+              };
+            }
+          }),
+        ];
+        break;
+    }
+    List.reverse();
+  }
+  return List;
 };
 export default {
   processingNumber,
@@ -178,6 +291,12 @@ export default {
   getPeriod,
   getWinningNumbers,
   getWinningNumbersStr,
-  GetThreeForm,
-  GetCombined,
+  getThreeForm,
+  getCombined,
+  getBetType,
+  getStartMonthTime,
+  getDrawBetNumber,
+  getWinningSituation,
+  getCanAward,
+  getDrawBetStr,
 };
