@@ -12,7 +12,7 @@ namespace AElf.Contracts.LotteryContract
 
             int CalculateBetCount(RepeatedField<BetBody> betInfos);
 
-            bool CheckWin(int luckNumber, RepeatedField<BetBody> betInfos);
+            int GetWinBetCount(int luckNumber, RepeatedField<BetBody> betInfos);
         }
     
         private abstract class BitBase
@@ -37,15 +37,15 @@ namespace AElf.Contracts.LotteryContract
                 return betInfos.Aggregate(1, (current, betInfo) => current * betInfo.Bets.Count);
             }
 
-            public virtual bool CheckWin(int luckNumber, RepeatedField<BetBody> betInfos)
+            public virtual int GetWinBetCount(int luckNumber, RepeatedField<BetBody> betInfos)
             {
                 for (var i = 0; i < BitCount; i++)
                 {
                     var number = luckNumber.Div(Pow(10, (uint) i)) % 10;
-                    if (betInfos[i].Bets.All(bet => bet != number)) return false;
+                    if (betInfos[i].Bets.All(bet => bet != number)) return 0;
                 }
 
-                return true;
+                return 1;
             }
         }
 
@@ -60,18 +60,20 @@ namespace AElf.Contracts.LotteryContract
 
             protected override int BitCount => 2;
 
-            public override bool CheckWin(int luckNumber, RepeatedField<BetBody> betInfos)
+            public override int GetWinBetCount(int luckNumber, RepeatedField<BetBody> betInfos)
             {
+                var count = 1;
                 for (var i = 0; i < BitCount; i++)
                 {
                     var simpleNumbers = new int[2];
                     var number = luckNumber.Div(Pow(10, (uint) i)) % 10;
                     simpleNumbers[0] = number % 2 == 0 ? Even : Odd;
                     simpleNumbers[1] = number > 4 ? High : Low;
-                    if (betInfos[i].Bets.All(bet => !simpleNumbers.Contains(bet))) return false;
+                    count *= betInfos[i].Bets.Count(bet => simpleNumbers.Contains(bet));
+                    if (count == 0) return count;
                 }
 
-                return true;
+                return count;
             }
         }
 
