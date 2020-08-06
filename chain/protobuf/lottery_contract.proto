@@ -113,8 +113,8 @@ message GetPeriodsOutput {
 }
 
 message GetLotteriesInput {
-    int32 offset = 1;
-    int32 limit = 2;
+     int32 offset = 1;
+     int32 limit = 2;
 }
 
 message GetLotteriesOutput {
@@ -182,7 +182,7 @@ message Lottery {
     int64 reward = 10;
     int64 block_number = 11;
     google.protobuf.Timestamp create_time = 12;
-    bool Expired = 13;
+    bool expired = 13;
 }
 
 message LotteryDetail{
@@ -195,7 +195,7 @@ message LotteryDetail{
     int64 reward = 7;
     int64 block_number = 8;
     google.protobuf.Timestamp create_time = 9;
-    bool Expired = 10;
+    bool expired = 10;
     int64 start_period_number_of_day = 11;
 }
 
