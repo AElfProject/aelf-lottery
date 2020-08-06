@@ -7,7 +7,8 @@ npm run postinstall
 ```
 ## Track Crash
 
-## Firebase
+### Firebase
+
 ### Android
 **1.On the Firebase console, add a new Android application and enter your projects details.**
 
