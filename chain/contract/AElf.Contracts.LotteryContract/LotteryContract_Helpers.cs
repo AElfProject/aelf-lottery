@@ -83,7 +83,7 @@ namespace AElf.Contracts.LotteryContract
                 if (latestDrawPeriod == null || lottery.PeriodNumber > latestDrawPeriod.PeriodNumber) continue;
                 var period = State.Periods[lottery.PeriodNumber];
                 lottery.Reward = CalculateReward(lottery, period.LuckyNumber);
-                lottery.Expired = period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime;
+                lottery.Expired = lottery.Reward > 0 && period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime;
                 lottery.Cashed = lottery.Reward == 0;
                 State.Lotteries[lotteryId] = lottery;
                 if (lottery.Reward > 0 && !lottery.Expired) continue;
@@ -116,7 +116,7 @@ namespace AElf.Contracts.LotteryContract
                 BlockNumber = lottery.BlockNumber,
                 CreateTime = lottery.CreateTime,
                 StartPeriodNumberOfDay = State.StartPeriodNumberOfDay[date],
-                Expired = lottery.Expired || period.DrawTime != null &&
+                Expired = lottery.Expired || period.DrawTime != null && !lottery.Cashed && reward > 0 &&
                           period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime
             };
         }

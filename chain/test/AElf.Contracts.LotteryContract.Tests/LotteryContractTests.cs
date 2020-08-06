@@ -1552,6 +1552,18 @@ namespace AElf.Contracts.LotteryContract
                     }
                 }
             });
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {1}
+                    }
+                }
+            });
             await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
             await LotteryContractStub.Draw.SendAsync(new Int64Value
             {
@@ -1563,6 +1575,12 @@ namespace AElf.Contracts.LotteryContract
                 LotteryId = 1
             });
             output.Lottery.Expired.ShouldBeTrue();
+            
+            output = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 2
+            });
+            output.Lottery.Expired.ShouldBeFalse();
         }
 
         [Fact]
