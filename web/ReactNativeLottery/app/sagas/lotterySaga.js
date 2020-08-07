@@ -47,12 +47,11 @@ function* buySaga({data}) {
       OverlayModal.hide();
       CommonToast.success(i18n.t('lottery.lotterySaga.betSuccess'));
     } else {
-      Loading.hide();
+      Loading.destroy();
       CommonToast.fail(i18n.t('lottery.lotterySaga.betFailed'));
     }
   } catch (error) {
-    OverlayModal.hide();
-    Loading.hide();
+    Loading.destroy();
     CommonToast.fail(i18n.t('lottery.lotterySaga.betFailed'));
     console.log('buySaga', error);
   }
@@ -247,9 +246,13 @@ function* getLotterySaga({lotteryId, periodNumber}) {
       );
       Loading.hide();
       navigationService.navigate('Award');
+    } else {
+      Loading.destroy();
+      CommonToast.fail('fail');
     }
   } catch (error) {
-    Loading.hide();
+    Loading.destroy();
+    CommonToast.fail('fail');
     console.log('getLotterySaga', error);
   }
 }
@@ -273,10 +276,11 @@ function* takeRewardSaga({lotteryId}) {
       yield put(lotteryActions.getRewardedList());
       navigationService.goBack();
     } else {
+      Loading.destroy();
       CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedSuccess'));
     }
   } catch (error) {
-    Loading.hide();
+    Loading.destroy();
     CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedSuccess'));
     console.log('getLotterySaga', error);
   }
