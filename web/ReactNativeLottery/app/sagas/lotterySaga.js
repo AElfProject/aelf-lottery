@@ -277,11 +277,11 @@ function* takeRewardSaga({lotteryId}) {
       navigationService.goBack();
     } else {
       Loading.destroy();
-      CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedSuccess'));
+      CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedFailed'));
     }
   } catch (error) {
     Loading.destroy();
-    CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedSuccess'));
+    CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedFailed'));
     console.log('getLotterySaga', error);
   }
 }

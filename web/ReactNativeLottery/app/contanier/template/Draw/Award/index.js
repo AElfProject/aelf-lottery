@@ -14,6 +14,8 @@ import aelfUtils from '../../../../utils/pages/aelfUtils';
 import {useFocusEffect} from '@react-navigation/native';
 import {useStateToProps} from '../../../../utils/pages/hooks';
 import i18n from 'i18n-js';
+import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
+const tens = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 const TextComponent = memo(props => {
   const {title, details, detailsStyle} = props;
   return (
@@ -32,6 +34,12 @@ const Award = () => {
       lotteryDetails: lottery.lotteryDetails,
     };
   });
+  const simples = [
+    i18n.t('lottery.big'),
+    i18n.t('lottery.small'),
+    i18n.t('lottery.odd'),
+    i18n.t('lottery.even'),
+  ];
   const dispatch = useDispatch();
   const setLottery = useCallback(
     lottery => dispatch(lotteryActions.setLottery(lottery)),
@@ -51,7 +59,7 @@ const Award = () => {
       periodNumber,
       betInfos,
       cashed,
-      Expired,
+      expired,
       price,
       luckyNumber,
       reward,
@@ -87,7 +95,7 @@ const Award = () => {
           <TextComponent
             detailsStyle={reward && reward > 0 ? {} : {color: Colors.fontBlack}}
             title={i18n.t('lottery.draw.winningSituation')}
-            details={lotteryUtils.getWinningSituation(cashed, Expired, reward)}
+            details={lotteryUtils.getWinningSituation(cashed, expired, reward)}
           />
           <TextComponent
             title={i18n.t('lottery.draw.bonus')}
@@ -106,13 +114,15 @@ const Award = () => {
       </ImageBackground>
     );
   }, [lotteryDetails]);
-  const {createTime, betInfos, cashed, Expired, type, id, reward} =
+  const {createTime, betInfos, cashed, type, expired, id, reward} =
     lotteryDetails || {};
   const betList = lotteryUtils.getDrawBetStr(type, betInfos);
   const takeReward = useCallback(
     lotteryId => dispatch(lotteryActions.takeReward(lotteryId)),
     [dispatch],
   );
+  const simple = type === LOTTERY_TYPE.SIMPLE;
+  const list = simple ? simples : tens;
   return (
     <View style={GStyle.container}>
       <CommonHeader title={i18n.t('lottery.draw.receive')} canBack>
@@ -131,12 +141,16 @@ const Award = () => {
                       <View key={j} style={styles.titleBox}>
                         <TextM>{title}</TextM>
                         <View style={styles.detailsBox}>
-                          {bets.map((item, index) => {
+                          {list.map((item, index) => {
+                            console.log(item, '=====item');
+                            console.log(bets, '=====bets');
+                            const style =
+                              Array.isArray(bets) && bets.includes(item)
+                                ? {color: Colors.fontColor}
+                                : {};
                             return (
-                              <TextM
-                                style={{color: Colors.fontColor}}
-                                key={index}>
-                                {item}
+                              <TextM style={style} key={index}>
+                                {simple ? item : lotteryUtils.padLeft(item, 2)}
                               </TextM>
                             );
                           })}
@@ -153,7 +167,7 @@ const Award = () => {
           </View>
           <CommonButton
             onPress={() => takeReward(id)}
-            disabled={!lotteryUtils.getCanAward(cashed, Expired, reward)}
+            disabled={!lotteryUtils.getCanAward(cashed, expired, reward)}
             style={styles.buttonBox}
             title={i18n.t('lottery.draw.receive')}
           />
@@ -196,6 +210,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'white',
   },
   TextBox: {
+    flex: 1,
     alignItems: 'center',
   },
   detailsText: {
@@ -239,7 +254,6 @@ const styles = StyleSheet.create({
   detailsBox: {
     flex: 1,
     flexDirection: 'row',
-    marginHorizontal: pTd(100),
     justifyContent: 'space-around',
   },
 });

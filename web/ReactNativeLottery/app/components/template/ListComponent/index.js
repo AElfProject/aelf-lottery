@@ -43,7 +43,7 @@ export default class ListComponent extends Component {
     this.endRefresh && clearTimeout(this.endRefresh);
   }
   onEndReached = touch => {
-    if (touch || (this.canLoadMore && !this.props.loadCompleted)) {
+    if (touch === true || (this.canLoadMore && !this.props.loadCompleted)) {
       this.setState({bottomLoad: true}, () => {
         this.props.onEndReached && this.props.onEndReached();
         this.canLoadMore = false;

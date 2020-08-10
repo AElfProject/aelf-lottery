@@ -74,24 +74,22 @@ function* onRegisteredSaga(actios) {
 function* onAppInitSaga({privateKey}) {
   try {
     const userInfo = yield select(userSelectors.getUserInfo);
-    if (userInfo.contracts && Object.keys(userInfo.contracts).length > 0) {
+    if (
+      userInfo.address &&
+      userInfo.contracts &&
+      Object.keys(userInfo.contracts).length > 0
+    ) {
       yield put(lotteryActions.initLottery());
       return;
     }
     privateKey = privateKey || userInfo.privateKey;
-    console.log(
-      privateKey,
-      'onAppInitSagaonAppInitSagaonAppInitSagaonAppInitSaga',
-    );
-    if (privateKey) {
-      const contract = yield getContract(privateKey, contractNameAddressSets);
-
-      if (contract && Object.keys(contract).length > 0) {
-        yield put(contractsActions.setContracts({contracts: contract}));
-        yield put(userActions.getAllowanceList());
-        yield put(userActions.getUserBalance());
-        yield put(lotteryActions.initLottery());
-      }
+    console.log(privateKey, '=====privateKey');
+    const contract = yield getContract(privateKey, contractNameAddressSets);
+    if (contract && Object.keys(contract).length > 0) {
+      yield put(contractsActions.setContracts({contracts: contract}));
+      yield put(userActions.getAllowanceList());
+      yield put(userActions.getUserBalance());
+      yield put(lotteryActions.initLottery());
     }
   } catch (error) {
     console.log(error, 'appInitSaga');
@@ -239,6 +237,9 @@ function* getAllowanceListSaga() {
   try {
     const userInfo = yield select(userSelectors.getUserInfo);
     const {contracts, address} = userInfo;
+    if (!address) {
+      return;
+    }
     const {tokenContract} = contracts;
     let allowanceList = [];
     const promises = contractAddresses.map(

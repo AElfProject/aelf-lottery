@@ -74,7 +74,6 @@ const MyBet = () => {
       currentPeriod: lottery.currentPeriod,
     };
   });
-  console.log(currentPeriod, '=====currentPeriod');
   const onGetLottery = useCallback(
     item => {
       const {id, periodNumber} = item;
@@ -90,7 +89,7 @@ const MyBet = () => {
         periodNumber,
         type,
         cashed,
-        Expired,
+        expired,
         reward,
       } = item || {};
       const noDraw = currentPeriod?.periodNumber === periodNumber;
@@ -126,7 +125,7 @@ const MyBet = () => {
             <TextM style={rewardStyle}>
               {lotteryUtils.getWinningSituation(
                 cashed,
-                Expired,
+                expired,
                 reward,
                 noDraw,
               )}

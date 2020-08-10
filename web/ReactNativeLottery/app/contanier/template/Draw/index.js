@@ -22,12 +22,13 @@ const Draw = () => {
   const [loadCompleted, setLoadCompleted] = useState(false);
   const dispatch = useDispatch();
   const list = useRef();
-  const {drawPeriod, periodList, language} = useStateToProps(state => {
-    const {lottery, settings} = state;
+  const {drawPeriod, periodList, language, address} = useStateToProps(state => {
+    const {lottery, settings, user} = state;
     return {
       language: settings.language,
       drawPeriod: lottery.drawPeriod,
       periodList: lottery.periodList,
+      address: user.address,
     };
   });
   useFocusEffect(
@@ -67,7 +68,6 @@ const Draw = () => {
       drawTime,
       luckyNumber,
     } = drawPeriod || {};
-    console.log(drawPeriod, '=====drawPeriod');
     return (
       <View style={styles.titleBox}>
         <TextM style={styles.titleText}>
@@ -83,12 +83,17 @@ const Draw = () => {
       </View>
     );
   }, [drawPeriod, language]);
+  const onSetLoadCompleted = useCallback(value => {
+    if (isActive) {
+      setLoadCompleted(value);
+    }
+  }, []);
   const upPullRefresh = useCallback(() => {
     getPeriodList(false, v => {
       if (v === 1) {
-        setLoadCompleted(false);
+        onSetLoadCompleted(false);
       } else {
-        setLoadCompleted(true);
+        onSetLoadCompleted(true);
       }
       list.current && list.current.endUpPullRefresh();
       list.current && list.current.endBottomRefresh();
@@ -97,9 +102,9 @@ const Draw = () => {
   const onEndReached = useCallback(() => {
     getPeriodList(true, v => {
       if (v === 1) {
-        setLoadCompleted(false);
+        onSetLoadCompleted(false);
       } else {
-        setLoadCompleted(true);
+        onSetLoadCompleted(true);
       }
       list.current && list.current.endBottomRefresh();
     });
@@ -134,7 +139,7 @@ const Draw = () => {
     <View style={GStyle.container}>
       <CommonHeader
         title={i18n.t('lottery.draw.title')}
-        rightTitle={i18n.t('lottery.draw.acceptAward')}
+        rightTitle={address ? i18n.t('lottery.draw.acceptAward') : null}
         leftTitle={i18n.t('lottery.play')}
         leftOnPress={() => navigationService.navigate('HowToPlay')}
         rightOnPress={() => navigationService.navigate('AwardList')}

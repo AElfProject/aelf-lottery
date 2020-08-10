@@ -25,11 +25,12 @@ const Component = props => {
   const buy = useCallback(data => dispatch(lotteryActions.buy(data)), [
     dispatch,
   ]);
-  const {lotteryPrice, balance} = useStateToProps(base => {
+  const {lotteryPrice, balance, address} = useStateToProps(base => {
     const {user, lottery} = base;
     return {
       lotteryPrice: lottery.lotteryPrice,
       balance: user.balance,
+      address: user.address,
     };
   });
   const {data, betList, title, lotteryType} = props;
@@ -102,8 +103,10 @@ const Component = props => {
           />
           <TextL
             onPress={() => {
-              OverlayModal.hide();
-              navigationService.navigate('Receive');
+              if (address) {
+                OverlayModal.hide();
+                navigationService.navigate('Receive');
+              }
             }}
             style={styles.recharge}>
             {i18n.t('lottery.recharge')}

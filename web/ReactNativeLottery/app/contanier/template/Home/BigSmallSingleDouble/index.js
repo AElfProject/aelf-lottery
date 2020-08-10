@@ -65,6 +65,7 @@ const BigSmallSingleDouble = () => {
         betList={betList}
         data={data}
         onBet={onBet}
+        lotteryType={lotteryType}
         onClear={() => setBetList([])}
         bonusAmount={bonusAmount}
         onSelect={onSelect}

@@ -87,7 +87,7 @@ const AwardList = () => {
         periodNumber,
         type,
         cashed,
-        Expired,
+        expired,
         reward,
       } = item || {};
       const noDraw = currentPeriod?.periodNumber === periodNumber;
@@ -122,7 +122,7 @@ const AwardList = () => {
             <TextM style={reward && reward > 0 ? styles.colorText : {}}>
               {lotteryUtils.getWinningSituation(
                 cashed,
-                Expired,
+                expired,
                 reward,
                 noDraw,
               )}

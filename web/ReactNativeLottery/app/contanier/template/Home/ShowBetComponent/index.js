@@ -7,6 +7,7 @@ import {CommonButton} from '../../../../components/template';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import {useStateToProps} from '../../../../utils/pages/hooks';
 import i18n from 'i18n-js';
+import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
 const ShowBetComponent = props => {
   const {lotteryPrice} = useStateToProps(base => {
     const {lottery} = base;
@@ -14,12 +15,28 @@ const ShowBetComponent = props => {
       lotteryPrice: lottery.lotteryPrice,
     };
   });
-  const {betList, data, onClear, onBet, bonusAmount, betComponentStyle} = props;
+  console.log(props, '=====props');
+  const {
+    betList,
+    data,
+    onClear,
+    onBet,
+    bonusAmount,
+    betComponentStyle,
+    lotteryType,
+  } = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
   const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
   const disabled = data.every((item, index) => {
     return Array.isArray(betList[index]) && betList[index].length > 0;
   });
+  let Amount = bonusAmount;
+  let profit = (Amount || 1) - betValue;
+  if (lotteryType === LOTTERY_TYPE.SIMPLE && disabled) {
+    const {A, P} = lotteryUtils.getSimpleAmount(bonusAmount, betList, betValue);
+    Amount = A;
+    profit = P;
+  }
   return (
     <View style={[styles.bottomBox, betComponentStyle]}>
       <TextL>
@@ -31,8 +48,8 @@ const ShowBetComponent = props => {
       </TextL>
       <TextM style={styles.winningTip}>
         {i18n.t('lottery.winningTip', {
-          bonusAmount,
-          profit: (bonusAmount || 1) - betValue,
+          bonusAmount: Amount,
+          profit,
         })}
       </TextM>
       <View style={styles.container}>

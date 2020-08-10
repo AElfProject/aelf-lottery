@@ -216,22 +216,22 @@ const getBetType = type => {
 const getStartMonthTime = time => {
   return moment(getMillisecond(time)).format('MM-DD HH:mm');
 };
-const getWinningSituation = (cashed, Expired, reward, noDraw) => {
+const getWinningSituation = (cashed, expired, reward, noDraw) => {
   if (noDraw) {
     return i18n.t('lottery.lotteryUtils.noDraw');
   }
   let text = i18n.t('lottery.lotteryUtils.notWinning');
   if (reward && reward > 0) {
-    text = Expired
-      ? i18n.t('lottery.lotteryUtils.expired')
-      : cashed
+    text = cashed
       ? i18n.t('lottery.lotteryUtils.awarded')
+      : expired
+      ? i18n.t('lottery.lotteryUtils.expired')
       : i18n.t('lottery.lotteryUtils.noPrize');
   }
   return text;
 };
-const getCanAward = (cashed, Expired, reward) => {
-  return reward && reward > 0 && !Expired && !cashed;
+const getCanAward = (cashed, expired, reward) => {
+  return reward && reward > 0 && !expired && !cashed;
 };
 const getDrawBetStr = (type, betInfos) => {
   const TITLE = [
@@ -282,6 +282,25 @@ const getDrawBetStr = (type, betInfos) => {
   }
   return List;
 };
+const getSimpleAmount = (bonusAmount, betList, betValue) => {
+  let A = bonusAmount;
+  let P = (bonusAmount || 1) - betValue;
+  if (Array.isArray(betList)) {
+    let f = betList[0];
+    let s = betList[1];
+    if (Array.isArray(f) && Array.isArray(s)) {
+      console.log(betList, '=====betList');
+      if (f.length === 4 && s.length === 4) {
+        A = bonusAmount * 4;
+        P = bonusAmount * 4 - betValue;
+      } else if (f.length !== 1 || s.length !== 1) {
+        A = `${bonusAmount}~${bonusAmount * 4}`;
+        P = `${bonusAmount - betValue}~${bonusAmount * 4 - betValue}`;
+      }
+    }
+  }
+  return {A, P};
+};
 export default {
   processingNumber,
   processingTool,
@@ -299,4 +318,6 @@ export default {
   getWinningSituation,
   getCanAward,
   getDrawBetStr,
+  getSimpleAmount,
+  padLeft,
 };
