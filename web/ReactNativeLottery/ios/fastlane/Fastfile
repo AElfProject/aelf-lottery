@@ -29,7 +29,7 @@ platform :ios do
       type: "adhoc",
       # readonly: true,
       force_for_new_devices: true,
-      app_identifier: ["com.aelf.aelfAccount"],
+      app_identifier: ["com.aelf.aelfLottery"],
     )
     gym(
       scheme: "aelfAccount",
@@ -40,7 +40,7 @@ platform :ios do
     # update to fir.im
     fir_cli(
       api_token: "",
-      short: "iosaelfAccount",
+      short: "iosaelfRandom",
       changelog: "Hello aelf",
       dingtalk_access_token: "",
     )
@@ -57,7 +57,7 @@ platform :ios do
       telegram(
         token: "",
         chat_id: "",
-        text: "http://d.firim.vip/iosaelfAccount " + "aelflottery-" + version_name + " iOS Build" + version,
+        text: "http://d.firim.vip/iosaelfRandom " + "AELF Random-" + version_name + " iOS Build" + version,
         proxy: "http://127.0.0.1:1087"
       )
     end

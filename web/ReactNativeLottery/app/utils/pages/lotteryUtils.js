@@ -1,5 +1,4 @@
 import moment from 'moment';
-import {LOTTERY_DAY} from '../../config/lotteryConstant';
 import {splitString} from '.';
 import i18n from 'i18n-js';
 /**
