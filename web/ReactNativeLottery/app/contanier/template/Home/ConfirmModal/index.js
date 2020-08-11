@@ -20,6 +20,7 @@ import TransactionVerification from '../../../../utils/pages/TransactionVerifica
 import navigationService from '../../../../utils/common/navigationService';
 import {useStateToProps} from '../../../../utils/pages/hooks';
 import i18n from 'i18n-js';
+import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
 const Component = props => {
   const dispatch = useDispatch();
   const buy = useCallback(data => dispatch(lotteryActions.buy(data)), [
@@ -33,17 +34,33 @@ const Component = props => {
       address: user.address,
     };
   });
-  const {data, betList, title, lotteryType} = props;
-  const betNumber = lotteryUtils.getBetNumber(data, betList);
+  const {data, betList, title, lotteryType, getBetNumber} = props;
+  const betNumber = getBetNumber
+    ? getBetNumber()
+    : lotteryUtils.getBetNumber(data, betList);
   const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
   const onBuy = useCallback(() => {
     if (betValue > balance) {
       return CommonToast.fail(i18n.t('lottery.insufficientBalance'));
     }
-    TransactionVerification.show(value => {
-      value && buy({lotteryType, betList});
-    });
-  }, [balance, betList, betValue, buy, lotteryType]);
+    if (Object.values(LOTTERY_TYPE).includes(lotteryType)) {
+      TransactionVerification.show(value => {
+        value && buy({lotteryType, betList});
+      });
+    } else {
+      const newArr = betList.map((item, index) => {
+        if (Array.isArray(item)) {
+          return item.map((i, j) => {
+            if (Array.isArray(data[index].playList)) {
+              return data[index].playList[i];
+            }
+          });
+        }
+      });
+
+      console.log(betList, data, newArr, '=====data');
+    }
+  }, [balance, betList, betValue, buy, data, lotteryType]);
   return (
     <View style={styles.sheetBox}>
       <View style={styles.topBox}>

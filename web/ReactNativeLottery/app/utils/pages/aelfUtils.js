@@ -18,7 +18,7 @@ const getTransactionFee = Logs => {
   let cost = 0;
   let symbol = '';
   Array.isArray(free) &&
-    free.filter(item => {
+    free.forEach(item => {
       cost = cost + item.amount;
       symbol = item.symbol;
     });

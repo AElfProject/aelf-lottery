@@ -15,7 +15,6 @@ const ShowBetComponent = props => {
       lotteryPrice: lottery.lotteryPrice,
     };
   });
-  console.log(props, '=====props');
   const {
     betList,
     data,
@@ -24,12 +23,18 @@ const ShowBetComponent = props => {
     bonusAmount,
     betComponentStyle,
     lotteryType,
+    disabledRule,
+    getBetNumber,
   } = props;
-  const betNumber = lotteryUtils.getBetNumber(data, betList);
+  const betNumber = getBetNumber
+    ? getBetNumber()
+    : lotteryUtils.getBetNumber(data, betList, disabledRule);
   const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
-  const disabled = data.every((item, index) => {
-    return Array.isArray(betList[index]) && betList[index].length > 0;
-  });
+  const disabled = disabledRule
+    ? disabledRule()
+    : data.every((item, index) => {
+        return Array.isArray(betList[index]) && betList[index].length > 0;
+      });
   let Amount = bonusAmount;
   let profit = (Amount || 1) - betValue;
   if (lotteryType === LOTTERY_TYPE.SIMPLE && disabled) {

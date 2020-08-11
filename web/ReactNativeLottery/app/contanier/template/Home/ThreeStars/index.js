@@ -1,106 +1,74 @@
-import React, {memo, useState, useCallback} from 'react';
-import {View, StyleSheet} from 'react-native';
-import {CommonHeader} from '../../../../components/template';
+import React, {memo} from 'react';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import ThreeDirectElection from './ThreeDirectElection';
+import GroupThreePackage from './GroupThreePackage';
+import GroupThreeValue from './GroupThreeValue';
+import GroupSixPackage from './GroupSixPackage';
+import GroupSixValue from './GroupSixValue';
+import {View} from 'react-native';
 import {GStyle, Colors} from '../../../../assets/theme';
-import {TextL} from '../../../../components/template/CommonText';
-import {pTd} from '../../../../utils/common';
-import lotteryUtils from '../../../../utils/pages/lotteryUtils';
-import BetBody from '../BetBody';
-import ConfirmModal from '../ConfirmModal';
-import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
-import {useStateToProps} from '../../../../utils/pages/hooks';
+import {CommonHeader} from '../../../../components/template';
+const Tab = createMaterialTopTabNavigator();
 import i18n from 'i18n-js';
-const lotteryType = LOTTERY_TYPE.THREE_BIT;
-const ThreeStars = () => {
-  const [data] = useState([
-    {
-      title: i18n.t('lottery.hundreds'),
-      playList: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-    },
-    {
-      title: i18n.t('lottery.tenPlace'),
-      playList: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-    },
-    {
-      title: i18n.t('lottery.onesPlace'),
-      playList: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-    },
-  ]);
-  const [betList, setBetList] = useState([]);
-  const {lotteryRewards} = useStateToProps(base => {
-    const {lottery} = base;
-    return {
-      lotteryRewards: lottery.lotteryRewards,
-    };
-  });
-  const bonusAmount = lotteryRewards ? lotteryRewards[lotteryType] : 0;
-  const onSelect = useCallback(
-    (first, second) => {
-      setBetList(lotteryUtils.processingNumber(betList, first, second));
-    },
-    [betList],
-  );
-  const onBet = useCallback(() => {
-    ConfirmModal.show({
-      title: `${i18n.t('lottery.threeStars')}${i18n.t(
-        'lottery.directElection',
-      )}`,
-      data,
-      betList,
-      lotteryType,
-    });
-  }, [betList, data]);
-  const onTool = useCallback(
-    (first, type) => {
-      const list = lotteryUtils.processingTool(data, betList, first, type);
-      list && setBetList(list);
-    },
-    [betList, data],
-  );
+import {pTd} from '../../../../utils/common';
+import {pixelSize} from '../../../../utils/common/device';
+const ThreeStars = props => {
   return (
     <View style={GStyle.container}>
-      <CommonHeader title={i18n.t('lottery.directElection')} canBack>
-        <View style={styles.titleBox}>
-          <TextL style={styles.titleStyle}>
-            {i18n.t('lottery.threeStars')}
-          </TextL>
-        </View>
-        <TextL style={styles.tipStyle}>
-          {i18n.t('lottery.threeStarsTip')}
-          {bonusAmount}
-          {i18n.t('lottery.unit')}
-        </TextL>
-        <BetBody
-          onTool={onTool}
-          betList={betList}
-          data={data}
-          onBet={onBet}
-          onClear={() => setBetList([])}
-          bonusAmount={bonusAmount}
-          onSelect={onSelect}
-          betComponentStyle={styles.betComponentStyle}
+      <CommonHeader
+        title={i18n.t('lottery.threeStars')}
+        canBack
+        leftOnPress={() => props.navigation.goBack()}
+      />
+      <Tab.Navigator
+        lazy={true}
+        initialRouteName="ThreeDirectElection"
+        tabBarOptions={{
+          allowFontScaling: false,
+          upperCaseLabel: false,
+          activeTintColor: Colors.primaryColor,
+          inactiveTintColor: Colors.fontGray,
+          labelStyle: {
+            fontSize: pTd(22),
+            fontWeight: 'bold',
+          },
+          indicatorStyle: {
+            backgroundColor: Colors.primaryColor,
+            alignSelf: 'center',
+          },
+          tabStyle: {
+            borderRightWidth: pixelSize,
+            borderColor: Colors.fontGray,
+          },
+        }}>
+        <Tab.Screen
+          name="ThreeDirectElection"
+          component={ThreeDirectElection}
+          options={{title: i18n.t('lottery.directElection')}}
         />
-      </CommonHeader>
+        <Tab.Screen
+          name="GroupThreePackage"
+          component={GroupThreePackage}
+          options={{title: '组三包号'}}
+        />
+        <Tab.Screen
+          name="GroupThreeValue"
+          component={GroupThreeValue}
+          options={{title: '组三合值'}}
+        />
+        <Tab.Screen
+          name="GroupSixPackage"
+          component={GroupSixPackage}
+          options={{title: '组六包号'}}
+        />
+        <Tab.Screen
+          name="GroupSixValue"
+          component={GroupSixValue}
+          options={{title: '组六合值'}}
+        />
+      </Tab.Navigator>
     </View>
   );
 };
-export default memo(ThreeStars);
 
-const styles = StyleSheet.create({
-  tipStyle: {
-    padding: pTd(20),
-    color: Colors.fontColor,
-  },
-  titleBox: {
-    paddingVertical: pTd(20),
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
-  },
-  titleStyle: {
-    color: Colors.fontColor,
-  },
-  betComponentStyle: {
-    marginTop: pTd(10),
-  },
-});
+export default memo(ThreeStars);

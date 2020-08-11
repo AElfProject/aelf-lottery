@@ -2,17 +2,13 @@
 import React, {memo} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import navigationService from '../../../utils/common/navigationService';
-import {
-  statusBarHeight,
-  pixelSize,
-  bottomBarHeigth,
-} from '../../../utils/common/device';
+import {statusBarHeight, pixelSize} from '../../../utils/common/device';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {pTd} from '../../../utils/common';
 import {Colors} from '../../../assets/theme';
 import Touchable from '../Touchable';
 import {TextM} from '../CommonText';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import KeyboardScrollView from '../KeyboardScrollView';
 const styles = StyleSheet.create({
   statusBarStyle: {
     paddingTop: statusBarHeight,
@@ -97,7 +93,9 @@ const Header = props => {
             <TouchableOpacity
               style={styles.leftBox}
               activeOpacity={0.75}
-              onPress={() => navigationService.goBack()}>
+              onPress={() =>
+                leftOnPress ? leftOnPress() : navigationService.goBack()
+              }>
               <Icon name={'left'} size={24} color={Colors.fontColor} />
             </TouchableOpacity>
           ) : null}
@@ -140,13 +138,7 @@ const CommonHeader = props => {
     return (
       <>
         <Header {...props} />
-        <KeyboardAwareScrollView
-          keyboardShouldPersistTaps="handled"
-          keyboardOpeningTime={0}
-          extraHeight={50}>
-          {children}
-          <View style={{height: bottomBarHeigth}} />
-        </KeyboardAwareScrollView>
+        <KeyboardScrollView>{children}</KeyboardScrollView>
       </>
     );
   }

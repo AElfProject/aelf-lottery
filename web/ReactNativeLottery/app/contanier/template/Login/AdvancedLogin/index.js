@@ -4,6 +4,7 @@ import {
   Touchable,
   Input,
   CommonButton,
+  KeyboardScrollView,
 } from '../../../../components/template';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {View, Keyboard} from 'react-native';
@@ -14,7 +15,6 @@ import i18n from 'i18n-js';
 import {useSetState} from '../../../../utils/pages/hooks';
 import {PASSWORD_REG, USERNAME_REG} from '../../../../config/constant';
 import {TextM} from '../../../../components/template/CommonText';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 const Tab = createMaterialTopTabNavigator();
 const PrivateKeyLogin = () => {
   const [state, setState] = useSetState({
@@ -72,10 +72,7 @@ const PrivateKeyLogin = () => {
       style={GStyle.container}
       activeOpacity={1}
       onPress={() => Keyboard.dismiss()}>
-      <KeyboardAwareScrollView
-        keyboardShouldPersistTaps="handled"
-        keyboardOpeningTime={0}
-        extraHeight={50}>
+      <KeyboardScrollView>
         <View style={styles.container}>
           <Input
             multiline={true}
@@ -129,7 +126,7 @@ const PrivateKeyLogin = () => {
             style={styles.buttonStyles}
           />
         </View>
-      </KeyboardAwareScrollView>
+      </KeyboardScrollView>
     </Touchable>
   );
 };
@@ -162,10 +159,7 @@ const KeyStoreLogin = () => {
       style={GStyle.container}
       activeOpacity={1}
       onPress={() => Keyboard.dismiss()}>
-      <KeyboardAwareScrollView
-        keyboardShouldPersistTaps="handled"
-        keyboardOpeningTime={0}
-        extraHeight={50}>
+      <KeyboardScrollView>
         <View style={styles.container}>
           <Input
             multiline={true}
@@ -193,7 +187,7 @@ const KeyStoreLogin = () => {
             style={styles.buttonStyles}
           />
         </View>
-      </KeyboardAwareScrollView>
+      </KeyboardScrollView>
     </Touchable>
   );
 };

@@ -64,17 +64,17 @@ const processingTool = (data, list, first, type) => {
 const getBetValue = (betNumber, betPerValue = 0) => {
   return betNumber * betPerValue;
 };
-const getBetNumber = (data, betArr) => {
+const getBetNumber = (data, betArr, disabledRule) => {
   let number = 0;
   if (
-    Array.isArray(data) &&
-    Array.isArray(betArr) &&
-    data.every((item, index) => {
-      return betArr[index];
-    })
+    Array.isArray(data) && Array.isArray(betArr) && disabledRule
+      ? disabledRule()
+      : data.every((item, index) => {
+          return betArr[index];
+        })
   ) {
     number = 1;
-    betArr.filter(item => {
+    betArr.forEach(item => {
       if (Array.isArray(item)) {
         number = number * item.length;
       }
@@ -87,7 +87,7 @@ const getDrawBetNumber = betArr => {
   let number = 0;
   if (Array.isArray(betArr)) {
     number = 1;
-    betArr.filter(item => {
+    betArr.forEach(item => {
       if (Array.isArray(item.bets)) {
         number = number * item.bets.length;
       }
@@ -300,6 +300,18 @@ const getSimpleAmount = (bonusAmount, betList, betValue) => {
   }
   return {A, P};
 };
+const getTwoArrayLength = arr => {
+  let number = 0;
+  if (Array.isArray(arr)) {
+    arr.forEach(item => {
+      if (Array.isArray(item)) {
+        number = number + item.length;
+      }
+    });
+  }
+  return number;
+};
+
 export default {
   processingNumber,
   processingTool,
@@ -319,4 +331,5 @@ export default {
   getDrawBetStr,
   getSimpleAmount,
   padLeft,
+  getTwoArrayLength,
 };

@@ -5,7 +5,7 @@ import {TextL, TextM} from '../../../../components/template/CommonText';
 import {getWindowWidth} from '../../../../utils/common/device';
 import {Colors} from '../../../../assets/theme';
 import {pTd} from '../../../../utils/common';
-const titleWidth = 50;
+const titleWidth = 60;
 import i18n from 'i18n-js';
 import {useStateToProps} from '../../../../utils/pages/hooks';
 const Item = memo(props => {
@@ -31,20 +31,26 @@ const Item = memo(props => {
     onSelect,
     selected,
     onTool,
+    lineLength,
   } = props;
   if (!playList || !Array.isArray(playList)) {
     return null;
   }
   const simple = playList.length < 5;
+  const complex = playList.length > 10;
+  const len = lineLength || complex ? 10 : playList.length;
   const offset = !simple
-    ? playList.length * 1.4
+    ? len * 1.4
     : !language || language === 'en'
-    ? playList.length * 1.8
-    : playList.length * 2.4;
+    ? len * 1.8
+    : len * 2.4;
 
   const width = (getWindowWidth() - titleWidth) / offset;
   const fontSize =
     simple && (!language || language === 'en') ? width * 0.3 : width * 0.55;
+
+  const marginLeft = lineLength || complex ? width / 3 : 0;
+  const marginTop = lineLength || complex ? 5 : 0;
   return (
     <View
       style={[
@@ -54,7 +60,10 @@ const Item = memo(props => {
       ]}>
       <View style={[styles.box]}>
         <TextL style={styles.titleText}>{title}</TextL>
-        <View style={styles.selectBox}>
+        <View
+          style={
+            lineLength || complex ? styles.complexSelectBox : styles.selectBox
+          }>
           {playList.map((item, index) => {
             const current = selected && selected.includes(String(index));
             return (
@@ -64,7 +73,13 @@ const Item = memo(props => {
                 style={[
                   styles.itemBox,
                   current && styles.currentStyle,
-                  {height: width, width, borderRadius: width / 2},
+                  {
+                    height: width,
+                    width,
+                    borderRadius: width / 2,
+                    marginLeft,
+                    marginTop,
+                  },
                 ]}>
                 <TextL
                   style={[
@@ -155,6 +170,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-around',
+  },
+  complexSelectBox: {
+    flex: 1,
+    flexWrap: 'wrap',
+    flexDirection: 'row',
   },
   titleText: {
     textAlign: 'center',

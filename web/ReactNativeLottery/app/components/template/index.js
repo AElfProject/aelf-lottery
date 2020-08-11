@@ -18,6 +18,7 @@ import ListComponent from './ListComponent';
 import Communication from './Communication';
 import VerifyPassword from './VerifyPassword';
 import WinningNumbers from './WinningNumbers';
+import KeyboardScrollView from './KeyboardScrollView';
 export {
   Input,
   Loading,
@@ -38,4 +39,5 @@ export {
   Communication,
   VerifyPassword,
   WinningNumbers,
+  KeyboardScrollView,
 };
