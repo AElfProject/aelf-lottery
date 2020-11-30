@@ -15,7 +15,7 @@ async function getContract(privateKeyInput, contractNameAddressSets) {
     ([contractName, contractAdress]) => {
       return aelf.chain
         .contractAt(contractAdress, wallet)
-        .then(contractInstance => {
+        .then((contractInstance) => {
           contractInstances[contractName] = contractInstance;
         });
     },
@@ -24,13 +24,13 @@ async function getContract(privateKeyInput, contractNameAddressSets) {
     return contractInstances;
   });
 }
-const getOtherContracts = wallet => {
+const getOtherContracts = (wallet) => {
   const {contractAddresses} = config;
   const contractInstances = {};
   const promise = contractAddresses.map(({contractName, contractAdress}) => {
     return aelf.chain
       .contractAt(contractAdress, wallet)
-      .then(contractInstance => {
+      .then((contractInstance) => {
         contractInstances[contractName] = contractInstance;
       });
   });
@@ -38,18 +38,18 @@ const getOtherContracts = wallet => {
     .then(() => {
       return contractInstances;
     })
-    .catch(err => {
+    .catch((err) => {
       throw err;
     });
 };
 
-const getContractAddresses = zeroC => {
+const getContractAddresses = (zeroC) => {
   const {contractNames} = config;
   const contractNameAddressKeyValues = {};
   const promise = Object.entries(contractNames).map(
     ([contractName, addressName]) => {
       return zeroC.GetContractAddressByName.call(sha256(addressName)).then(
-        result => {
+        (result) => {
           contractNameAddressKeyValues[contractName] = result;
         },
       );

@@ -13,12 +13,12 @@ const unlockKeystore = (params, pwd) => {
 const checkPassword = (keyStore, pwd) => {
   return AElf.wallet.keyStore.checkPassword(keyStore, pwd);
 };
-const getTransactionFee = Logs => {
+const getTransactionFee = (Logs) => {
   const free = AElf.pbUtils.getTransactionFee(Logs || []);
   let cost = 0;
   let symbol = '';
   Array.isArray(free) &&
-    free.filter(item => {
+    free.filter((item) => {
       cost = cost + item.amount;
       symbol = item.symbol;
     });
@@ -28,7 +28,7 @@ const getTransactionFee = Logs => {
 const getKeystore = (params, pwd, keystoreOptions) => {
   return AElf.wallet.keyStore.getKeystore(params, pwd, keystoreOptions);
 };
-const formatRestoreAddress = addressInput => {
+const formatRestoreAddress = (addressInput) => {
   if (!addressInput) {
     return '';
   }
@@ -38,14 +38,14 @@ const formatRestoreAddress = addressInput => {
     .replace(new RegExp(head, 'g'), '')
     .replace(new RegExp(tail, 'g'), '');
 };
-const formatAddress = addressInput => {
+const formatAddress = (addressInput) => {
   if (!addressInput || typeof addressInput !== 'string') {
     return '';
   }
   addressInput = formatRestoreAddress(addressInput);
   return prefix + '_' + addressInput + '_' + suffix;
 };
-const formatAddressHide = addressInput => {
+const formatAddressHide = (addressInput) => {
   const length = 20;
   if (checkAddress(addressInput)) {
     addressInput = formatAddress(addressInput);
@@ -59,12 +59,12 @@ const formatAddressHide = addressInput => {
   }
 };
 //checkAddress
-const checkAddress = addressInput => {
+const checkAddress = (addressInput) => {
   addressInput = formatRestoreAddress(addressInput);
   const length = addressInput.length;
   return length >= 47 && length <= 51;
 };
-const webURLAddress = addressInput => {
+const webURLAddress = (addressInput) => {
   if (!addressInput) {
     return;
   }
@@ -72,14 +72,14 @@ const webURLAddress = addressInput => {
   return `${explorerURL}/address/${addressInput}`;
 };
 
-const webURLTx = addressInput => {
+const webURLTx = (addressInput) => {
   if (!addressInput) {
     return;
   }
   addressInput = formatRestoreAddress(addressInput);
   return `${explorerURL}/tx/${addressInput}`;
 };
-const getMillisecond = time => {
+const getMillisecond = (time) => {
   const {seconds} = time || {};
   let tim = seconds || time;
   if (String(tim).length <= 10) {
@@ -94,7 +94,7 @@ const timeConversion = (time, format) => {
   }
   return showTime;
 };
-const getTxResult = TransactionId => {
+const getTxResult = (TransactionId) => {
   return aelfInstance.chain.getTxResult(TransactionId);
 };
 export default {
