@@ -163,7 +163,7 @@ namespace AElf.Contracts.LotteryContract
         public override Int64Value GetNoRewardLotteriesCount(Empty input)
         {
             return new Int64Value
-                {Value = State.SelfIncreasingIdForLottery.Value.Sub(1).Sub(State.AllRewardsCount.Value)};
+                {Value = State.SelfIncreasingIdForLottery.Value.Sub(1).Sub(State.RewardCount.Value)};
         }
     }
 }

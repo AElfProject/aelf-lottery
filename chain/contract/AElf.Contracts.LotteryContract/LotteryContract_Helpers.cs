@@ -53,7 +53,6 @@ namespace AElf.Contracts.LotteryContract
             var levelsCount = rewards.Values.ToList();
             var rewardCount = levelsCount.Sum();
             State.RewardCount.Value = State.RewardCount.Value.Add(rewardCount);
-            Assert(rewardCount > 0, "Reward pool cannot be empty.");
             Assert(poolCount >= State.RewardCount.Value,
                 $"Too many rewards, lottery pool size: {poolCount.Sub(State.RewardCount.Value)}.");
 

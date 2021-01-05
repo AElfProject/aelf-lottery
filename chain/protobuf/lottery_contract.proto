@@ -109,6 +109,7 @@ message Lottery {
     string reward_name = 3;
     int64 block = 4;
     string registration_information = 5;
+    bool is_reward_taken = 6;
 }
 
 message PeriodBody {
