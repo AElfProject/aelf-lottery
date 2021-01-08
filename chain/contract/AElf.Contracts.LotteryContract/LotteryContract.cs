@@ -241,5 +241,12 @@ namespace AElf.Contracts.LotteryContract
             State.IsSuspend.Value = false;
             return new Empty();
         }
+
+        public override Empty RegisterDividend(RegisterDividendDto input)
+        {
+            Assert(State.Dividends[Context.Sender] == null, "Already registered");
+            State.Dividends[Context.Sender] = input;
+            return new Empty();
+        }
     }
 }

@@ -165,5 +165,10 @@ namespace AElf.Contracts.LotteryContract
             return new Int64Value
                 {Value = State.SelfIncreasingIdForLottery.Value.Sub(1).Sub(State.RewardCount.Value)};
         }
+
+        public override RegisterDividendDto GetRegisteredDividend(Address input)
+        {
+            return State.Dividends[input];
+        }
     }
 }

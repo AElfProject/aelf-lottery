@@ -71,6 +71,6 @@ namespace AElf.Contracts.LotteryContract
 
         public BoolState IsSuspend { get; set; }
 
-        public Int64State AllRewardsCount { get; set; }
+        public MappedState<Address, RegisterDividendDto> Dividends { get; set; }
     }
 }

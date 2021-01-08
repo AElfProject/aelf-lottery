@@ -38,6 +38,9 @@ service LotteryContract {
     }
     rpc Recover (google.protobuf.Empty) returns (google.protobuf.Empty) {
     }
+    
+    rpc RegisterDividend (RegisterDividendDto) returns (google.protobuf.Empty) {
+    }
 
     rpc GetRewardResult (google.protobuf.Int64Value) returns (GetRewardResultOutput) {
         option (aelf.is_view) = true;
@@ -82,6 +85,9 @@ service LotteryContract {
         option (aelf.is_view) = true;
     }
     rpc GetNoRewardLotteriesCount (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetRegisteredDividend (aelf.Address) returns (RegisterDividendDto) {
         option (aelf.is_view) = true;
     }
 }
@@ -157,4 +163,8 @@ message RewardsInfo {
 
 message StringList {
     repeated string value = 1;
+}
+
+message RegisterDividendDto {
+    string receiver = 1;
 }
