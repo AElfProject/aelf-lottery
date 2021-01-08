@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+import "aelf/core.proto";
+import "aelf/options.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "AElf.Contracts.AirdropContract";
+
+service AirdropContract{
+    option (aelf.csharp_state) = "AElf.Contracts.AirdropContract.AirdropContractState";
+
+    rpc Initialize (InitializeInput) returns (google.protobuf.Empty) {
+    }
+    
+    rpc Airdrop(AirdropInput) returns (google.protobuf.Empty) {
+    }
+    
+    rpc GetAirdropCount(google.protobuf.Empty) returns (google.protobuf.Int64Value){
+        option (aelf.is_view) = true;
+    }
+    rpc GetAirdropInfo(google.protobuf.Int64Value) returns (AirdropInfo){
+        option (aelf.is_view) = true;
+    }
+    rpc GetAirdropAmount(google.protobuf.StringValue) returns (google.protobuf.Int64Value){
+        option (aelf.is_view) = true;
+    }
+}
+
+message InitializeInput {
+    aelf.Address owner = 1;
+}
+
+message AirdropInput{
+    repeated AirdropInfo airdrops = 1;
+}
+
+message AirdropInfo{
+    int64 airdrop_id = 1;
+    aelf.Address airdrop_address= 2;
+    repeated AirdropToken airdrop_token = 3;
+}
+
+message AirdropToken{
+    string symbol = 1;
+    int64 amount = 2;
+}
