@@ -104,11 +104,10 @@ namespace AElf.Contracts.LotteryContract
 
             var levelsCount = State.Periods[State.CurrentPeriod.Value].Rewards.Values.ToList();
             var rewardCount = levelsCount.Sum();
-            State.RewardCount.Value = State.RewardCount.Value.Add(rewardCount);
             Assert(rewardCount > 0, "Reward pool cannot be empty.");
             
             Assert(State.SelfIncreasingIdForLottery.Value > State.RewardCount.Value.Add(1).Add(rewardCount),
-                "Unable to terminate this period.");
+                "Unable to prepare draw because not enough rewards.");
 
             State.CurrentPeriod.Value = State.CurrentPeriod.Value.Add(1);
 

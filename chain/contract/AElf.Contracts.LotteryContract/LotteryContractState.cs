@@ -2,6 +2,7 @@ using AElf.Contracts.MultiToken;
 using AElf.Sdk.CSharp.State;
 using AElf.Types;
 using AElf.Contracts.Consensus.AEDPoS;
+using AElf.Standards.ACS1;
 
 namespace AElf.Contracts.LotteryContract
 {
@@ -72,5 +73,9 @@ namespace AElf.Contracts.LotteryContract
         public BoolState IsSuspend { get; set; }
 
         public MappedState<Address, RegisterDividendDto> Dividends { get; set; }
+        
+        public SingletonState<AuthorityInfo> MethodFeeController { get; set; }
+        
+        public MappedState<string, MethodFees> TransactionFees { get; set; }
     }
 }

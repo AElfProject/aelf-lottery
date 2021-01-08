@@ -42,7 +42,7 @@ namespace AElf.Contracts.LotteryContract
             var poolCount = State.Periods[currentPeriodNumber].StartId.Sub(1);
 
             var period = State.Periods[previousPeriodNumber];
-            if (randomHash == null)
+            if (randomHash == null || randomHash == Hash.Empty)
             {
                 // Only can happen in test cases.
                 randomHash = HashHelper.ComputeFrom(Context.PreviousBlockHash);

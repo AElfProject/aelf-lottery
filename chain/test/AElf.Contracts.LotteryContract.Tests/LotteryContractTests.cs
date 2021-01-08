@@ -85,8 +85,16 @@ namespace AElf.Contracts.LotteryContract
         {
             await InitializeAndCheckStatus();
 
+            await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
+            {
+                Period = 1,
+                Rewards =
+                {
+                    {"啊", 1}
+                }
+            });
             var result = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
-            result.TransactionResult.Error.ShouldContain("Unable to terminate this period.");
+            result.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough rewards.");
         }
 
         [Fact]
@@ -108,11 +116,40 @@ namespace AElf.Contracts.LotteryContract
         [Fact]
         public async Task PrepareDrawTest()
         {
-            await BuyTest();
+            await BuyTest(); // buy 25 lotteries
+            
+            await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
+            {
+                Period = 1,
+                Rewards =
+                {
+                    {"啊", 1},
+                    {"啊啊", 2},
+                    {"啊啊啊", 22}
+                }
+            });
+            
+            var prepare = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
+            prepare.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough rewards.");
+            
+            await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
+            {
+                Period = 1,
+                Rewards =
+                {
+                    {"啊", 1},
+                    {"啊啊", 2},
+                    {"啊啊啊", 21}
+                }
+            });
             await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
 
             var currentPeriodNumber = await LotteryContractStub.GetCurrentPeriodNumber.CallAsync(new Empty());
             currentPeriodNumber.Value.ShouldBe(2);
+
+            var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 2});
+            period.RandomHash.ShouldBe(Hash.Empty);
+            period.StartId.ShouldBe(26);
 
             {
                 var lotteries = await AliceBuy(1, 2);
@@ -133,17 +170,6 @@ namespace AElf.Contracts.LotteryContract
         {
             await PrepareDrawTest();
 
-            await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
-            {
-                Period = 1,
-                Rewards =
-                {
-                    {"啊", 1},
-                    {"啊啊", 2},
-                    {"啊啊啊", 5}
-                }
-            });
-
             await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 1});
 
             var rewardResult = await LotteryContractStub.GetRewardResult.CallAsync(new Int64Value
@@ -162,6 +188,57 @@ namespace AElf.Contracts.LotteryContract
             var lottery = await LotteryContractStub.GetLottery.CallAsync(new Int64Value {Value = reward.Id});
             lottery.RegistrationInformation.ShouldBe(registrationInformation);
         }
+
+        [Fact]
+        public async Task DrawTwiceTest()
+        {
+            await DrawTest();
+
+            {
+                var draw = await LotteryContractStub.Draw.SendWithExceptionAsync(new Int64Value {Value = 1});
+                draw.TransactionResult.Error.ShouldContain("Latest period already drawn.");
+            }
+
+            {
+                var prepare = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
+                prepare.TransactionResult.Error.ShouldContain("Reward pool cannot be empty.");
+            }
+            await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
+            {
+                Period = 2,
+                Rewards =
+                {
+                    {"啊", 1},
+                    {"啊啊", 2},
+                }
+            });
+            
+            {
+                var prepare = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
+                prepare.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough rewards.");
+            }
+            
+            await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
+            {
+                Period = 2,
+                Rewards =
+                {
+                    {"啊", 1},
+                    {"啊啊", 1},
+                }
+            });
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            
+            var currentPeriodNumber = await LotteryContractStub.GetCurrentPeriodNumber.CallAsync(new Empty());
+            currentPeriodNumber.Value.ShouldBe(3);
+
+            var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 3});
+            period.RandomHash.ShouldBe(Hash.Empty);
+            period.StartId.ShouldBe(28);
+            
+            await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 2});
+        }
+        
 
         private async Task<RepeatedField<Lottery>> AliceBuy(int amount, long period)
         {
@@ -195,7 +272,7 @@ namespace AElf.Contracts.LotteryContract
                 Owner = BobAddress,
                 Period = period
             });
-            boughtOutput.Lotteries.First().Id.ShouldBe(boughtInformation.StartId);
+            boughtOutput.Lotteries.Last().Id.ShouldBe(boughtInformation.StartId + boughtInformation.Amount - 1);
             return boughtOutput.Lotteries;
         }
 

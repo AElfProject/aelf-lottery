@@ -4,15 +4,14 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IsContract>true</IsContract>
     </PropertyGroup>
-    <ItemGroup>
-        <ContractMessage Include="..\..\protobuf\authority_info.proto">
-            <Link>Protobuf\Proto\authority_info.proto</Link>
-        </ContractMessage>
-    </ItemGroup>
+
     <ItemGroup>
         <ContractBase Include="..\..\protobuf\acs1.proto">
             <Link>Protobuf\Proto\reference\acs1.proto</Link>
         </ContractBase>
+        <CommonMessage Include="..\..\protobuf\authority_info.proto">
+            <Link>Protobuf\Proto\authority_info.proto</Link>
+        </CommonMessage>
         <ContractReference Include="..\..\protobuf\acs2.proto">
             <Link>Protobuf\Proto\reference\acs2.proto</Link>
         </ContractReference>
