@@ -9,6 +9,7 @@ namespace AElf.Contracts.AirdropContract
     {
         public override Empty Initialize(InitializeInput input)
         {
+            Assert(State.Owner.Value == null, "Already initialized.");
             State.Owner.Value = input.Owner;
             State.TokenContract.Value =
                 Context.GetContractAddressByName(SmartContractConstants.TokenContractSystemName);

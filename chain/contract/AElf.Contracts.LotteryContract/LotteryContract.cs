@@ -243,7 +243,8 @@ namespace AElf.Contracts.LotteryContract
 
         public override Empty RegisterDividend(RegisterDividendDto input)
         {
-            Assert(State.Dividends[Context.Sender] == null, "Already registered");
+            Assert(State.Dividends[Context.Sender] == null, "Already registered.");
+            Assert(State.BoughtLotteriesCount[Context.Sender] > 0, "Lottery not found.");
             State.Dividends[Context.Sender] = input;
             return new Empty();
         }
