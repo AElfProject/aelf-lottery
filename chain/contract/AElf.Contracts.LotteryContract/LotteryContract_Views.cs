@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AElf.CSharp.Core;
@@ -9,161 +8,179 @@ namespace AElf.Contracts.LotteryContract
 {
     public partial class LotteryContract
     {
-        public override Lottery GetLottery(Int64Value input)
+        public override GetPeriodsOutput GetPeriods(GetPeriodsInput input)
         {
-            return State.Lotteries[input.Value];
-        }
-
-        public override GetRewardResultOutput GetRewardResult(Int64Value input)
-        {
-            var period = State.Periods[input.Value];
-            var rewardIds = period?.RewardIds;
-            if (rewardIds == null || !rewardIds.Any())
+            Assert(input.StartPeriodNumber > 0 && input.Limit > 0, "Invalid input");
+            Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
+            var periodDetails = new List<PeriodDetail>();
+            var periodNumber = input.StartPeriodNumber;
+            while (periodDetails.Count < input.Limit)
             {
-                return new GetRewardResultOutput();
+                var periodDetail = GetPeriodDetail(periodNumber);
+                if (periodDetail == null) break;
+                periodDetails.Add(periodDetail);
+                periodNumber--;
             }
 
-            // ReSharper disable once PossibleNullReferenceException
-            var randomHash = period.RandomHash;
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var lotteries = rewardIds.Select(id => State.Lotteries[id] ?? new Lottery()).ToList();
-
-            return new GetRewardResultOutput
+            return new GetPeriodsOutput
             {
-                Period = input.Value,
-                RandomHash = randomHash,
-                RewardLotteries = {lotteries}
+                Periods = {periodDetails}
             };
         }
 
-        public override GetBoughtLotteriesOutput GetBoughtLotteries(GetBoughtLotteriesInput input)
+        public override GetLotteryOutput GetLottery(GetLotteryInput input)
         {
-            List<long> returnLotteryIds;
-            var owner = input.Owner ?? Context.Sender;
-
-            var lotteryList = new LotteryList();
-            if (input.Period == 0)
+            return new GetLotteryOutput
             {
-                for (var period = 1; period <= State.CurrentPeriod.Value; period++)
-                {
-                    var list = State.OwnerToLotteries[owner][period];
-                    if (list != null)
-                    {
-                        // TODO: Optimize this if current period number is big enough.
-                        lotteryList.Ids.Add(list.Ids.Where(i => i > input.StartId));
-                    }
-                }
-            }
-            else
-            {
-                lotteryList = State.OwnerToLotteries[owner][input.Period];
-                if (lotteryList == null)
-                {
-                    return new GetBoughtLotteriesOutput();
-                }
-            }
-
-            var allLotteryIds = lotteryList.Ids.ToList();
-            if (allLotteryIds.Count <= MaximumReturnAmount)
-            {
-                returnLotteryIds = allLotteryIds;
-            }
-            else
-            {
-                Assert(input.StartId < allLotteryIds.Last(), "Start id is too big.");
-                var takeAmount = Math.Min(allLotteryIds.Count(i => i > input.StartId), MaximumReturnAmount);
-                returnLotteryIds = allLotteryIds.Where(i => i > input.StartId).Take(takeAmount).ToList();
-            }
-
-            return new GetBoughtLotteriesOutput
-            {
-                Lotteries =
-                {
-                    returnLotteryIds.Select(id => State.Lotteries[id] ?? new Lottery())
-                }
+                Lottery = GetLotteryDetail(input.LotteryId)
             };
         }
 
-        public override Int64Value GetSales(Int64Value input)
+        public override GetLotteriesOutput GetLotteries(GetLotteriesInput input)
         {
-            var period = State.Periods[input.Value];
-            Assert(period != null, "Period information not found.");
-            if (State.CurrentPeriod.Value == input.Value)
+            Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
+            Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
+            var address = Context.Sender;
+            var lotteries = State.UnDoneLotteries[address] ?? new LotteryList();
+            var doneLotteries = State.DoneLotteries[address] ?? new LotteryList();
+            lotteries.Ids.AddRange(doneLotteries.Ids);
+            var ids = lotteries.Ids.OrderByDescending(id => id);
+            var lotteryIdList = ids.Skip(input.Offset).Take(input.Limit).ToList();
+            var lotteryDetails = new List<LotteryDetail>();
+            foreach (var lotteryId in lotteryIdList)
             {
-                return new Int64Value
-                {
-                    // ReSharper disable once PossibleNullReferenceException
-                    Value = State.SelfIncreasingIdForLottery.Value.Sub(period.StartId)
-                };
+                var lotteryDetail = GetLotteryDetail(lotteryId);
+                if (lotteryDetail == null) break;
+                lotteryDetails.Add(lotteryDetail);
             }
 
-            var nextPeriod = State.Periods[input.Value.Add(1)];
-            return new Int64Value
+            return new GetLotteriesOutput
             {
-                // ReSharper disable once PossibleNullReferenceException
-                Value = nextPeriod.StartId.Sub(period.StartId)
+                Lotteries = {lotteryDetails}
             };
         }
 
-        public override Int64Value GetPrice(Empty input)
+        public override GetLotteriesOutput GetRewardedLotteries(GetLotteriesInput input)
         {
-            return new Int64Value {Value = State.Price.Value};
+            Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
+            Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
+            var address = Context.Sender;
+            var lotteries = State.UnDoneLotteries[address] ?? new LotteryList();
+            var lotteryIdList = lotteries.Ids.OrderByDescending(id => id);
+            var lotteryDetails = new List<LotteryDetail>();
+            foreach (var lotteryId in lotteryIdList)
+            {
+                var lotteryDetail = GetLotteryDetail(lotteryId);
+                if (lotteryDetail == null) break;
+                if (lotteryDetail.Reward == 0 || lotteryDetail.Expired) continue;
+                lotteryDetails.Add(lotteryDetail);
+                if (lotteryDetails.Count >= input.Offset + input.Limit) break;
+            }
+
+            return new GetLotteriesOutput
+            {
+                Lotteries = {lotteryDetails.Skip(input.Offset).Take(input.Limit)}
+            };
         }
 
-        public override Int64Value GetDrawingLag(Empty input)
+        public override GetLatestCashedLotteryOutput GetLatestCashedLottery(Empty input)
         {
-            return new Int64Value {Value = State.DrawingLag.Value};
+            if (State.LatestCashedLotteryId.Value == 0) return new GetLatestCashedLotteryOutput();
+            var lottery = State.Lotteries[State.LatestCashedLotteryId.Value];
+            var period = State.Periods[lottery.PeriodNumber];
+            var date = period.CreateTime.ToDateTime().ToString("yyyyMMdd");
+            return new GetLatestCashedLotteryOutput
+            {
+                Address = lottery.Owner,
+                Type = (int) lottery.Type,
+                PeriodNumber = lottery.PeriodNumber,
+                StartPeriodNumberOfDay = State.StartPeriodNumberOfDay[date]
+            };
         }
 
-        public override Int64Value GetMaximumBuyAmount(Empty input)
+        public override PeriodDetail GetPeriod(Int64Value input)
         {
-            return new Int64Value {Value = State.MaximumAmount.Value};
+            return GetPeriodDetail(input.Value);
+        }
+
+        public override PeriodDetail GetLatestDrawPeriod(Empty input)
+        {
+            var currentPeriodNumber = State.CurrentPeriodNumber.Value;
+            var periodDetail = GetPeriodDetail(currentPeriodNumber);
+            while (periodDetail != null)
+            {
+                if (periodDetail.DrawTime != null) return periodDetail;
+                periodDetail = GetPeriodDetail(periodDetail.PeriodNumber.Sub(1));
+            }
+            
+            return null;
         }
 
         public override Int64Value GetCurrentPeriodNumber(Empty input)
         {
-            return new Int64Value {Value = State.CurrentPeriod.Value};
-        }
-
-        public override PeriodBody GetPeriod(Int64Value input)
-        {
-            var period = State.Periods[input.Value];
-            return period ?? new PeriodBody();
-        }
-
-        public override PeriodBody GetCurrentPeriod(Empty input)
-        {
-            var period = State.Periods[State.CurrentPeriod.Value];
-            return period ?? new PeriodBody();
-        }
-
-        public override RewardList GetRewardList(Empty input)
-        {
-            return new RewardList
+            return new Int64Value
             {
-                RewardMap = {State.RewardCodeList.Value.Value.ToDictionary(c => c, c => State.RewardMap[c])}
+                Value = State.CurrentPeriodNumber.Value
+            }; 
+        }
+
+        public override PeriodDetail GetCurrentPeriod(Empty input)
+        {
+            return GetPeriodDetail(State.CurrentPeriodNumber.Value);
+        }
+
+        public override Int64Value GetPrice(Empty input)
+        {
+            return new Int64Value
+            {
+                Value = State.Price.Value
             };
         }
 
-        public override StringValue GetRewardName(StringValue input)
+        public override StringValue GetTokenSymbol(Empty input)
         {
-            return new StringValue {Value = State.RewardMap[input.Value]};
+            return new StringValue
+            {
+                Value = State.TokenSymbol.Value
+            }; 
         }
 
-        public override Int64Value GetBoughtLotteriesCount(Address input)
+        public override Int32Value GetCashDuration(Empty input)
         {
-            return new Int64Value {Value = State.BoughtLotteriesCount[input]};
+            return new Int32Value
+            {
+                Value = State.CashDuration.Value
+            };
         }
 
-        public override Int64Value GetAllLotteriesCount(Empty input)
+        public override GetRateOutput GetBonusRate(Empty input)
         {
-            return new Int64Value {Value = State.SelfIncreasingIdForLottery.Value.Sub(1)};
+            return new GetRateOutput
+            {
+                Rate = State.BonusRate.Value,
+                Decimals = RateDecimals
+            };
         }
 
-        public override Int64Value GetNoRewardLotteriesCount(Empty input)
+        public override Address GetAdmin(Empty input)
         {
-            return new Int64Value
-                {Value = State.SelfIncreasingIdForLottery.Value.Sub(1).Sub(State.AllRewardsCount.Value)};
+            return State.Admin.Value;
+        }
+
+        public override GetRewardsOutput GetRewards(Empty input)
+        {
+            var output = new GetRewardsOutput();
+            var lotteryTypes = GetLotteryTypes();
+            foreach (var lotteryType in lotteryTypes)
+            {
+                output.Rewards.Add(new RewardDetail
+                {
+                    Type = (int) lotteryType,
+                    Amount = State.Rewards[lotteryType]
+                });
+            }
+
+            return output;
         }
     }
 }

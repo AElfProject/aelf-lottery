@@ -1,100 +1,194 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AElf.CSharp.Core;
-using AElf.Types;
+using AElf.CSharp.Core.Extension;
+using AElf.Sdk.CSharp;
 
 namespace AElf.Contracts.LotteryContract
 {
     public partial class LotteryContract
     {
-        private void AssertSenderIsAdmin()
+        private void InitRewards(int decimals)
         {
-            Assert(Context.Sender == State.Admin.Value, "Sender should be admin.");
+            long pow = Pow(10, (uint) decimals);
+            State.Rewards[LotteryType.Simple] = pow.Mul(4);
+            State.Rewards[LotteryType.OneBit] = pow.Mul(10);
+            State.Rewards[LotteryType.TwoBit] = pow.Mul(100);
+            State.Rewards[LotteryType.ThreeBit] = pow.Mul(1000);
+            State.Rewards[LotteryType.FiveBit] = pow.Mul(100000);
+        }
+        
+        private PeriodDetail GetPeriodDetail(long periodNumber)
+        {
+            var period = State.Periods[periodNumber];
+            if (period == null) return null;
+            var date = period.CreateTime.ToDateTime().ToString("yyyyMMdd");
+            return new PeriodDetail
+            {
+                PeriodNumber = period.PeriodNumber,
+                BlockNumber = period.BlockNumber,
+                CreateTime = period.CreateTime,
+                DrawTime = period.DrawTime,
+                LuckyNumber = period.LuckyNumber,
+                RandomHash = period.RandomHash,
+                DrawBlockNumber = period.DrawBlockNumber,
+                StartPeriodNumberOfDay = State.StartPeriodNumberOfDay[date]
+            };
+        }
+        
+        private PeriodBody GetLatestDrawPeriod()
+        {
+            var currentPeriodNumber = State.CurrentPeriodNumber.Value;
+            var period = State.Periods[currentPeriodNumber];
+            while (period != null)
+            {
+                if (period.DrawTime != null) return period;
+                period = State.Periods[period.PeriodNumber.Sub(1)];
+            }
+            
+            return null;
         }
 
-        private void InitialNextPeriod()
+        public void AddDoneLottery(long lotteryId)
         {
-            var periodBody = State.Periods[State.CurrentPeriod.Value];
-            if (periodBody == null)
-            {
-                periodBody = new PeriodBody
-                {
-                    StartId = State.SelfIncreasingIdForLottery.Value,
-                    BlockNumber = Context.CurrentHeight.Add(State.DrawingLag.Value),
-                    RandomHash = Hash.Empty
-                };
-            }
-            else
-            {
-                periodBody.StartId = State.SelfIncreasingIdForLottery.Value;
-                periodBody.BlockNumber = Context.CurrentHeight.Add(State.DrawingLag.Value);
-                periodBody.RandomHash = Hash.Empty;
-            }
-
-            State.Periods[State.CurrentPeriod.Value] = periodBody;
+            var lotteryList = State.DoneLotteries[Context.Sender] ?? new LotteryList();
+            lotteryList.Ids.Add(lotteryId);
+            State.DoneLotteries[Context.Sender] = lotteryList;
         }
 
-        private void DealWithLotteries(Dictionary<string, int> rewards, Hash randomHash)
+        public void AddUndoneLottery(long lotteryId)
         {
-            var currentPeriodNumber = State.CurrentPeriod.Value;
-            var previousPeriodNumber = currentPeriodNumber.Sub(1);
-            var poolCount = State.Periods[currentPeriodNumber].StartId.Sub(1);
+            var lotteryList = State.UnDoneLotteries[Context.Sender] ?? new LotteryList();
+            lotteryList.Ids.Add(lotteryId);
+            State.UnDoneLotteries[Context.Sender] = lotteryList;
+        }
 
-            var period = State.Periods[previousPeriodNumber];
-            if (randomHash == null)
+        public void RemoveUndoneLottery(long lotteryId)
+        {
+            var lotteryList = State.UnDoneLotteries[Context.Sender] ?? new LotteryList();
+            lotteryList.Ids.Remove(lotteryId);
+            State.UnDoneLotteries[Context.Sender] = lotteryList;
+        }
+        
+        private void DealUnDoneLotteries()
+        {
+            var lotteryList = State.UnDoneLotteries[Context.Sender] ?? new LotteryList();
+            var lotteryIds = lotteryList.Ids.ToList();
+            var latestDrawPeriod = GetLatestDrawPeriod();
+            //TODO consider lotteryIds count is very large.
+            foreach (var lotteryId in lotteryIds)
             {
-                // Only can happen in test cases.
-                randomHash = HashHelper.ComputeFrom(Context.PreviousBlockHash);
+                var lottery = State.Lotteries[lotteryId];
+                if (latestDrawPeriod == null || lottery.PeriodNumber > latestDrawPeriod.PeriodNumber) continue;
+                var period = State.Periods[lottery.PeriodNumber];
+                lottery.Reward = CalculateReward(lottery, period.LuckyNumber);
+                lottery.Expired = lottery.Reward > 0 && period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime;
+                lottery.Cashed = lottery.Reward == 0;
+                State.Lotteries[lotteryId] = lottery;
+                if (lottery.Reward > 0 && !lottery.Expired) continue;
+                RemoveUndoneLottery(lotteryId);
+                AddDoneLottery(lotteryId);
             }
+        }
 
-            period.RandomHash = randomHash;
+        private LotteryDetail GetLotteryDetail(long lotteryId)
+        {
+            var lottery = State.Lotteries[lotteryId];
+            if (lottery == null) return null;
+            Assert(lottery.Owner == Context.Sender, "Cannot query other people's lottery");
+            var period = State.Periods[lottery.PeriodNumber];
+            var date = period.CreateTime.ToDateTime().ToString("yyyyMMdd");
 
-            var levelsCount = rewards.Values.ToList();
-            var rewardCount = levelsCount.Sum();
-            State.RewardCount.Value = State.RewardCount.Value.Add(rewardCount);
-            Assert(rewardCount > 0, "Reward pool cannot be empty.");
-            Assert(poolCount >= State.RewardCount.Value,
-                $"Too many rewards, lottery pool size: {poolCount.Sub(State.RewardCount.Value)}.");
+            var reward = !lottery.Cashed && lottery.Reward == 0 && period.DrawTime != null
+                ? CalculateReward(lottery, period.LuckyNumber)
+                : lottery.Reward;
 
-            var ranks = new List<string>();
-
-            foreach (var reward in rewards)
+            return new LotteryDetail
             {
-                for (var i = 0; i < reward.Value; i++)
+                Id = lottery.Id,
+                BetInfos = {lottery.BetInfos},
+                Cashed = lottery.Cashed,
+                PeriodNumber = lottery.PeriodNumber,
+                Price = lottery.Price,
+                Reward = reward,
+                Type = (int)lottery.Type,
+                BlockNumber = lottery.BlockNumber,
+                CreateTime = lottery.CreateTime,
+                StartPeriodNumberOfDay = State.StartPeriodNumberOfDay[date],
+                Expired = lottery.Expired || period.DrawTime != null && !lottery.Cashed && reward > 0 &&
+                          period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime
+            };
+        }
+        
+        private void SetBonusRate(int bonusRate)
+        {
+            Assert(bonusRate > 0 && bonusRate.Div(GetRateDenominator()) < 1, "Invalid bonus rate");
+            Assert(Context.Sender == State.Admin.Value, "No permission");
+            State.BonusRate.Value = bonusRate;
+        }
+
+        private long CalculateReward(Lottery lottery, int luckNumber)
+        {
+            var bit = GetBit(lottery.Type);
+            return bit.GetWinBetCount(luckNumber, lottery.BetInfos) * State.Rewards[lottery.Type];
+        }
+
+        private int GetRateDenominator()
+        {
+            return Pow(10, RateDecimals);
+        }
+
+        private List<LotteryType> GetLotteryTypes()
+        {
+            return new List<LotteryType>
+            {
+                LotteryType.Simple,
+                LotteryType.OneBit,
+                LotteryType.TwoBit,
+                LotteryType.ThreeBit,
+                LotteryType.FiveBit
+            };
+        }
+        
+        private IBit GetBit(LotteryType type)
+        {
+            switch (type)
+            {
+                case LotteryType.Simple:
+                    return new SimpleBit();
+                case LotteryType.OneBit:
+                    return new OneBit();
+                case LotteryType.TwoBit:
+                    return new TwoBit();
+                case LotteryType.ThreeBit:
+                    return new ThreeBit();
+                case LotteryType.FiveBit:
+                    return new FiveBit();
+                default:
+                    throw new AssertionException("Invalid lottery type");
+            }
+        }
+
+        private static int Pow(int x, uint y)
+        {
+            if (y == 1)
+                return x;
+            int a = 1;
+            if (y == 0)
+                return a;
+            var e = new BitArray(y.ToBytes(false));
+            var t = e.Count;
+            for (var i = t - 1; i >= 0; --i)
+            {
+                a *= a;
+                if (e[i])
                 {
-                    ranks.Add(reward.Key);
+                    a *= x;
                 }
             }
 
-            var rewardIds = new List<long>();
-            var rewardId = Math.Abs(randomHash.ToInt64() % poolCount).Add(1);
-
-            for (var i = 0; i < rewardCount; i++)
-            {
-                while (!string.IsNullOrEmpty(State.Lotteries[rewardId].RewardName))
-                {
-                    // Keep updating luckyIndex
-                    randomHash = HashHelper.ComputeFrom(randomHash);
-                    rewardId = Math.Abs(randomHash.ToInt64() % poolCount).Add(1);
-                }
-
-                rewardIds.Add(rewardId);
-                State.Lotteries[rewardId].RewardName = GetRewardName(ranks[i]);
-            }
-
-            period.RewardIds.Add(rewardIds);
-            State.Periods[previousPeriodNumber] = period;
-        }
-
-        private string GetRewardName(string rewardCode)
-        {
-            return State.RewardMap[rewardCode] ?? rewardCode;
-        }
-
-        private void AssertIsNotSuspended()
-        {
-            Assert(!State.IsSuspend.Value, "Cannot do anything.");
+            return a;
         }
     }
 }

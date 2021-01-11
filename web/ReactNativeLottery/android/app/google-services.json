@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "509027181400",
+    "firebase_url": "https://aelf-lottery.firebaseio.com",
+    "project_id": "aelf-lottery",
+    "storage_bucket": "aelf-lottery.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509027181400:android:be2b9c4552f6d5f4723b2d",
+        "android_client_info": {
+          "package_name": "com.aelf.aelfrandoman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "509027181400-prgahvftoaj8a012c6htr460jj5nkj3j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlivBtBB_jgM1kJBBFUaa9Rth81fABW4Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "509027181400-prgahvftoaj8a012c6htr460jj5nkj3j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

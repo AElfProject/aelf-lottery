@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core;
+using AElf.CSharp.Core.Extension;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
@@ -12,247 +11,192 @@ namespace AElf.Contracts.LotteryContract
     {
         public override Empty Initialize(InitializeInput input)
         {
+            Assert(input.Price > 0 && input.CashDuration > 0, "Invalid input");
             Assert(State.TokenSymbol.Value == null, "Already initialized");
-            State.TokenSymbol.Value = input.TokenSymbol;
-
-            State.Admin.Value = Context.Sender;
-
+            
+            State.GenesisContract.Value = Context.GetZeroSmartContractAddress();
+            State.Admin.Value = State.GenesisContract.GetContractAuthor.Call(Context.Self);
+            
+            Assert(Context.Sender == State.Admin.Value, "No permission");
             State.TokenContract.Value =
                 Context.GetContractAddressByName(SmartContractConstants.TokenContractSystemName);
-            State.AEDPoSContract.Value =
-                Context.GetContractAddressByName(SmartContractConstants.ConsensusContractSystemName);
-
-            State.Price.Value = input.Price == 0 ? DefaultPrice : input.Price;
-            State.DrawingLag.Value = input.DrawingLag == 0 ? DefaultDrawingLag : input.DrawingLag;
-            State.MaximumAmount.Value = input.MaximumAmount == 0 ? MaximumBuyAmount : input.MaximumAmount;
-            State.SelfIncreasingIdForLottery.Value = 1;
-
-            State.CurrentPeriod.Value = 1;
+            var tokenInfo = State.TokenContract.GetTokenInfo.Call(new GetTokenInfoInput
+            {
+                Symbol = input.TokenSymbol
+            });
+            Assert(tokenInfo != null && !string.IsNullOrEmpty(tokenInfo.Symbol), "Invalid token symbol");
+            State.Decimals.Value = tokenInfo.Decimals;
+            State.TokenSymbol.Value = input.TokenSymbol;
+            State.Price.Value = input.Price;
+            InitRewards(tokenInfo.Decimals);
+            
+            SetBonusRate(input.BonusRate);
+            State.CashDuration.Value = input.CashDuration;
+            
+            State.CurrentPeriodNumber.Value = 1;
+            var date = Context.CurrentBlockTime.ToDateTime().ToString("yyyyMMdd");
+            State.StartPeriodNumberOfDay[date] = 1;
+            State.CurrentLotteryId.Value = 1;
             State.Periods[1] = new PeriodBody
             {
-                StartId = State.SelfIncreasingIdForLottery.Value,
-                BlockNumber = Context.CurrentHeight.Add(State.DrawingLag.Value),
+                PeriodNumber = 1,
+                BlockNumber = Context.CurrentHeight,
+                CreateTime = Context.CurrentBlockTime,
                 RandomHash = Hash.Empty
             };
-
+            
+            State.AEDPoSContract.Value =
+                Context.GetContractAddressByName(SmartContractConstants.ConsensusContractSystemName);
             return new Empty();
         }
 
-        public override BoughtLotteriesInformation Buy(Int64Value input)
+        public override Empty Buy(BuyInput input)
         {
-            AssertIsNotSuspended();
-            Assert(input.Value < State.MaximumAmount.Value, $"单次购买数量不能超过{State.MaximumAmount.Value} :)");
-            Assert(input.Value > 0, "单次购买数量不能低于1");
-
-            var currentPeriod = State.CurrentPeriod.Value;
-            // 如果Sender为本期第一次购买，为其初始化一些信息
-            if (State.OwnerToLotteries[Context.Sender][currentPeriod] == null)
+            var currentPeriod = State.Periods[State.CurrentPeriodNumber.Value];
+            Assert(currentPeriod.DrawTime == null, $"Period {State.CurrentPeriodNumber.Value} has been drew.");
+            var lotteryType = (LotteryType) input.Type;
+            var bit = GetBit(lotteryType);
+            Assert(bit.ValidateBetInfos(input.BetInfos), "Invalid bet info");
+            var betCount = bit.CalculateBetCount(input.BetInfos);
+            var totalAmount = State.Price.Value.Mul(betCount);
+            var bonus = totalAmount.Mul(State.BonusRate.Value).Div(GetRateDenominator());
+            State.TokenContract.TransferFrom.Send(new TransferFromInput
             {
-                State.OwnerToLotteries[Context.Sender][currentPeriod] = new LotteryList();
-            }
-
-            State.BoughtLotteriesCount[Context.Sender] = State.BoughtLotteriesCount[Context.Sender].Add(input.Value);
-
-            // 转账到本合约（需要Sender事先调用Token合约的Approve方法进行额度授权）
-            var amount = State.Price.Value.Mul(input.Value);
-            Context.LogDebug(() => $"Lottery cost {amount} {State.TokenSymbol} tokens.");
-            State.TokenContract.TransferToContract.Send(new TransferToContractInput
-            {
+                From = Context.Sender,
+                To = Context.Self,
                 Symbol = State.TokenSymbol.Value,
-                Amount = amount
+                Amount = totalAmount.Sub(bonus)
             });
-
-            var startId = State.SelfIncreasingIdForLottery.Value;
-            var newIds = new List<long>();
-            // 买多少个，添加多少个彩票
-            for (var i = 0; i < input.Value; i++)
+            State.TokenContract.TransferFrom.Send(new TransferFromInput
             {
-                var selfIncreasingId = State.SelfIncreasingIdForLottery.Value;
-                var lottery = new Lottery
-                {
-                    Id = selfIncreasingId,
-                    Owner = Context.Sender,
-                    Block = Context.CurrentHeight,
-                };
-                State.Lotteries[selfIncreasingId] = lottery;
-
-                newIds.Add(selfIncreasingId);
-
-                State.SelfIncreasingIdForLottery.Value = selfIncreasingId.Add(1);
-            }
-
-            var currentIds = State.OwnerToLotteries[Context.Sender][currentPeriod];
-            currentIds.Ids.Add(newIds);
-            State.OwnerToLotteries[Context.Sender][currentPeriod] = currentIds;
-
-            return new BoughtLotteriesInformation
+                From = Context.Sender,
+                To = input.Seller,
+                Symbol = State.TokenSymbol.Value,
+                Amount = bonus
+            });
+            var lotteryId = State.CurrentLotteryId.Value;
+            var lottery = new Lottery
             {
-                StartId = startId,
-                Amount = input.Value
+                Id = lotteryId,
+                BetInfos = {input.BetInfos},
+                Bonus = bonus,
+                Seller = input.Seller,
+                Owner = Context.Sender,
+                PeriodNumber = State.CurrentPeriodNumber.Value,
+                Price = State.Price.Value,
+                BlockNumber = Context.CurrentHeight,
+                CreateTime = Context.CurrentBlockTime,
+                Type = (LotteryType) input.Type
             };
-        }
-
-        public override Empty PrepareDraw(Empty input)
-        {
-            AssertIsNotSuspended();
-            Assert(Context.Sender == State.Admin.Value, "No permission to prepare!");
-
-            // Check whether current period drew except period 1.
-            if (State.CurrentPeriod.Value != 1)
-            {
-                Assert(State.Periods[State.CurrentPeriod.Value.Sub(1)].RandomHash != Hash.Empty,
-                    $"Period {State.CurrentPeriod.Value} hasn't drew.");
-            }
-
-            Assert(State.SelfIncreasingIdForLottery.Value > State.RewardCount.Value.Add(1),
-                "Unable to terminate this period.");
-
-            State.CurrentPeriod.Value = State.CurrentPeriod.Value.Add(1);
-
-            // 初始化下一届基本信息
-            InitialNextPeriod();
-
+            State.Lotteries[lotteryId] = lottery;
+            AddUndoneLottery(lotteryId);
+            State.CurrentLotteryId.Value = lotteryId.Add(1);
+            
+            DealUnDoneLotteries();
+            
             return new Empty();
         }
 
         public override Empty Draw(Int64Value input)
         {
-            AssertIsNotSuspended();
-            var currentPeriod = State.CurrentPeriod.Value;
-            var previousPeriodBody = State.Periods[currentPeriod.Sub(1)];
-            var currentPeriodBody = State.Periods[currentPeriod];
-
-            Assert(input.Value.Add(1) == currentPeriod, "Incorrect period.");
-            Assert(currentPeriod > 1, "Not ready to draw.");
+            var currentPeriodNumber = State.CurrentPeriodNumber.Value;
+            Assert(input.Value.Add(1) == currentPeriodNumber, "Incorrect period.");
+            Assert(currentPeriodNumber > 1, "Not ready to draw.");
             Assert(Context.Sender == State.Admin.Value, "No permission to draw!");
-            Assert(previousPeriodBody.RandomHash == Hash.Empty, "Latest period already drawn.");
-            Assert(
-                previousPeriodBody.SupposedDrawDate == null ||
-                previousPeriodBody.SupposedDrawDate.ToDateTime().DayOfYear >=
-                Context.CurrentBlockTime.ToDateTime().DayOfYear,
-                "Invalid draw date.");
 
-            var expectedBlockNumber = currentPeriodBody.BlockNumber;
+            var previousPeriodNumber = currentPeriodNumber.Sub(1);
+            var previousPeriod = State.Periods[previousPeriodNumber];
+            Assert(previousPeriod.DrawTime == null, "Latest period already drawn.");
+
+            var currentPeriod = State.Periods[currentPeriodNumber];
+            var expectedBlockNumber = currentPeriod.BlockNumber;
             Assert(Context.CurrentHeight >= expectedBlockNumber, "Block height not enough.");
 
-            if (previousPeriodBody.Rewards == null || !previousPeriodBody.Rewards.Any())
-            {
-                throw new AssertionException("Reward list is empty.");
-            }
-
-            var randomHash = State.AEDPoSContract.GetRandomHash.Call(new Int64Value
+            previousPeriod.RandomHash = State.AEDPoSContract.GetRandomHash.Call(new Int64Value
             {
                 Value = expectedBlockNumber
             });
+            previousPeriod.LuckyNumber = (int) Context.ConvertHashToInt64(previousPeriod.RandomHash, 0, 100000);
+            previousPeriod.DrawTime = Context.CurrentBlockTime;
+            previousPeriod.DrawBlockNumber = Context.CurrentHeight;
+            State.Periods[previousPeriodNumber] = previousPeriod;
+            
+            return new Empty();
+        }
 
-            // Deal with lotteries base on the random hash.
-            DealWithLotteries(previousPeriodBody.Rewards.ToDictionary(r => r.Key, r => r.Value), randomHash);
+        public override Empty PrepareDraw(Empty input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission to prepare!");
+
+            // Check whether current period drew except period 1.
+            if (State.CurrentPeriodNumber.Value != 1)
+            {
+                Assert(State.Periods[State.CurrentPeriodNumber.Value.Sub(1)].DrawTime != null,
+                    $"Period {State.CurrentPeriodNumber.Value.Sub(1)} hasn't drew.");
+            }
+
+            State.CurrentPeriodNumber.Value = State.CurrentPeriodNumber.Value.Add(1);
+
+            // init next period
+            var period = new PeriodBody
+            {
+                PeriodNumber = State.CurrentPeriodNumber.Value,
+                BlockNumber = Context.CurrentHeight,
+                RandomHash = Hash.Empty,
+                CreateTime = Context.CurrentBlockTime
+            };
+
+            State.Periods[State.CurrentPeriodNumber.Value] = period;
+            
+            var date = Context.CurrentBlockTime.ToDateTime().ToString("yyyyMMdd");
+            if (State.StartPeriodNumberOfDay[date] == 0) State.StartPeriodNumberOfDay[date] = period.PeriodNumber;
 
             return new Empty();
         }
 
         public override Empty TakeReward(TakeRewardInput input)
         {
-            AssertIsNotSuspended();
             var lottery = State.Lotteries[input.LotteryId];
-            if (lottery == null)
+            Assert(lottery != null, "Lottery not found.");
+            Assert(lottery.Owner == Context.Sender, "Cannot take reward for other people's lottery.");
+            Assert(!lottery.Cashed, "Lottery has been cashed");
+            var period = State.Periods[lottery.PeriodNumber];
+            Assert(period.DrawTime != null, $"Period {lottery.PeriodNumber} hasn't drew");
+
+            lottery.Reward = CalculateReward(lottery, period.LuckyNumber);
+            if (lottery.Reward > 0)
             {
-                throw new AssertionException("Lottery id not found.");
-            }
-
-            Assert(lottery.Owner == Context.Sender, "只能领取宁亲自买的彩票 :)");
-            Assert(!string.IsNullOrEmpty(lottery.RewardName), "宁没有中奖嗷 :(");
-            Assert(string.IsNullOrEmpty(lottery.RegistrationInformation),
-                $"宁已经领取过啦！登记信息：{State.Lotteries[input.LotteryId].RegistrationInformation}");
-
-            State.Lotteries[input.LotteryId].RegistrationInformation = input.RegistrationInformation;
-
-            // Distribute the reward now. Maybe transfer some tokens.
-
-            return new Empty();
-        }
-
-        public override Empty AddRewardList(RewardList input)
-        {
-            AssertSenderIsAdmin();
-            foreach (var map in input.RewardMap)
-            {
-                State.RewardMap[map.Key] = map.Value;
-            }
-
-            if (State.RewardCodeList.Value == null)
-            {
-                State.RewardCodeList.Value = new StringList {Value = {input.RewardMap.Keys}};
-            }
-            else
-            {
-                State.RewardCodeList.Value.Value.AddRange(input.RewardMap.Keys);
-            }
-
-            return new Empty();
-        }
-
-        public override Empty SetRewardListForOnePeriod(RewardsInfo input)
-        {
-            AssertSenderIsAdmin();
-            var periodBody = State.Periods[input.Period];
-            Assert(periodBody.RandomHash == Hash.Empty, "This period already terminated.");
-            if (periodBody == null)
-            {
-                periodBody = new PeriodBody
+                Assert(period.DrawTime.AddDays(State.CashDuration.Value) >= Context.CurrentBlockTime,
+                    "Cannot cash expired lottery.");
+                State.TokenContract.Transfer.Send(new TransferInput
                 {
-                    Rewards = {input.Rewards},
-                    SupposedDrawDate = input.SupposedDrawDate
-                };
-                State.AllRewardsCount.Value = State.AllRewardsCount.Value.Add(input.Rewards.Values.Sum());
+                    To = lottery.Owner,
+                    Amount = lottery.Reward,
+                    Symbol = State.TokenSymbol.Value
+                });
+                State.LatestCashedLotteryId.Value = lottery.Id;
             }
-            else
-            {
-                var count = State.AllRewardsCount.Value;
-                count = count.Sub(periodBody.Rewards.Values.Sum());
-                count = count.Add(input.Rewards.Values.Sum());
-                State.AllRewardsCount.Value = count;
-                periodBody.Rewards.Clear();
-                periodBody.Rewards.Add(input.Rewards);
-                periodBody.SupposedDrawDate = input.SupposedDrawDate;
-            }
+            
+            RemoveUndoneLottery(input.LotteryId);
+            AddDoneLottery(input.LotteryId);
+            lottery.Cashed = true;
+            State.Lotteries[input.LotteryId] = lottery;
 
-            State.Periods[input.Period] = periodBody;
+            DealUnDoneLotteries();
+
             return new Empty();
         }
 
-        public override Empty ResetPrice(Int64Value input)
+        public override Empty SetBonusRate(Int32Value input)
         {
-            AssertSenderIsAdmin();
-            State.Price.Value = input.Value;
+            SetBonusRate(input.Value);
             return new Empty();
         }
 
-        public override Empty ResetDrawingLag(Int64Value input)
+        public override Empty SetAdmin(Address input)
         {
-            AssertSenderIsAdmin();
-            State.DrawingLag.Value = input.Value;
-            return new Empty();
-        }
-
-        public override Empty ResetMaximumBuyAmount(Int64Value input)
-        {
-            AssertSenderIsAdmin();
-            State.MaximumAmount.Value = input.Value;
-            return new Empty();
-        }
-
-        public override Empty Suspend(Empty input)
-        {
-            AssertSenderIsAdmin();
-            State.IsSuspend.Value = true;
-            return new Empty();
-        }
-
-        public override Empty Recover(Empty input)
-        {
-            AssertSenderIsAdmin();
-            State.IsSuspend.Value = false;
+            Assert(Context.Sender == State.Admin.Value, "No permission");
+            State.Admin.Value = input;
             return new Empty();
         }
     }
