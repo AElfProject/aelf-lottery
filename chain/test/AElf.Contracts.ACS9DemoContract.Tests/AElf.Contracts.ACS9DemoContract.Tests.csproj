@@ -26,7 +26,11 @@
         <PackageReference Include="AElf.ContractTestBase" Version="1.0.0" />
         <PackageReference Include="AElf.Contracts.MultiToken" Version="1.0.0" />
     </ItemGroup>
-
+    <ItemGroup>
+        <ContractMessage Include="..\..\protobuf\authority_info.proto">
+            <Link>Protobuf\Proto\authority_info.proto</Link>
+        </ContractMessage>
+    </ItemGroup>
     <ItemGroup>
         <ContractStub Include="..\..\protobuf\acs9.proto">
             <Link>Protobuf\Proto\acs9.proto</Link>
