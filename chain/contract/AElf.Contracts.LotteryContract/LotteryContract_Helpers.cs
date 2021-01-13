@@ -50,21 +50,21 @@ namespace AElf.Contracts.LotteryContract
             return null;
         }
 
-        public void AddDoneLottery(long lotteryId)
+        private void AddDoneLottery(long lotteryId)
         {
             var lotteryList = State.DoneLotteries[Context.Sender] ?? new LotteryList();
             lotteryList.Ids.Add(lotteryId);
             State.DoneLotteries[Context.Sender] = lotteryList;
         }
 
-        public void AddUndoneLottery(long lotteryId)
+        private void AddUndoneLottery(long lotteryId)
         {
             var lotteryList = State.UnDoneLotteries[Context.Sender] ?? new LotteryList();
             lotteryList.Ids.Add(lotteryId);
             State.UnDoneLotteries[Context.Sender] = lotteryList;
         }
 
-        public void RemoveUndoneLottery(long lotteryId)
+        private void RemoveUndoneLottery(long lotteryId)
         {
             var lotteryList = State.UnDoneLotteries[Context.Sender] ?? new LotteryList();
             lotteryList.Ids.Remove(lotteryId);

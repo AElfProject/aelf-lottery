@@ -1,7 +1,8 @@
+using AElf.Standards.ACS0;
+using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Sdk.CSharp.State;
 using AElf.Types;
-using AElf.Contracts.Consensus.AEDPoS;
 
 namespace AElf.Contracts.LotteryContract
 {
@@ -18,11 +19,7 @@ namespace AElf.Contracts.LotteryContract
         public SingletonState<int> CashDuration { get; set; }
         
         public SingletonState<int> BonusRate { get; set; }
-        
-        public SingletonState<int> MaxRate { get; set; }
-        
-        public SingletonState<int> MinRate { get; set; }
-        
+
         public SingletonState<Address> Admin { get; set; }
         
         public MappedState<long, PeriodBody> Periods { get; set; }
@@ -42,7 +39,5 @@ namespace AElf.Contracts.LotteryContract
         public SingletonState<long> CurrentLotteryId { get; set; }
 
         public MappedState<LotteryType, long> Rewards { get; set; }
-
-        public Int32State Decimals { get; set; }
     }
 }

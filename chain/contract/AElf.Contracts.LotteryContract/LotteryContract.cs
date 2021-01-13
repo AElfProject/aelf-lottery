@@ -25,7 +25,6 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = input.TokenSymbol
             });
             Assert(tokenInfo != null && !string.IsNullOrEmpty(tokenInfo.Symbol), "Invalid token symbol");
-            State.Decimals.Value = tokenInfo.Decimals;
             State.TokenSymbol.Value = input.TokenSymbol;
             State.Price.Value = input.Price;
             InitRewards(tokenInfo.Decimals);
