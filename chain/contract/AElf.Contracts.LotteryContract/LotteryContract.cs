@@ -88,10 +88,10 @@ namespace AElf.Contracts.LotteryContract
                 Type = (LotteryType) input.Type
             };
             State.Lotteries[lotteryId] = lottery;
-            AddUndoneLottery(lotteryId);
+            AddUnDrawnLottery(Context.Sender, lotteryId);
             State.CurrentLotteryId.Value = lotteryId.Add(1);
             
-            DealUnDoneLotteries();
+            ClearToBeClaimedLotteries();
             
             return new Empty();
         }
@@ -175,13 +175,15 @@ namespace AElf.Contracts.LotteryContract
                 });
                 State.LatestCashedLotteryId.Value = lottery.Id;
             }
-            
-            RemoveUndoneLottery(input.LotteryId);
+
+            UpdateUnDrawnLottery(Context.Sender);
+            RemoveToBeClaimedLottery(input.LotteryId);
             AddDoneLottery(input.LotteryId);
+            
             lottery.Cashed = true;
             State.Lotteries[input.LotteryId] = lottery;
 
-            DealUnDoneLotteries();
+            ClearToBeClaimedLotteries();
 
             return new Empty();
         }

@@ -41,10 +41,12 @@ namespace AElf.Contracts.LotteryContract
             Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
             Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
             var address = Context.Sender;
-            var lotteries = State.UnDoneLotteries[address] ?? new LotteryList();
+            var unDrawnLotteries = State.UnDrawnLotteries[address]?.Ids ?? new LotteryList().Ids;
+            var toBeClaimedLotteries = State.ToBeClaimedLotteries[address] ?? new LotteryList();
             var doneLotteries = State.DoneLotteries[address] ?? new LotteryList();
-            lotteries.Ids.AddRange(doneLotteries.Ids);
-            var ids = lotteries.Ids.OrderByDescending(id => id);
+            unDrawnLotteries.AddRange(toBeClaimedLotteries.Ids);
+            unDrawnLotteries.AddRange(doneLotteries.Ids);
+            var ids = unDrawnLotteries.OrderByDescending(id => id);
             var lotteryIdList = ids.Skip(input.Offset).Take(input.Limit).ToList();
             var lotteryDetails = new List<LotteryDetail>();
             foreach (var lotteryId in lotteryIdList)
@@ -65,14 +67,16 @@ namespace AElf.Contracts.LotteryContract
             Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
             Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
             var address = Context.Sender;
-            var lotteries = State.UnDoneLotteries[address] ?? new LotteryList();
+            TryAddUnDrawnLotteries(State.UnDrawnLotteries[address]);
+            var lotteries = State.ToBeClaimedLotteries[address] ?? new LotteryList();
             var lotteryIdList = lotteries.Ids.OrderByDescending(id => id);
             var lotteryDetails = new List<LotteryDetail>();
             foreach (var lotteryId in lotteryIdList)
             {
                 var lotteryDetail = GetLotteryDetail(lotteryId);
                 if (lotteryDetail == null) break;
-                if (lotteryDetail.Reward == 0 || lotteryDetail.Expired) continue;
+                if (lotteryDetail.Expired) continue;
+                
                 lotteryDetails.Add(lotteryDetail);
                 if (lotteryDetails.Count >= input.Offset + input.Limit) break;
             }

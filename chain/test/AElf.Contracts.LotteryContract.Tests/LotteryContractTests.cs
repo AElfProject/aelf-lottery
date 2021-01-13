@@ -1582,6 +1582,441 @@ namespace AElf.Contracts.LotteryContract
             });
             output.Lottery.Expired.ShouldBeFalse();
         }
+        
+        [Fact]
+        public async Task GetLotteries_Expired()
+        {
+            await InitializeAsync(true);
+            await TokenContractStub.Transfer.SendAsync(new TransferInput
+            {
+                Amount = 1000_000_000_000,
+                Symbol = "ELF",
+                To = LotteryContractAddress
+            });
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            
+            
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {1}
+                    }
+                }
+            });
+            
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 1
+            });
+
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            
+            
+            var period = await LotteryContractStub.GetCurrentPeriodNumber.CallAsync(new Empty());
+            period.Value.ShouldBe(3);
+            
+            {
+                var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                lotteriesOutput.Lotteries.Count.ShouldBe(3);
+                lotteriesOutput.Lotteries.First().Id.ShouldBe(3);
+                lotteriesOutput.Lotteries[1].Id.ShouldBe(2);
+                lotteriesOutput.Lotteries.Last().Id.ShouldBe(1);
+            }
+            
+            {
+                var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 1,
+                        Limit = 10
+                    });
+                
+                lotteriesOutput.Lotteries.Count.ShouldBe(2);
+                lotteriesOutput.Lotteries.First().Id.ShouldBe(2);
+                lotteriesOutput.Lotteries.Last().Id.ShouldBe(1);
+            }
+            
+            {
+                var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 1,
+                        Limit = 1
+                    });
+                
+                lotteriesOutput.Lotteries.Count.ShouldBe(1);
+                lotteriesOutput.Lotteries.First().Id.ShouldBe(2);
+            }
+            
+            {
+                var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 2,
+                        Limit = 1
+                    });
+                
+                lotteriesOutput.Lotteries.Count.ShouldBe(1);
+                lotteriesOutput.Lotteries.First().Id.ShouldBe(1);
+            }
+            
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 2
+            });
+            
+            {
+                var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                lotteriesOutput.Lotteries.Count.ShouldBe(3);
+                lotteriesOutput.Lotteries.First().Id.ShouldBe(3);
+                lotteriesOutput.Lotteries[1].Id.ShouldBe(2);
+                lotteriesOutput.Lotteries.Last().Id.ShouldBe(1);
+            }
+
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 3
+            });
+
+            
+            {
+                var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                lotteriesOutput.Lotteries.Count.ShouldBe(4);
+                lotteriesOutput.Lotteries.First().Id.ShouldBe(4);
+                lotteriesOutput.Lotteries[1].Id.ShouldBe(3);
+                lotteriesOutput.Lotteries[2].Id.ShouldBe(2);
+                lotteriesOutput.Lotteries.Last().Id.ShouldBe(1);
+            }
+
+            await AliceLotteryContractStub.TakeReward.SendAsync(new TakeRewardInput
+            {
+                LotteryId = 2
+            });
+            
+            {
+                var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                lotteriesOutput.Lotteries.Count.ShouldBe(4);
+                lotteriesOutput.Lotteries.First().Id.ShouldBe(4);
+                lotteriesOutput.Lotteries[1].Id.ShouldBe(3);
+                lotteriesOutput.Lotteries[2].Id.ShouldBe(2);
+                lotteriesOutput.Lotteries.Last().Id.ShouldBe(1);
+            }
+            
+            // add time
+            BlockTimeProvider.SetBlockTime(BlockTimeProvider.GetBlockTime().AddDays(61));
+            
+            {
+                var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                lotteriesOutput.Lotteries.Count.ShouldBe(4);
+                lotteriesOutput.Lotteries.First().Id.ShouldBe(4);
+                lotteriesOutput.Lotteries[1].Id.ShouldBe(3);
+                lotteriesOutput.Lotteries[2].Id.ShouldBe(2);
+                lotteriesOutput.Lotteries.Last().Id.ShouldBe(1);
+            }
+            
+            var output = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 1
+            });
+            output.Lottery.Expired.ShouldBeTrue();
+            
+            output = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 2
+            });
+            output.Lottery.Expired.ShouldBeFalse(); // already claimed
+            
+            output = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 3
+            });
+            output.Lottery.Expired.ShouldBeFalse(); // not rewarded
+        }
+        
+        [Fact]
+        public async Task GetRewardedLotteries_Expired()
+        {
+            await InitializeAsync(true);
+            await TokenContractStub.Transfer.SendAsync(new TransferInput
+            {
+                Amount = 1000_000_000_000,
+                Symbol = "ELF",
+                To = LotteryContractAddress
+            });
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            
+            
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {1}
+                    }
+                }
+            });
+            
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 1
+            });
+
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            
+            
+            var period = await LotteryContractStub.GetCurrentPeriodNumber.CallAsync(new Empty());
+            period.Value.ShouldBe(3);
+            
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                rewardedLotteries.Lotteries.Count.ShouldBe(2);
+                rewardedLotteries.Lotteries.First().Id.ShouldBe(2);
+                rewardedLotteries.Lotteries.Last().Id.ShouldBe(1);
+            }
+            
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 1,
+                        Limit = 10
+                    });
+                
+                rewardedLotteries.Lotteries.Count.ShouldBe(1);
+                rewardedLotteries.Lotteries.First().Id.ShouldBe(1);
+            }
+            
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 1,
+                        Limit = 1
+                    });
+                
+                rewardedLotteries.Lotteries.Count.ShouldBe(1);
+                rewardedLotteries.Lotteries.First().Id.ShouldBe(1);
+            }
+            
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 2,
+                        Limit = 1
+                    });
+                
+                rewardedLotteries.Lotteries.ShouldBeEmpty();
+            }
+            
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 2
+            });
+            
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                rewardedLotteries.Lotteries.Count.ShouldBe(2);
+                rewardedLotteries.Lotteries.First().Id.ShouldBe(2);
+                rewardedLotteries.Lotteries.Last().Id.ShouldBe(1);
+            }
+
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 3
+            });
+
+            
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                rewardedLotteries.Lotteries.Count.ShouldBe(3);
+                rewardedLotteries.Lotteries.First().Id.ShouldBe(4);
+                rewardedLotteries.Lotteries[1].Id.ShouldBe(2);
+                rewardedLotteries.Lotteries.Last().Id.ShouldBe(1);
+            }
+
+            await AliceLotteryContractStub.TakeReward.SendAsync(new TakeRewardInput
+            {
+                LotteryId = 2
+            });
+            
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                rewardedLotteries.Lotteries.Count.ShouldBe(2);
+                rewardedLotteries.Lotteries.First().Id.ShouldBe(4);
+                rewardedLotteries.Lotteries.Last().Id.ShouldBe(1);
+            }
+            
+            // add time
+            BlockTimeProvider.SetBlockTime(BlockTimeProvider.GetBlockTime().AddDays(61));
+            
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Offset = 0,
+                        Limit = 10
+                    });
+                
+                rewardedLotteries.Lotteries.ShouldBeEmpty();
+            }
+            
+            var output = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 1
+            });
+            output.Lottery.Expired.ShouldBeTrue();
+            
+            output = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 2
+            });
+            output.Lottery.Expired.ShouldBeFalse(); // already claimed
+            
+            output = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 3
+            });
+            output.Lottery.Expired.ShouldBeFalse(); // not rewarded
+        }
 
         [Fact]
         public async Task GetLotteries_Invalid_Input()

@@ -209,3 +209,8 @@ message GetLatestCashedLotteryOutput{
 message LotteryList {
     repeated int64 ids = 1;
 }
+
+message UnDrawnLotteries{
+    int64 period_number = 1;
+    repeated int64 ids = 2;
+}

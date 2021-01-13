@@ -28,7 +28,9 @@ namespace AElf.Contracts.LotteryContract
         
         public MappedState<long, Lottery> Lotteries { get; set; }
         
-        public MappedState<Address, LotteryList> UnDoneLotteries { get; set; }
+        // public MappedState<Address, LotteryList> UnDoneLotteries { get; set; }
+        public MappedState<Address, LotteryList> ToBeClaimedLotteries { get; set; }
+        public MappedState<Address, UnDrawnLotteries> UnDrawnLotteries { get; set; }
 
         public MappedState<Address, LotteryList> DoneLotteries { get; set; }
         
