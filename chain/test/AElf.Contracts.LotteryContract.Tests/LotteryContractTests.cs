@@ -171,7 +171,9 @@ namespace AElf.Contracts.LotteryContract
             await PrepareDrawTest();
 
             await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 1});
-
+            var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 1});
+            period.RandomHash.ShouldNotBe(Hash.Empty);
+            period.ActualDrawDate.ShouldNotBe(null);
             var rewardResult = await LotteryContractStub.GetRewardResult.CallAsync(new Int64Value
             {
                 Value = 1
