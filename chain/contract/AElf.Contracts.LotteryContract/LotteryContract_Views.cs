@@ -186,5 +186,20 @@ namespace AElf.Contracts.LotteryContract
 
             return output;
         }
+
+        public override GetRewardAmountsBoardOutput GetRewardAmountsBoard(Empty input)
+        {
+            var res = new GetRewardAmountsBoardOutput();
+            var rewardAmountBoard = State.RewardsAmountBoard.Value;
+            foreach (var address in rewardAmountBoard.Board)
+            {
+                res.RewardAmountList.Add(new RewardAmount
+                {
+                    Address =address, Amount = State.RewardsAmount[address]
+                });
+            }
+
+            return res;
+        }
     }
 }

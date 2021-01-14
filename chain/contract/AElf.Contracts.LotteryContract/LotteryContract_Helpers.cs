@@ -124,7 +124,7 @@ namespace AElf.Contracts.LotteryContract
             State.ToBeClaimedLotteries[Context.Sender] = lotteryList;
         }
         
-        private void ClearToBeClaimedLotteries()
+        private void ClearExpiredToBeClaimedLotteries()
         {
             var lotteryList = State.ToBeClaimedLotteries[Context.Sender] ?? new LotteryList();
             var lotteryIds = lotteryList.Ids.ToList();
@@ -246,6 +246,32 @@ namespace AElf.Contracts.LotteryContract
             }
 
             return a;
+        }
+
+        private void TryUpdateRewardsAmountBoard(Address newer)
+        {
+            var rewardsAmount = State.RewardsAmount[Context.Sender];
+            var rewardsAmountBoard = State.RewardsAmountBoard.Value;
+            
+            if (rewardsAmountBoard.Board.Contains(newer) || rewardsAmountBoard.LastOne == null || rewardsAmount < State.RewardsAmount[rewardsAmountBoard.LastOne])
+                return; // already in the board or not enough
+            
+            rewardsAmountBoard.Board.Add(newer);
+            if (rewardsAmountBoard.Board.Count < rewardsAmountBoard.MaximalCount)
+                return;
+            
+            if (rewardsAmountBoard.Board.Count > rewardsAmountBoard.MaximalCount)
+            {
+                rewardsAmountBoard.Board.Remove(rewardsAmountBoard.LastOne);
+            }
+
+            var lastAmount = long.MaxValue;
+            foreach (var address in rewardsAmountBoard.Board)
+            {
+                var amount = State.RewardsAmount[address];
+                if (amount <= lastAmount)
+                    rewardsAmountBoard.LastOne = address;
+            }
         }
     }
 }

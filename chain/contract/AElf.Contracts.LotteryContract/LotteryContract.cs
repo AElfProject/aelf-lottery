@@ -91,7 +91,7 @@ namespace AElf.Contracts.LotteryContract
             AddUnDrawnLottery(Context.Sender, lotteryId);
             State.CurrentLotteryId.Value = lotteryId.Add(1);
             
-            ClearToBeClaimedLotteries();
+            ClearExpiredToBeClaimedLotteries();
             
             return new Empty();
         }
@@ -174,6 +174,10 @@ namespace AElf.Contracts.LotteryContract
                     Symbol = State.TokenSymbol.Value
                 });
                 State.LatestCashedLotteryId.Value = lottery.Id;
+
+                State.RewardsAmount[Context.Sender] = State.RewardsAmount[Context.Sender].Add(lottery.Reward);
+
+                TryUpdateRewardsAmountBoard(Context.Sender);
             }
 
             UpdateUnDrawnLottery(Context.Sender);
@@ -183,7 +187,7 @@ namespace AElf.Contracts.LotteryContract
             lottery.Cashed = true;
             State.Lotteries[input.LotteryId] = lottery;
 
-            ClearToBeClaimedLotteries();
+            ClearExpiredToBeClaimedLotteries();
 
             return new Empty();
         }
