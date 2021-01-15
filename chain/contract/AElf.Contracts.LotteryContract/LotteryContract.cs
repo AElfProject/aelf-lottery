@@ -46,6 +46,11 @@ namespace AElf.Contracts.LotteryContract
             
             State.AEDPoSContract.Value =
                 Context.GetContractAddressByName(SmartContractConstants.ConsensusContractSystemName);
+            
+            State.RewardsAmountBoard.Value = new RewardsAmountBoard
+            {
+                MaximalCount = 10
+            };
             return new Empty();
         }
 
@@ -162,6 +167,7 @@ namespace AElf.Contracts.LotteryContract
             var period = State.Periods[lottery.PeriodNumber];
             Assert(period.DrawTime != null, $"Period {lottery.PeriodNumber} hasn't drew");
 
+            UpdateUnDrawnLottery(Context.Sender);
             lottery.Reward = CalculateReward(lottery, period.LuckyNumber);
             if (lottery.Reward > 0)
             {
@@ -177,13 +183,11 @@ namespace AElf.Contracts.LotteryContract
 
                 State.RewardsAmount[Context.Sender] = State.RewardsAmount[Context.Sender].Add(lottery.Reward);
 
+                RemoveToBeClaimedLottery(input.LotteryId);
+                AddDoneLottery(input.LotteryId);
                 TryUpdateRewardsAmountBoard(Context.Sender);
             }
 
-            UpdateUnDrawnLottery(Context.Sender);
-            RemoveToBeClaimedLottery(input.LotteryId);
-            AddDoneLottery(input.LotteryId);
-            
             lottery.Cashed = true;
             State.Lotteries[input.LotteryId] = lottery;
 

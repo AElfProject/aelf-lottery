@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,7 +91,7 @@ namespace AElf.Contracts.LotteryContract
         private bool TryAddUnDrawnLotteries(UnDrawnLotteries unDrawnLotteries)
         {
             var latestDrawPeriod = GetLatestDrawPeriod();
-            if (latestDrawPeriod == null || unDrawnLotteries.PeriodNumber > latestDrawPeriod.PeriodNumber)
+            if (latestDrawPeriod == null || unDrawnLotteries == null || unDrawnLotteries.PeriodNumber > latestDrawPeriod.PeriodNumber)
                 return false;
             
             // the period already drawn, should move to unClaimedLotteries
@@ -250,28 +251,18 @@ namespace AElf.Contracts.LotteryContract
 
         private void TryUpdateRewardsAmountBoard(Address newer)
         {
-            var rewardsAmount = State.RewardsAmount[Context.Sender];
             var rewardsAmountBoard = State.RewardsAmountBoard.Value;
+            var list = rewardsAmountBoard.Board.ToList();
             
-            if (rewardsAmountBoard.Board.Contains(newer) || rewardsAmountBoard.LastOne == null || rewardsAmount < State.RewardsAmount[rewardsAmountBoard.LastOne])
-                return; // already in the board or not enough
-            
-            rewardsAmountBoard.Board.Add(newer);
-            if (rewardsAmountBoard.Board.Count < rewardsAmountBoard.MaximalCount)
-                return;
-            
-            if (rewardsAmountBoard.Board.Count > rewardsAmountBoard.MaximalCount)
-            {
-                rewardsAmountBoard.Board.Remove(rewardsAmountBoard.LastOne);
-            }
+            if (!rewardsAmountBoard.Board.Contains(newer))
+                list.Add(newer);
 
-            var lastAmount = long.MaxValue;
-            foreach (var address in rewardsAmountBoard.Board)
-            {
-                var amount = State.RewardsAmount[address];
-                if (amount <= lastAmount)
-                    rewardsAmountBoard.LastOne = address;
-            }
+            list = list.OrderByDescending(r => State.RewardsAmount[r])
+                .Take((int) Math.Min(list.Count, rewardsAmountBoard.MaximalCount)).ToList();
+
+            rewardsAmountBoard.Board.Clear();
+            rewardsAmountBoard.Board.AddRange(list);
+            State.RewardsAmountBoard.Value = rewardsAmountBoard;
         }
     }
 }

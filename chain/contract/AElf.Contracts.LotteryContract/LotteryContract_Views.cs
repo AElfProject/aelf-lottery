@@ -187,6 +187,11 @@ namespace AElf.Contracts.LotteryContract
             return output;
         }
 
+        public override Int64Value GetTotalRewardAmount(Address input)
+        {
+            return new Int64Value {Value = State.RewardsAmount[input]};
+        }
+
         public override GetRewardAmountsBoardOutput GetRewardAmountsBoard(Empty input)
         {
             var res = new GetRewardAmountsBoardOutput();
@@ -195,10 +200,10 @@ namespace AElf.Contracts.LotteryContract
             {
                 res.RewardAmountList.Add(new RewardAmount
                 {
-                    Address =address, Amount = State.RewardsAmount[address]
+                    Address = address, Amount = State.RewardsAmount[address]
                 });
             }
-
+            
             return res;
         }
     }
