@@ -192,6 +192,11 @@ namespace AElf.Contracts.LotteryContract
             return new Int64Value {Value = State.RewardsAmount[input]};
         }
 
+        public override Int64Value GetTotalPeriodCount(Address input)
+        {
+            return new Int64Value {Value = State.TotalPeriodCount[input]};
+        }
+
         public override GetRewardAmountsBoardOutput GetRewardAmountsBoard(Empty input)
         {
             var res = new GetRewardAmountsBoardOutput();
@@ -201,6 +206,21 @@ namespace AElf.Contracts.LotteryContract
                 res.RewardAmountList.Add(new RewardAmount
                 {
                     Address = address, Amount = State.RewardsAmount[address]
+                });
+            }
+            
+            return res;
+        }
+
+        public override GetPeriodCountBoardOutput GetPeriodCountBoard(Empty input)
+        {
+            var res = new GetPeriodCountBoardOutput();
+            var totalPeriodCountBoard = State.TotalPeriodCountBoard.Value;
+            foreach (var address in totalPeriodCountBoard.Board)
+            {
+                res.PeriodCountList.Add(new PeriodCount
+                {
+                    Address = address, Count = State.TotalPeriodCount[address]
                 });
             }
             

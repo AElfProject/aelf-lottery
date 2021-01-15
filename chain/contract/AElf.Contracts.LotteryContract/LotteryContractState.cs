@@ -42,7 +42,9 @@ namespace AElf.Contracts.LotteryContract
 
         public MappedState<LotteryType, long> Rewards { get; set; }
         public MappedState<Address, long> RewardsAmount { get; set; }
+        public MappedState<Address, long> TotalPeriodCount { get; set; }
         
         public SingletonState<RewardsAmountBoard> RewardsAmountBoard { get; set; }
+        public SingletonState<RewardsAmountBoard> TotalPeriodCountBoard { get; set; }
     }
 }

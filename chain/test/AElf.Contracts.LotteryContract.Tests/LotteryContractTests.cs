@@ -2383,11 +2383,16 @@ namespace AElf.Contracts.LotteryContract
                 var rewardAmountBoard = await LotteryContractStub.GetRewardAmountsBoard.CallAsync(new Empty());
                 rewardAmountBoard.RewardAmountList.Count.ShouldBe(i - 10 + 1);
 
-                for (int k = 10; k <= i; k++)
-                {
-                    rewardAmountBoard.RewardAmountList
-                        .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[i].Address).ShouldBeTrue();
-                }
+                rewardAmountBoard.RewardAmountList
+                    .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[i].Address).ShouldBeTrue();
+                
+                var periodCountBoard = await LotteryContractStub.GetPeriodCountBoard.CallAsync(new Empty());
+                periodCountBoard.PeriodCountList.Count.ShouldBe(i - 10 + 1);
+                
+                var periodCount =
+                    await LotteryContractStub.GetTotalPeriodCount.CallAsync(ContractTestKit.SampleAccount.Accounts[i]
+                        .Address);
+                periodCount.Value.ShouldBe(1);
             }
 
 
@@ -2435,6 +2440,11 @@ namespace AElf.Contracts.LotteryContract
                 rewardAmountBoard.RewardAmountList
                     .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[10].Address).ShouldBeFalse();
 
+                var periodCountBoard = await LotteryContractStub.GetPeriodCountBoard.CallAsync(new Empty());
+                periodCountBoard.PeriodCountList.Count.ShouldBe(10);
+                periodCountBoard.PeriodCountList.Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[20].Address).ShouldBeFalse();
+                periodCountBoard.PeriodCountList.Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[10].Address).ShouldBeTrue();
+                
                 lotteryCount += 10;
             }
 
@@ -2459,6 +2469,8 @@ namespace AElf.Contracts.LotteryContract
                 rewardAmountBoard.RewardAmountList.Count.ShouldBe(10);
                 rewardAmountBoard.RewardAmountList
                     .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[10].Address).ShouldBeFalse();
+                rewardAmountBoard.RewardAmountList
+                    .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[11].Address).ShouldBeTrue();
                 lotteryCount += 1;
                 var rewardAmount =
                     await LotteryContractStub.GetTotalRewardAmount.CallAsync(ContractTestKit.SampleAccount.Accounts[10].Address);
@@ -2489,6 +2501,17 @@ namespace AElf.Contracts.LotteryContract
                 rewardAmountBoard.RewardAmountList
                     .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[11].Address).ShouldBeFalse();
                 lotteryCount += 1;
+            }
+
+            {
+                var lotteryContractStub = GetLotteryContractStub(SampleAccount.Accounts[20].KeyPair);
+
+                await lotteryContractStub.Buy.SendAsync(buyInput);
+                
+                var periodCountBoard = await LotteryContractStub.GetPeriodCountBoard.CallAsync(new Empty());
+                periodCountBoard.PeriodCountList.Count.ShouldBe(10);
+                periodCountBoard.PeriodCountList.Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[20].Address).ShouldBeTrue();
+                periodCountBoard.PeriodCountList.Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[19].Address).ShouldBeFalse();
             }
         }
 

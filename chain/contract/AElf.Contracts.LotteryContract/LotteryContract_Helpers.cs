@@ -69,9 +69,17 @@ namespace AElf.Contracts.LotteryContract
 
         private void AddUnDrawnLottery(Address address, long lotteryId)
         {
+            var oldUnDrawnPeriod = State.UnDrawnLotteries[address]?.PeriodNumber ?? 0;
             var lotteryList = UpdateUnDrawnLottery(address);
             lotteryList.Ids.Add(lotteryId);
             State.UnDrawnLotteries[address] = lotteryList;
+
+            if (lotteryList.PeriodNumber > oldUnDrawnPeriod)
+            {
+                // already update to current period
+                State.TotalPeriodCount[address] = State.TotalPeriodCount[address].Add(1);
+                TryUpdateTotalCountBoard(address);
+            }
         }
 
         private UnDrawnLotteries UpdateUnDrawnLottery(Address address)
@@ -263,6 +271,22 @@ namespace AElf.Contracts.LotteryContract
             rewardsAmountBoard.Board.Clear();
             rewardsAmountBoard.Board.AddRange(list);
             State.RewardsAmountBoard.Value = rewardsAmountBoard;
+        }
+        
+        private void TryUpdateTotalCountBoard(Address newer)
+        {
+            var totalPeriodCountBoard = State.TotalPeriodCountBoard.Value;
+            var list = totalPeriodCountBoard.Board.ToList();
+            
+            if (!totalPeriodCountBoard.Board.Contains(newer))
+                list.Add(newer);
+
+            list = list.OrderByDescending(r => State.TotalPeriodCount[r])
+                .Take((int) Math.Min(list.Count, totalPeriodCountBoard.MaximalCount)).ToList();
+
+            totalPeriodCountBoard.Board.Clear();
+            totalPeriodCountBoard.Board.AddRange(list);
+            State.TotalPeriodCountBoard.Value = totalPeriodCountBoard;
         }
     }
 }

@@ -51,6 +51,11 @@ namespace AElf.Contracts.LotteryContract
             {
                 MaximalCount = 10
             };
+            
+            State.TotalPeriodCountBoard.Value = new RewardsAmountBoard
+            {
+                MaximalCount = 10
+            };
             return new Empty();
         }
 

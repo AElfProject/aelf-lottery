@@ -77,7 +77,15 @@ service LotteryContract {
         option (aelf.is_view) = true;
     }
 
+    rpc GetPeriodCountBoard (google.protobuf.Empty) returns (GetPeriodCountBoardOutput) {
+        option (aelf.is_view) = true;
+    }
+
     rpc GetTotalRewardAmount (aelf.Address) returns (google.protobuf.Int64Value) {
+        option (aelf.is_view) = true;
+    }
+    
+    rpc GetTotalPeriodCount (aelf.Address) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
 }
@@ -235,4 +243,13 @@ message RewardAmount {
 
 message GetRewardAmountsBoardOutput {
     repeated RewardAmount reward_amount_list = 1;
+}
+
+message PeriodCount {
+    aelf.Address address = 1;
+    int64 count = 2;
+}
+
+message GetPeriodCountBoardOutput {
+    repeated PeriodCount period_count_list = 1;
 }
