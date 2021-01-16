@@ -73,31 +73,16 @@ export const INITIAL_STATE = Immutable({
 const _baseSelector = state => state.lottery;
 
 export const lotterySelectors = {
-  getLotteryInfo: createSelector(
-    _baseSelector,
-    base => ({
-      ...base,
-      myBetList: null,
-      lotteryDetails: null,
-      periodList: null,
-    }),
-  ),
-  myBetList: createSelector(
-    _baseSelector,
-    base => base.myBetList,
-  ),
-  periodList: createSelector(
-    _baseSelector,
-    base => base.periodList,
-  ),
-  lotteryDetails: createSelector(
-    _baseSelector,
-    base => base.lotteryDetails,
-  ),
-  rewardedList: createSelector(
-    _baseSelector,
-    base => base.rewardedList,
-  ),
+  getLotteryInfo: createSelector(_baseSelector, base => ({
+    ...base,
+    myBetList: null,
+    lotteryDetails: null,
+    periodList: null,
+  })),
+  myBetList: createSelector(_baseSelector, base => base.myBetList),
+  periodList: createSelector(_baseSelector, base => base.periodList),
+  lotteryDetails: createSelector(_baseSelector, base => base.lotteryDetails),
+  rewardedList: createSelector(_baseSelector, base => base.rewardedList),
 };
 
 /* ------------- Reducers ------------- */

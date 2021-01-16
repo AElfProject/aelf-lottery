@@ -1,10 +1,10 @@
 import config from '../../config';
 const {tokenDecimalFormat} = config;
 export default {
-  toLower: number => {
-    return number / tokenDecimalFormat;
+  toLower: (number, num = tokenDecimalFormat) => {
+    return number / num;
   },
-  toHigher: number => {
-    return number * tokenDecimalFormat;
+  toHigher: (number, num = tokenDecimalFormat) => {
+    return number * num;
   },
 };

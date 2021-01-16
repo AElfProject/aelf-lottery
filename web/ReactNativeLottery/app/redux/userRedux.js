@@ -9,6 +9,7 @@ const {Types, Creators} = createActions({
   setUserData: ['data'],
   getUserBalance: [],
   setUserBalance: ['balance'],
+  setTokenBalance: ['tokenBalance'],
   deleteUser: ['address'],
   setUserList: ['userList'],
   logOut: ['address'],
@@ -33,6 +34,7 @@ export const INITIAL_STATE = {
   keystore: {},
   allowanceList: [],
   privateKey: null,
+  tokenBalance: {},
 };
 
 /* ------------- Selectors ------------- */
@@ -40,22 +42,10 @@ export const INITIAL_STATE = {
 const _baseSelector = state => state.user;
 
 export const userSelectors = {
-  getKeystore: createSelector(
-    _baseSelector,
-    base => base.keystore,
-  ),
-  getAddress: createSelector(
-    _baseSelector,
-    base => base.address,
-  ),
-  getUserList: createSelector(
-    _baseSelector,
-    base => base.userList,
-  ),
-  getUserName: createSelector(
-    _baseSelector,
-    base => base.userName,
-  ),
+  getKeystore: createSelector(_baseSelector, base => base.keystore),
+  getAddress: createSelector(_baseSelector, base => base.address),
+  getUserList: createSelector(_baseSelector, base => base.userList),
+  getUserName: createSelector(_baseSelector, base => base.userName),
   getUserInfo: createSelector(
     [state => state.user, state => state.contracts],
     (user, settings) => ({
@@ -63,18 +53,9 @@ export const userSelectors = {
       ...settings,
     }),
   ),
-  allowanceList: createSelector(
-    _baseSelector,
-    base => base.allowanceList,
-  ),
-  getPrivateKey: createSelector(
-    _baseSelector,
-    base => base.privateKey,
-  ),
-  getBalance: createSelector(
-    _baseSelector,
-    base => base.balance,
-  ),
+  allowanceList: createSelector(_baseSelector, base => base.allowanceList),
+  getPrivateKey: createSelector(_baseSelector, base => base.privateKey),
+  getBalance: createSelector(_baseSelector, base => base.balance),
 };
 
 /* ------------- Reducers ------------- */
@@ -95,6 +76,9 @@ export const getUserBalance = state => {
 };
 export const setUserBalance = (state, {balance}) => {
   return Object.assign({}, state, {balance});
+};
+export const setTokenBalance = (state, {tokenBalance}) => {
+  return Object.assign({}, state, {tokenBalance});
 };
 export const deleteUser = state => {
   return state;
@@ -128,6 +112,7 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.SET_USER_DATA]: setUserData,
   [Types.GET_USER_BALANCE]: getUserBalance,
   [Types.SET_USER_BALANCE]: setUserBalance,
+  [Types.SET_TOKEN_BALANCE]: setTokenBalance,
   [Types.DELETE_USER]: deleteUser,
   [Types.SET_USER_LIST]: setUserList,
   //logOut

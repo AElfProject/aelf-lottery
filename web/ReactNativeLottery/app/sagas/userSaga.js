@@ -29,6 +29,8 @@ const {
   contractAddresses,
   keystoreOptions,
   contractNameAddressSets,
+  lotteryTokens,
+  tokenDecimalFormat,
 } = config;
 import lotteryActions from '../redux/lotteryRedux';
 
@@ -98,6 +100,7 @@ function* onAppInitSaga({privateKey}) {
   }
 }
 function* getUserBalanceSaga() {
+  console.log(lotteryTokens, '======lotteryTokens');
   try {
     const userInfo = yield select(userSelectors.getUserInfo);
     const {address, contracts, privateKey} = userInfo;
@@ -108,17 +111,29 @@ function* getUserBalanceSaga() {
         contracts.tokenContract.GetBalance
       ) {
         const {tokenContract} = contracts;
-        const balance = yield tokenContract.GetBalance.call({
-          symbol: tokenSymbol,
-          owner: aelfUtils.formatRestoreAddress(address),
+        const tokens = {};
+        const promise = lotteryTokens.map(i => {
+          return tokenContract.GetBalance.call({
+            symbol: i.tokenSymbol,
+            owner: aelfUtils.formatRestoreAddress(address),
+          }).then(v => {
+            tokens[v.symbol] = unitConverter.toLower(
+              v.balance,
+              i.tokenDecimalFormat,
+            );
+          });
         });
-        const confirmBlance = unitConverter.toLower(balance.balance);
+        yield Promise.all(promise);
+        const confirmBlance = tokens?.[tokenSymbol];
         if (userInfo.balance !== confirmBlance) {
           yield put(
             userActions.setUserBalance(
               isNumber(confirmBlance) ? confirmBlance : 0,
             ),
           );
+        }
+        if (JSON.stringify(userInfo.tokenBalance !== JSON.stringify(tokens))) {
+          yield put(userActions.setTokenBalance(tokens));
         }
         const res = yield tokenContract.GetAllowance.call({
           symbol: tokenSymbol,
@@ -133,7 +148,7 @@ function* getUserBalanceSaga() {
           yield tokenContract.Approve({
             symbol: tokenSymbol,
             spender: contractNameAddressSets.lotteryContract,
-            amount: balance.balance,
+            amount: unitConverter.toHigher(confirmBlance, tokenDecimalFormat),
           });
         }
       }
@@ -177,7 +192,10 @@ function* onLoginSuccessSaga({data}) {
 function* deleteUserSaga({address}) {
   try {
     let List = [...(yield select(userSelectors.getUserList))];
-    List.splice(List.findIndex(item => item.address === address), 1);
+    List.splice(
+      List.findIndex(item => item.address === address),
+      1,
+    );
     yield put(userActions.setUserList(List));
   } catch (error) {
     console.log(error, 'deleteUserSaga');
