@@ -194,6 +194,13 @@ namespace AElf.Contracts.LotteryContract
             State.BonusRate.Value = bonusRate;
         }
 
+        private void SetProfitsRate(int profitsRate)
+        {
+            Assert(profitsRate > 0 && profitsRate.Div(GetRateDenominator()) < 1, "Invalid bonus rate");
+            Assert(Context.Sender == State.Admin.Value, "No permission");
+            State.ProfitRate.Value = profitsRate;
+        }
+
         private long CalculateReward(Lottery lottery, int luckNumber)
         {
             var bit = GetBit(lottery.Type);

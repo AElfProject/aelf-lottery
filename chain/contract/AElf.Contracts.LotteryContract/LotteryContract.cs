@@ -30,6 +30,7 @@ namespace AElf.Contracts.LotteryContract
             InitRewards(tokenInfo.Decimals);
             
             SetBonusRate(input.BonusRate);
+            SetProfitsRate(input.ProfitsRate);
             State.CashDuration.Value = input.CashDuration;
             
             State.CurrentPeriodNumber.Value = 1;
@@ -56,6 +57,8 @@ namespace AElf.Contracts.LotteryContract
             {
                 MaximalCount = 10
             };
+
+            InitializeTokenHolderProfitScheme();
             return new Empty();
         }
 
@@ -102,6 +105,7 @@ namespace AElf.Contracts.LotteryContract
             State.CurrentLotteryId.Value = lotteryId.Add(1);
             
             ClearExpiredToBeClaimedLotteries();
+            ContributeProfits(totalAmount.Mul(State.ProfitRate.Value).Div(GetRateDenominator()));
             
             return new Empty();
         }

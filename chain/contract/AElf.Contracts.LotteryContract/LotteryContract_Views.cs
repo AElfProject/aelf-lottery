@@ -226,5 +226,14 @@ namespace AElf.Contracts.LotteryContract
             
             return res;
         }
+
+        public override GetRateOutput GetProfitsRate(Empty input)
+        {
+            return new GetRateOutput
+            {
+                Rate = State.ProfitRate.Value,
+                Decimals = RateDecimals
+            };
+        }
     }
 }

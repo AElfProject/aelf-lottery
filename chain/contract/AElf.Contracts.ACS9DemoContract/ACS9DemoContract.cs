@@ -211,7 +211,6 @@ namespace AElf.Contracts.ACS9DemoContract
             // Contribute 1/3 profits (ELF) to profit scheme.
             State.TokenHolderContract.ContributeProfits.Send(new ContributeProfitsInput
             {
-                SchemeManager = Context.Self,
                 Amount = contributeAmount,
                 Symbol = input.Symbol
             });

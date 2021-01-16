@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.TokenHolder;
 using AElf.ContractTestBase.ContractTestKit;
 using AElf.Cryptography.ECDSA;
 using AElf.CSharp.Core.Extension;
 using AElf.Kernel.Blockchain.Application;
+using AElf.Standards.ACS9;
 using AElf.Types;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
@@ -41,7 +43,8 @@ namespace AElf.Contracts.LotteryContract
                 TokenSymbol = "ELF",
                 Price = Price,
                 BonusRate = 100,
-                CashDuration = 60
+                CashDuration = 60,
+                ProfitsRate = 1000
             };
             await LotteryContractStub.Initialize.SendAsync(initializeInput);
 
@@ -308,6 +311,24 @@ namespace AElf.Contracts.LotteryContract
             });
             var beforeBalance = balanceOutput.Balance;
             var seller = SampleAccount.Accounts[2].Address;
+            var aliceTokenHolderStub = GetTokenHolderStub(AliceKeyPair);
+            
+            await aliceTokenHolderStub.RegisterForProfits.SendAsync(new RegisterForProfitsInput
+            {
+                SchemeManager = LotteryContractAddress,
+                Amount = 10000000_00000000
+            });
+
+            {
+                var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Symbol = "ELF",
+                    Owner = AliceAddress
+                });
+
+                aliceBalance.Balance.ShouldBe(90000000_00000000);
+            }
+            
             await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
             {
                 Seller = seller,
@@ -320,12 +341,41 @@ namespace AElf.Contracts.LotteryContract
                     }
                 }
             });
+
+            await LotteryContractStub.TakeContractProfits.SendAsync(new TakeContractProfitsInput());
+            {
+                var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Symbol = "ELF",
+                    Owner = AliceAddress
+                });
+
+                aliceBalance.Balance.ShouldBe(89999999_00000000);
+            }
+
+            await aliceTokenHolderStub.ClaimProfits.SendAsync(new ClaimProfitsInput
+            {
+                Beneficiary = AliceAddress,
+                SchemeManager = LotteryContractAddress
+            });
+            
+            {
+                var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Symbol = "ELF",
+                    Owner = AliceAddress
+                });
+
+                aliceBalance.Balance.ShouldBe(89999999_10000000);
+            }
+
             var lotteryDetail = await AliceLotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
             {
                 LotteryId = 1
             });
             var amount = lotteryDetail.Lottery.Price;
             var bonusRateOutput = await AliceLotteryContractStub.GetBonusRate.CallAsync(new Empty());
+            var profitsRateOutput = await AliceLotteryContractStub.GetProfitsRate.CallAsync(new Empty());
             balanceOutput = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
             {
                 Symbol = "ELF",
@@ -339,15 +389,9 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = "ELF",
                 Owner = LotteryContractAddress
             });
-            balanceOutput.Balance.ShouldBe(amount - amount * bonusRateOutput.Rate /
+            balanceOutput.Balance.ShouldBe(amount - amount * (bonusRateOutput.Rate + profitsRateOutput
+                    .Rate) /
                 (int) Math.Pow(10, bonusRateOutput.Decimals));
-
-            balanceOutput = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
-            {
-                Symbol = "ELF",
-                Owner = AliceAddress
-            });
-            balanceOutput.Balance.ShouldBe(beforeBalance - amount);
         }
 
         [Fact]
@@ -997,7 +1041,7 @@ namespace AElf.Contracts.LotteryContract
             await InitializeAsync(true);
             await TokenContractStub.Transfer.SendAsync(new TransferInput
             {
-                Amount = 1000_000_000_000,
+                Amount = 1000_000_000_0000,
                 Symbol = "ELF",
                 To = LotteryContractAddress
             });

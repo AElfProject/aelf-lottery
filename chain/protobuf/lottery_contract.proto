@@ -5,11 +5,15 @@ import "aelf/options.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
+import "acs1.proto";
+import "acs9.proto";
 
 option csharp_namespace = "AElf.Contracts.LotteryContract";
 
 service LotteryContract {
     option (aelf.csharp_state) = "AElf.Contracts.LotteryContract.LotteryContractState";
+    option (aelf.base) = "acs1.proto";
+    option (aelf.base) = "acs9.proto";
 
     rpc Initialize (InitializeInput) returns (google.protobuf.Empty) {
     }
@@ -66,6 +70,9 @@ service LotteryContract {
     rpc GetBonusRate (google.protobuf.Empty) returns (GetRateOutput) {
         option (aelf.is_view) = true;
     }
+    rpc GetProfitsRate (google.protobuf.Empty) returns (GetRateOutput) {
+        option (aelf.is_view) = true;
+    }
     rpc GetAdmin (google.protobuf.Empty) returns (aelf.Address) {
         option (aelf.is_view) = true;
     }
@@ -95,6 +102,7 @@ message InitializeInput {
     int64 price = 2;
     int32 bonus_rate = 3;
     int32 cash_duration = 4;
+    int32 profits_rate = 5;
 }
 
 message BuyInput {

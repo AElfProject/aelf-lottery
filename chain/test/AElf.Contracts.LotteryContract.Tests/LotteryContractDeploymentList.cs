@@ -3,16 +3,14 @@ using AElf.ContractTestBase;
 using AElf.Kernel.SmartContract.Application;
 using AElf.Types;
 
-namespace AElf.Contracts.ACS9DemoContract
+namespace AElf.Contracts.LotteryContract
 {
-    public class ACS9DemoContractDeploymentList : SideChainContractDeploymentListProvider,
+    public class LotteryContractDeploymentList : MainChainContractDeploymentListProvider,
         IContractDeploymentListProvider
     {
         public List<Hash> GetDeployContractNameList()
         {
             var list = base.GetDeployContractNameList();
-            list.Add(ACS10DemoSmartContractNameProvider.Name);
-            list.Add(ACS9DemoSmartContractNameProvider.Name);
             return list;
         }
     }

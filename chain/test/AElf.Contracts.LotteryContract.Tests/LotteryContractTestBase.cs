@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using AElf.Standards.ACS0;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.TokenHolder;
 using AElf.ContractTestBase.ContractTestKit;
 using AElf.Cryptography.ECDSA;
+using AElf.EconomicSystem;
 using AElf.Kernel;
 using AElf.Kernel.Blockchain.Application;
 using AElf.Kernel.SmartContract.Application;
@@ -34,8 +36,13 @@ namespace AElf.Contracts.LotteryContract
         
         internal TokenContractContainer.TokenContractStub GetTokenContractStub(ECKeyPair senderKeyPair)
         {
-            return GetTester<TokenContractContainer.TokenContractStub>(TokenContractAddress,
-                    senderKeyPair);
+            return GetTester<TokenContractContainer.TokenContractStub>(TokenContractAddress, senderKeyPair);
+        }
+        
+        internal TokenHolderContractContainer.TokenHolderContractStub GetTokenHolderStub(ECKeyPair senderKeyPair)
+        {
+            return GetTester<TokenHolderContractContainer.TokenHolderContractStub>(SystemContractAddresses[TokenHolderSmartContractAddressNameProvider.Name],
+                senderKeyPair);
         }
 
         internal TokenContractContainer.TokenContractStub TokenContractStub =>

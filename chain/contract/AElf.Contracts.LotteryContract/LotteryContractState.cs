@@ -1,7 +1,9 @@
 using AElf.Standards.ACS0;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.TokenHolder;
 using AElf.Sdk.CSharp.State;
+using AElf.Standards.ACS10;
 using AElf.Types;
 
 namespace AElf.Contracts.LotteryContract
@@ -11,7 +13,9 @@ namespace AElf.Contracts.LotteryContract
         internal AEDPoSContractContainer.AEDPoSContractReferenceState AEDPoSContract { get; set; }
         internal TokenContractContainer.TokenContractReferenceState TokenContract { get; set; }
         internal ACS0Container.ACS0ReferenceState GenesisContract { get; set; }
-        
+        internal DividendPoolContractContainer.DividendPoolContractReferenceState DividendPoolContract { get; set; }
+        internal TokenHolderContractContainer.TokenHolderContractReferenceState TokenHolderContract { get; set; }
+
         public StringState TokenSymbol { get; set; }
         
         public SingletonState<long> Price { get; set; }
@@ -19,6 +23,7 @@ namespace AElf.Contracts.LotteryContract
         public SingletonState<int> CashDuration { get; set; }
         
         public SingletonState<int> BonusRate { get; set; }
+        public SingletonState<int> ProfitRate { get; set; }
 
         public SingletonState<Address> Admin { get; set; }
         
@@ -28,7 +33,6 @@ namespace AElf.Contracts.LotteryContract
         
         public MappedState<long, Lottery> Lotteries { get; set; }
         
-        // public MappedState<Address, LotteryList> UnDoneLotteries { get; set; }
         public MappedState<Address, LotteryList> ToBeClaimedLotteries { get; set; }
         public MappedState<Address, UnDrawnLotteries> UnDrawnLotteries { get; set; }
 
