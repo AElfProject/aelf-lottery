@@ -211,10 +211,30 @@ namespace AElf.Contracts.LotteryContract
             return new Empty();
         }
 
+        public override Empty SetProfitsRate(Int32Value input)
+        {
+            SetProfitsRate(input.Value);
+            return new Empty();
+        }
+
         public override Empty SetAdmin(Address input)
         {
             Assert(Context.Sender == State.Admin.Value, "No permission");
             State.Admin.Value = input;
+            return new Empty();
+        }
+
+        public override Empty SetPrice(Int64Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission");
+            State.Price.Value = input.Value;
+            return new Empty();
+        }
+
+        public override Empty SetCashDuration(Int32Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission");
+            State.CashDuration.Value = input.Value;
             return new Empty();
         }
     }

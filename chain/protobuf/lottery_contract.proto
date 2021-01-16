@@ -27,7 +27,13 @@ service LotteryContract {
     }
     rpc SetBonusRate (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
     }
+    rpc SetProfitsRate (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
+    }
     rpc SetAdmin (aelf.Address) returns (google.protobuf.Empty) {
+    }
+    rpc SetCashDuration (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
+    }
+    rpc SetPrice(google.protobuf.Int64Value) returns (google.protobuf.Empty) {
     }
 
     //View

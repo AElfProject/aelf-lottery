@@ -3,7 +3,7 @@ using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenHolder;
 using AElf.Sdk.CSharp.State;
-using AElf.Standards.ACS10;
+using AElf.Standards.ACS1;
 using AElf.Types;
 
 namespace AElf.Contracts.LotteryContract
@@ -13,7 +13,6 @@ namespace AElf.Contracts.LotteryContract
         internal AEDPoSContractContainer.AEDPoSContractReferenceState AEDPoSContract { get; set; }
         internal TokenContractContainer.TokenContractReferenceState TokenContract { get; set; }
         internal ACS0Container.ACS0ReferenceState GenesisContract { get; set; }
-        internal DividendPoolContractContainer.DividendPoolContractReferenceState DividendPoolContract { get; set; }
         internal TokenHolderContractContainer.TokenHolderContractReferenceState TokenHolderContract { get; set; }
 
         public StringState TokenSymbol { get; set; }
@@ -50,5 +49,9 @@ namespace AElf.Contracts.LotteryContract
         
         public SingletonState<RewardsAmountBoard> RewardsAmountBoard { get; set; }
         public SingletonState<RewardsAmountBoard> TotalPeriodCountBoard { get; set; }
+        
+        public SingletonState<AuthorityInfo> MethodFeeController { get; set; }
+        
+        public MappedState<string, MethodFees> TransactionFees { get; set; }
     }
 }
