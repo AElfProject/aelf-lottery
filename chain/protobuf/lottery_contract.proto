@@ -40,6 +40,8 @@ service LotteryContract {
     }
     rpc Recover (google.protobuf.Empty) returns (google.protobuf.Empty) {
     }
+    rpc Stake (google.protobuf.Int64Value) returns (google.protobuf.Empty){
+    }
     
     rpc RegisterDividend (RegisterDividendDto) returns (google.protobuf.Empty) {
     }
@@ -86,10 +88,13 @@ service LotteryContract {
     rpc GetAllLotteriesCount (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    rpc GetNoRewardLotteriesCount (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
+    rpc GetRegisteredDividend (aelf.Address) returns (RegisterDividendDto) {
         option (aelf.is_view) = true;
     }
-    rpc GetRegisteredDividend (aelf.Address) returns (RegisterDividendDto) {
+    rpc GetStakingAmount(aelf.Address) returns (google.protobuf.Int64Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetStakingTotal(google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
 }

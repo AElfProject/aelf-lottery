@@ -31,14 +31,16 @@ namespace AElf.Contracts.LotteryContract
         public MappedState<long, Lottery> Lotteries { get; set; }
 
         public MappedState<Address, long, LotteryList> OwnerToLotteries { get; set; }
-
-        public SingletonState<long> RewardCount { get; set; }
-
+        
         public MappedState<string, string> RewardMap { get; set; }
 
         public SingletonState<StringList> RewardCodeList { get; set; }
 
         public MappedState<Address, long> BoughtLotteriesCount { get; set; }
+        
+        public MappedState<Address, long> Staking { get; set; }
+        
+        public Int64State StakingTotal { get; set; }
 
         public BoolState IsSuspend { get; set; }
 

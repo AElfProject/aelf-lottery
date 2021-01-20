@@ -39,9 +39,9 @@ namespace AElf.Contracts.LotteryContract
         {
             var currentPeriodNumber = State.CurrentPeriod.Value;
             var previousPeriodNumber = currentPeriodNumber.Sub(1);
-            var poolCount = State.Periods[currentPeriodNumber].StartId.Sub(1);
 
             var period = State.Periods[previousPeriodNumber];
+            var poolCount = State.Periods[currentPeriodNumber].StartId.Sub(period.StartId);
             if (randomHash == null || randomHash == Hash.Empty)
             {
                 // Only can happen in test cases.
@@ -52,9 +52,7 @@ namespace AElf.Contracts.LotteryContract
 
             var levelsCount = rewards.Values.ToList();
             var rewardCount = levelsCount.Sum();
-            State.RewardCount.Value = State.RewardCount.Value.Add(rewardCount);
-            Assert(poolCount >= State.RewardCount.Value,
-                $"Too many rewards, lottery pool size: {poolCount.Sub(State.RewardCount.Value)}.");
+            Assert(poolCount >= rewardCount, $"Unable to prepare draw because not enough lottery sold.");
 
             var ranks = new List<string>();
 
@@ -67,7 +65,7 @@ namespace AElf.Contracts.LotteryContract
             }
 
             var rewardIds = new List<long>();
-            var rewardId = Math.Abs(randomHash.ToInt64() % poolCount).Add(1);
+            var rewardId = Math.Abs(randomHash.ToInt64() % poolCount).Add(period.StartId);
 
             for (var i = 0; i < rewardCount; i++)
             {
@@ -75,7 +73,7 @@ namespace AElf.Contracts.LotteryContract
                 {
                     // Keep updating luckyIndex
                     randomHash = HashHelper.ComputeFrom(randomHash);
-                    rewardId = Math.Abs(randomHash.ToInt64() % poolCount).Add(1);
+                    rewardId = Math.Abs(randomHash.ToInt64() % poolCount).Add(period.StartId);
                 }
 
                 rewardIds.Add(rewardId);

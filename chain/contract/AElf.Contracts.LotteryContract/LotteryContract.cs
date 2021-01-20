@@ -106,8 +106,8 @@ namespace AElf.Contracts.LotteryContract
             var rewardCount = levelsCount.Sum();
             Assert(rewardCount > 0, "Reward pool cannot be empty.");
             
-            Assert(State.SelfIncreasingIdForLottery.Value > State.RewardCount.Value.Add(1).Add(rewardCount),
-                "Unable to prepare draw because not enough rewards.");
+            var poolCount = State.SelfIncreasingIdForLottery.Value.Sub(State.Periods[State.CurrentPeriod.Value].StartId);
+            Assert(poolCount >= rewardCount, "Unable to prepare draw because not enough lottery sold.");
 
             State.CurrentPeriod.Value = State.CurrentPeriod.Value.Add(1);
 
@@ -244,8 +244,23 @@ namespace AElf.Contracts.LotteryContract
         public override Empty RegisterDividend(RegisterDividendDto input)
         {
             Assert(State.Dividends[Context.Sender] == null, "Already registered.");
-            Assert(State.BoughtLotteriesCount[Context.Sender] > 0, "Lottery not found.");
+            Assert(State.Staking[Context.Sender] > 0, "Not stake yet.");
             State.Dividends[Context.Sender] = input;
+            return new Empty();
+        }
+
+        public override Empty Stake(Int64Value input)
+        {
+            State.Staking[Context.Sender] = State.Staking[Context.Sender].Add(input.Value);
+            State.StakingTotal.Value = State.StakingTotal.Value.Add(input.Value);
+            State.TokenContract.TransferFrom.Send(new TransferFromInput
+            {
+                From = Context.Sender,
+                To = Context.Self,
+                Symbol = State.TokenSymbol.Value,
+                Amount = input.Value
+            });
+            
             return new Empty();
         }
     }

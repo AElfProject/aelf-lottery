@@ -94,7 +94,7 @@ namespace AElf.Contracts.LotteryContract
                 }
             });
             var result = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
-            result.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough rewards.");
+            result.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough lottery sold.");
         }
 
         [Fact]
@@ -125,12 +125,12 @@ namespace AElf.Contracts.LotteryContract
                 {
                     {"啊", 1},
                     {"啊啊", 2},
-                    {"啊啊啊", 22}
+                    {"啊啊啊", 23}
                 }
             });
             
             var prepare = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
-            prepare.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough rewards.");
+            prepare.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough lottery sold.");
             
             await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
             {
@@ -151,15 +151,15 @@ namespace AElf.Contracts.LotteryContract
             period.RandomHash.ShouldBe(Hash.Empty);
             period.StartId.ShouldBe(26);
 
-            {
-                var lotteries = await AliceBuy(1, 2);
-                lotteries.Count.ShouldBe(1);
-            }
-
-            {
-                var lotteries = await BobBuy(1, 2);
-                lotteries.Count.ShouldBe(1); // Only return 20 at one time.
-            }
+            // {
+            //     var lotteries = await AliceBuy(1, 2);
+            //     lotteries.Count.ShouldBe(1);
+            // }
+            //
+            // {
+            //     var lotteries = await BobBuy(1, 2);
+            //     lotteries.Count.ShouldBe(1); // Only return 20 at one time.
+            // }
 
             var result = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
             result.TransactionResult.Error.ShouldContain("hasn't drew.");
@@ -194,7 +194,7 @@ namespace AElf.Contracts.LotteryContract
         [Fact]
         public async Task DrawTwiceTest()
         {
-            await DrawTest();
+            await DrawTest(); // buy 25 lotteries
 
             {
                 var draw = await LotteryContractStub.Draw.SendWithExceptionAsync(new Int64Value {Value = 1});
@@ -214,10 +214,16 @@ namespace AElf.Contracts.LotteryContract
                     {"啊啊", 2},
                 }
             });
+
+            // in period 2, 26th lottery
+            await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
+            {
+                Value = 1
+            });
             
             {
                 var prepare = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
-                prepare.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough rewards.");
+                prepare.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough lottery sold.");
             }
             
             await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
@@ -225,20 +231,64 @@ namespace AElf.Contracts.LotteryContract
                 Period = 2,
                 Rewards =
                 {
-                    {"啊", 1},
-                    {"啊啊", 1},
+                    {"啊", 1}
                 }
             });
             await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+
+            //in period 3, 27th lottery
+            await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
+            {
+                Value = 1
+            });
             
             var currentPeriodNumber = await LotteryContractStub.GetCurrentPeriodNumber.CallAsync(new Empty());
             currentPeriodNumber.Value.ShouldBe(3);
-
-            var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 3});
-            period.RandomHash.ShouldBe(Hash.Empty);
-            period.StartId.ShouldBe(28);
+            
+            {
+                var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 3});
+                period.RandomHash.ShouldBe(Hash.Empty);
+                period.StartId.ShouldBe(27);
+            }
             
             await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 2});
+
+            {
+                var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 2});
+                period.RewardIds.Count.ShouldBe(1);
+
+                var lotteryCount = await LotteryContractStub.GetAllLotteriesCount.CallAsync(new Empty());
+                
+                period.RewardIds.First().ShouldBe(26);
+            }
+            
+            //in period 3, 28th, 29th lottery
+            await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
+            {
+                Value = 2
+            });
+            
+            
+            await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
+            {
+                Period = 3,
+                Rewards =
+                {
+                    {"啊", 3}
+                }
+            });
+            
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 3});
+            
+            {
+                var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 3});
+                period.RewardIds.Count.ShouldBe(3);
+                
+                period.RewardIds.ShouldContain(27);
+                period.RewardIds.ShouldContain(28);
+                period.RewardIds.ShouldContain(29);
+            }
         }
         
 
@@ -285,6 +335,85 @@ namespace AElf.Contracts.LotteryContract
             var ranks = GetRanks(levelsCount);
             ranks.Count.ShouldBe(10);
             ranks.ShouldBe(new List<int> {2, 3, 3, 4, 4, 4, 5, 5, 5, 5});
+        }
+
+        [Fact]
+        public async Task StakingTest()
+        {
+            await LotteryContractStub.Initialize.SendAsync(new InitializeInput
+            {
+                TokenSymbol = "ELF",
+                MaximumAmount = 100,
+                Price = Price,
+                DrawingLag = 1
+            });
+
+            // Transfer some money to Alice & Bob.
+            await TokenContractStub.Transfer.SendAsync(new TransferInput
+            {
+                To = AliceAddress,
+                Symbol = "ELF",
+                Amount = 100000000_00000000
+            });
+            
+            await TokenContractStub.Transfer.SendAsync(new TransferInput
+            {
+                To = BobAddress,
+                Symbol = "ELF",
+                Amount = 100000000_00000000
+            });
+            
+            await AliceTokenContractStub.Approve.SendAsync(new ApproveInput
+            {
+                Spender = LotteryContractAddress,
+                Symbol = "ELF",
+                Amount = 100000000_00000000
+            });
+
+            await BobTokenContractStub.Approve.SendAsync(new ApproveInput
+            {
+                Spender = LotteryContractAddress,
+                Symbol = "ELF",
+                Amount = 100000000_00000000
+            });
+
+            var registerDividend = await AliceLotteryContractStub.RegisterDividend.SendWithExceptionAsync(
+                new RegisterDividendDto
+                {
+                    Receiver = "123"
+                });
+            registerDividend.TransactionResult.Error.ShouldContain("Not stake yet.");
+            await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 100_000_000});
+            
+            await AliceLotteryContractStub.RegisterDividend.SendAsync(
+                new RegisterDividendDto
+                {
+                    Receiver = "123"
+                });
+
+            var receiver = (await AliceLotteryContractStub.GetRegisteredDividend.CallAsync(AliceAddress)).Receiver;
+            receiver.ShouldBe("123");
+
+            {
+                var stakingAmount = await AliceLotteryContractStub.GetStakingAmount.CallAsync(AliceAddress);
+                stakingAmount.Value.ShouldBe(100_000_000);
+            }
+
+            {
+                var stakingTotal = await AliceLotteryContractStub.GetStakingTotal.CallAsync(new Empty());
+                stakingTotal.Value.ShouldBe(100_000_000);
+            }
+
+            await BobLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 1000_000_000});
+            {
+                var stakingAmount = await AliceLotteryContractStub.GetStakingAmount.CallAsync(BobAddress);
+                stakingAmount.Value.ShouldBe(1000_000_000);
+            }
+            
+            {
+                var stakingTotal = await AliceLotteryContractStub.GetStakingTotal.CallAsync(new Empty());
+                stakingTotal.Value.ShouldBe(1100_000_000);
+            }
         }
 
         private List<int> GetRanks(List<int> levelsCount)
