@@ -1457,6 +1457,162 @@ namespace AElf.Contracts.LotteryContract
             executionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
             executionResult.TransactionResult.Error.ShouldContain("Period 1 hasn't drew");
         }
+        
+        [Fact]
+        public async Task Buy_Between_PrepareDraw_And_Draw()
+        {
+            await InitializeAsync(true);
+            await TokenContractStub.Transfer.SendAsync(new TransferInput
+            {
+                Amount = 1000_000_000_000,
+                Symbol = "ELF",
+                To = LotteryContractAddress
+            });
+            // period 1, lottery 1
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            
+            // period 2, lottery 2
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+
+            await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 1});
+            
+            // period 2, lottery 3
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            
+            // period 2, lottery 4
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+
+            {
+                var lotteries = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
+                {
+                    Limit = 10,
+                    Offset = 0
+                });
+
+                lotteries.Lotteries.Count.ShouldBe(4);
+                lotteries.Lotteries[0].Id.ShouldBe(4);
+                lotteries.Lotteries[1].Id.ShouldBe(3);
+                lotteries.Lotteries[2].Id.ShouldBe(2);
+                lotteries.Lotteries[3].Id.ShouldBe(1);
+            }
+
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Limit = 10,
+                        Offset = 0
+                    });
+                rewardedLotteries.Lotteries.Count.ShouldBe(1);
+                rewardedLotteries.Lotteries[0].Id.ShouldBe(1);
+            }
+
+            await AliceLotteryContractStub.TakeReward.SendAsync(new TakeRewardInput
+            {
+                LotteryId = 1
+            });
+                
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Limit = 10,
+                        Offset = 0
+                    });
+                rewardedLotteries.Lotteries.Count.ShouldBe(0);
+            }
+            
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            
+            // period 3, lottery 5
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = BobAddress,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+            
+            await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 2});
+            
+            {
+                var lotteries = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
+                {
+                    Limit = 10,
+                    Offset = 0
+                });
+
+                lotteries.Lotteries.Count.ShouldBe(5);
+                lotteries.Lotteries[0].Id.ShouldBe(5);
+                lotteries.Lotteries[1].Id.ShouldBe(4);
+                lotteries.Lotteries[2].Id.ShouldBe(3);
+                lotteries.Lotteries[3].Id.ShouldBe(2);
+                lotteries.Lotteries[4].Id.ShouldBe(1);
+            }
+
+            {
+                var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
+                    new GetLotteriesInput
+                    {
+                        Limit = 10,
+                        Offset = 0
+                    });
+                rewardedLotteries.Lotteries.Count.ShouldBe(3);
+                rewardedLotteries.Lotteries[0].Id.ShouldBe(4);
+                rewardedLotteries.Lotteries[1].Id.ShouldBe(3);
+                rewardedLotteries.Lotteries[2].Id.ShouldBe(2);
+            }
+        }
 
         [Fact]
         public async Task SetBonusRate_Success()

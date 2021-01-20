@@ -67,7 +67,7 @@ namespace AElf.Contracts.LotteryContract
             Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
             Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
             var address = Context.Sender;
-            TryAddUnDrawnLotteries(State.UnDrawnLotteries[address]);
+            ClearUnDrawnLotteries(State.UnDrawnLotteries[address]);
             var lotteries = State.ToBeClaimedLotteries[address] ?? new LotteryList();
             var lotteryIdList = lotteries.Ids.OrderByDescending(id => id);
             var lotteryDetails = new List<LotteryDetail>();

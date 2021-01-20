@@ -69,12 +69,13 @@ namespace AElf.Contracts.LotteryContract
 
         private void AddUnDrawnLottery(Address address, long lotteryId)
         {
-            var oldUnDrawnPeriod = State.UnDrawnLotteries[address]?.PeriodNumber ?? 0;
+            var oldUnDrawnPeriod = State.UnDrawnLotteries[address]?.LatestPeriodNumber ?? 0;
             var lotteryList = UpdateUnDrawnLottery(address);
             lotteryList.Ids.Add(lotteryId);
+            lotteryList.LatestPeriodNumber = State.CurrentPeriodNumber.Value;
             State.UnDrawnLotteries[address] = lotteryList;
 
-            if (lotteryList.PeriodNumber > oldUnDrawnPeriod)
+            if (lotteryList.LatestPeriodNumber > oldUnDrawnPeriod)
             {
                 // already update to current period
                 State.TotalPeriodCount[address] = State.TotalPeriodCount[address].Add(1);
@@ -85,31 +86,35 @@ namespace AElf.Contracts.LotteryContract
         private UnDrawnLotteries UpdateUnDrawnLottery(Address address)
         {
             var lotteryList = State.UnDrawnLotteries[address] ?? new UnDrawnLotteries();
-            if (lotteryList.PeriodNumber == 0 || TryAddUnDrawnLotteries(lotteryList))
+            ClearUnDrawnLotteries(lotteryList);
+            
+            if (lotteryList.Ids.Count == 0)
             {
-                // should update period number 
-                lotteryList.Ids.Clear();
-                lotteryList.PeriodNumber = State.CurrentPeriodNumber.Value;
+                lotteryList.LatestPeriodNumber = 0;
             }
 
             State.UnDrawnLotteries[address] = lotteryList;
             return lotteryList;
         }
 
-        private bool TryAddUnDrawnLotteries(UnDrawnLotteries unDrawnLotteries)
+        private void ClearUnDrawnLotteries(UnDrawnLotteries unDrawnLotteries)
         {
             var latestDrawPeriod = GetLatestDrawPeriod();
-            if (latestDrawPeriod == null || unDrawnLotteries == null || unDrawnLotteries.PeriodNumber > latestDrawPeriod.PeriodNumber)
-                return false;
-            
+            if (latestDrawPeriod == null || unDrawnLotteries == null)
+                return;
+
+            var toBeCleared = 0;
             // the period already drawn, should move to unClaimedLotteries
             foreach (var lotteryId in unDrawnLotteries.Ids)
             {
                 var lottery = State.Lotteries[lotteryId];
-                if (lottery.Cashed)
-                    continue; // already claimed
-                
                 var period = State.Periods[lottery.PeriodNumber];
+                if (period.DrawTime == null)
+                {
+                    // not drawn yet
+                    break;
+                }
+                
                 lottery.Reward = CalculateReward(lottery, period.LuckyNumber);
                 lottery.Expired = lottery.Reward > 0 && period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime;
                 lottery.Cashed = lottery.Reward == 0;
@@ -121,9 +126,17 @@ namespace AElf.Contracts.LotteryContract
                 }
                 else
                     AddToBeClaimedLottery(lotteryId);
+
+                toBeCleared++;
             }
 
-            return true;
+            if (toBeCleared <= 0) 
+                return;
+            
+            // clear
+            var remaining = unDrawnLotteries.Ids.Skip(toBeCleared).ToList();
+            unDrawnLotteries.Ids.Clear();
+            unDrawnLotteries.Ids.AddRange(remaining);
         }
 
         private void RemoveToBeClaimedLottery(long lotteryId)
