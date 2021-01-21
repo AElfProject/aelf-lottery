@@ -34,8 +34,9 @@ namespace AElf.Contracts.LotteryContract
                 BlockNumber = Context.CurrentHeight.Add(State.DrawingLag.Value),
                 RandomHash = Hash.Empty
             };
-            
+
             Assert(input.StartTimestamp < input.ShutdownTimestamp, "Invalid staking timestamp.");
+            Assert(Context.CurrentBlockTime < input.StartTimestamp, "Staking start timestamp already passed.");
             State.StakingShutdownTimestamp.Value = input.ShutdownTimestamp;
             State.StakingStartTimestamp.Value = input.StartTimestamp;
 
@@ -256,7 +257,9 @@ namespace AElf.Contracts.LotteryContract
 
         public override Empty Stake(Int64Value input)
         {
-            Assert(Context.CurrentBlockTime < State.StakingShutdownTimestamp.Value && Context.CurrentBlockTime > State.StakingStartTimestamp.Value, "Staking shutdown.");
+            Assert(Context.CurrentBlockTime > State.StakingStartTimestamp.Value, "Staking not started.");
+            Assert(Context.CurrentBlockTime < State.StakingShutdownTimestamp.Value, "Staking shutdown.");
+            
             State.Staking[Context.Sender] = State.Staking[Context.Sender].Add(input.Value);
             State.StakingTotal.Value = State.StakingTotal.Value.Add(input.Value);
             State.TokenContract.TransferFrom.Send(new TransferFromInput
@@ -276,19 +279,22 @@ namespace AElf.Contracts.LotteryContract
             if (input.IsStartTimestamp)
             {
                 Assert(
-                    State.StakingStartTimestamp.Value == null || input.Timestamp < State.StakingStartTimestamp.Value,
-                    "Invalid start timestamp.");
+                    State.StakingStartTimestamp.Value == null ||
+                    State.StakingStartTimestamp.Value > Context.CurrentBlockTime, "Start timestamp already passed.");
+                Assert(
+                    Context.CurrentBlockTime < input.Timestamp &&
+                    input.Timestamp < State.StakingShutdownTimestamp.Value, "Invalid start timestamp.");
                 State.StakingStartTimestamp.Value = input.Timestamp;
             }
             else
             {
                 Assert(
-                    State.StakingShutdownTimestamp.Value == null ||
-                    input.Timestamp > State.StakingShutdownTimestamp.Value,
+                    input.Timestamp > State.StakingStartTimestamp.Value && input.Timestamp > Context.CurrentBlockTime,
                     "Invalid shutdown timestamp.");
+
                 State.StakingShutdownTimestamp.Value = input.Timestamp;
             }
-            
+
             return new Empty();
         }
     }
