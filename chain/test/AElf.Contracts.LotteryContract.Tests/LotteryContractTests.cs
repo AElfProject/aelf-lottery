@@ -37,7 +37,7 @@ namespace AElf.Contracts.LotteryContract
                 MaximumAmount = 100,
                 Price = Price,
                 DrawingLag = 1,
-                StartTimestamp = Timestamp.FromDateTime(DateTime.UtcNow),
+                StartTimestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)),
                 ShutdownTimestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10))
             });
 
@@ -351,7 +351,7 @@ namespace AElf.Contracts.LotteryContract
                 MaximumAmount = 100,
                 Price = Price,
                 DrawingLag = 1,
-                StartTimestamp = Timestamp.FromDateTime(DateTime.UtcNow),
+                StartTimestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)),
                 ShutdownTimestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10))
             });
             
@@ -391,6 +391,7 @@ namespace AElf.Contracts.LotteryContract
                     Receiver = "123"
                 });
             registerDividend.TransactionResult.Error.ShouldContain("Not stake yet.");
+            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
             await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 100_000_000});
             
             await AliceLotteryContractStub.RegisterDividend.SendAsync(
@@ -433,7 +434,7 @@ namespace AElf.Contracts.LotteryContract
                 MaximumAmount = 100,
                 Price = Price,
                 DrawingLag = 1,
-                StartTimestamp = Timestamp.FromDateTime(DateTime.UtcNow),
+                StartTimestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)),
                 ShutdownTimestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10))
             });
 
@@ -478,7 +479,15 @@ namespace AElf.Contracts.LotteryContract
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                         new SetStakingTimestampInput
-                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow), IsStartTimestamp = false});
+                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(-1)), IsStartTimestamp = false});
+                setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid shutdown timestamp.");
+            }
+            
+            {
+                var setStakingShutdown =
+                    await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
+                        new SetStakingTimestampInput
+                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(0.5)), IsStartTimestamp = false});
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid shutdown timestamp.");
             }
 
@@ -498,9 +507,19 @@ namespace AElf.Contracts.LotteryContract
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid shutdown timestamp.");
             }
             
+            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
             await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 1000});
-
+            
+            {
+                var time = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(3));
+                await LotteryContractStub.SetStakingTimestamp.SendAsync(new SetStakingTimestampInput
+                    {Timestamp = time, IsStartTimestamp = false});
+                var shutdownTimestamp = await LotteryContractStub.GetStakingTimestamp.CallAsync(new Empty());
+                shutdownTimestamp.ShutdownTimestamp.ShouldBe(time);
+            }
+            
             GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10)));
+
             
             {
                 var stake = await AliceLotteryContractStub.Stake.SendWithExceptionAsync(new Int64Value {Value = 1000});
@@ -563,7 +582,7 @@ namespace AElf.Contracts.LotteryContract
 
             {
                 var stake = await AliceLotteryContractStub.Stake.SendWithExceptionAsync(new Int64Value {Value = 1000});
-                stake.TransactionResult.Error.ShouldContain("Staking shutdown.");
+                stake.TransactionResult.Error.ShouldContain("Staking not started.");
             }
             
             
@@ -579,7 +598,15 @@ namespace AElf.Contracts.LotteryContract
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                         new SetStakingTimestampInput
-                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(6)), IsStartTimestamp = true});
+                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(-1)), IsStartTimestamp = true});
+                setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid start timestamp.");
+            }
+            
+            {
+                var setStakingShutdown =
+                    await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
+                        new SetStakingTimestampInput
+                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10)), IsStartTimestamp = true});
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid start timestamp.");
             }
 
@@ -591,27 +618,20 @@ namespace AElf.Contracts.LotteryContract
                 shutdownTimestamp.StartTimestamp.ShouldBe(time);
             }
             
+            
+            {
+                var stake = await AliceLotteryContractStub.Stake.SendWithExceptionAsync(new Int64Value {Value = 1000});
+                stake.TransactionResult.Error.ShouldContain("Staking not started.");
+            }
+            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(2)));
+            await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 1000});
+            
             {
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                         new SetStakingTimestampInput
-                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(2)), IsStartTimestamp = true});
-                setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid start timestamp.");
-            }
-            
-            {
-                var stake = await AliceLotteryContractStub.Stake.SendWithExceptionAsync(new Int64Value {Value = 1000});
-                stake.TransactionResult.Error.ShouldContain("Staking shutdown.");
-            }
-            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(2)));
-            await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 1000});
-
-            {
-                var time = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(-1));
-                await LotteryContractStub.SetStakingTimestamp.SendAsync(new SetStakingTimestampInput
-                    {Timestamp = time, IsStartTimestamp = true});
-                var shutdownTimestamp = await LotteryContractStub.GetStakingTimestamp.CallAsync(new Empty());
-                shutdownTimestamp.StartTimestamp.ShouldBe(time);
+                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow), IsStartTimestamp = true});
+                setStakingShutdown.TransactionResult.Error.ShouldContain("Start timestamp already passed.");
             }
         }
 
