@@ -42,10 +42,11 @@ service LotteryContract {
     }
     rpc Stake (google.protobuf.Int64Value) returns (google.protobuf.Empty){
     }
-    
+    rpc SetStakingTimestamp(SetStakingTimestampInput) returns (google.protobuf.Empty) {
+    }
     rpc RegisterDividend (RegisterDividendDto) returns (google.protobuf.Empty) {
     }
-
+    
     rpc GetRewardResult (google.protobuf.Int64Value) returns (GetRewardResultOutput) {
         option (aelf.is_view) = true;
     }
@@ -97,6 +98,9 @@ service LotteryContract {
     rpc GetStakingTotal(google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
+    rpc GetStakingTimestamp(google.protobuf.Empty) returns (GetStakingTimestampOutput) {
+        option (aelf.is_view) = true;
+    }
 }
 
 message InitializeInput {
@@ -104,6 +108,8 @@ message InitializeInput {
     int64 maximum_amount = 2;
     int64 price = 3;
     int64 drawing_lag = 4;
+    google.protobuf.Timestamp start_timestamp = 5;
+    google.protobuf.Timestamp shutdown_timestamp = 6;
 }
 
 message BoughtLotteriesInformation {
@@ -175,4 +181,14 @@ message StringList {
 
 message RegisterDividendDto {
     string receiver = 1;
+}
+
+message SetStakingTimestampInput{
+    google.protobuf.Timestamp timestamp = 1;
+    bool is_start_timestamp = 2;
+}
+
+message GetStakingTimestampOutput{
+    google.protobuf.Timestamp start_timestamp = 1;
+    google.protobuf.Timestamp shutdown_timestamp = 2;
 }

@@ -174,5 +174,14 @@ namespace AElf.Contracts.LotteryContract
         {
             return new Int64Value {Value = State.StakingTotal.Value};
         }
+
+        public override GetStakingTimestampOutput GetStakingTimestamp(Empty input)
+        {
+            return new GetStakingTimestampOutput
+            {
+                ShutdownTimestamp = State.StakingShutdownTimestamp.Value,
+                StartTimestamp = State.StakingStartTimestamp.Value
+            };
+        }
     }
 }

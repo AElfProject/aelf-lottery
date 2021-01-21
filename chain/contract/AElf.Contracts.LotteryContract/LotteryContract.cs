@@ -34,6 +34,10 @@ namespace AElf.Contracts.LotteryContract
                 BlockNumber = Context.CurrentHeight.Add(State.DrawingLag.Value),
                 RandomHash = Hash.Empty
             };
+            
+            Assert(input.StartTimestamp < input.ShutdownTimestamp, "Invalid staking timestamp.");
+            State.StakingShutdownTimestamp.Value = input.ShutdownTimestamp;
+            State.StakingStartTimestamp.Value = input.StartTimestamp;
 
             return new Empty();
         }
@@ -105,8 +109,9 @@ namespace AElf.Contracts.LotteryContract
             var levelsCount = State.Periods[State.CurrentPeriod.Value].Rewards.Values.ToList();
             var rewardCount = levelsCount.Sum();
             Assert(rewardCount > 0, "Reward pool cannot be empty.");
-            
-            var poolCount = State.SelfIncreasingIdForLottery.Value.Sub(State.Periods[State.CurrentPeriod.Value].StartId);
+
+            var poolCount =
+                State.SelfIncreasingIdForLottery.Value.Sub(State.Periods[State.CurrentPeriod.Value].StartId);
             Assert(poolCount >= rewardCount, "Unable to prepare draw because not enough lottery sold.");
 
             State.CurrentPeriod.Value = State.CurrentPeriod.Value.Add(1);
@@ -168,7 +173,7 @@ namespace AElf.Contracts.LotteryContract
 
             State.Lotteries[input.LotteryId].RegistrationInformation = input.RegistrationInformation;
             State.Lotteries[input.LotteryId].IsRewardTaken = true;
-            
+
             return new Empty();
         }
 
@@ -251,6 +256,7 @@ namespace AElf.Contracts.LotteryContract
 
         public override Empty Stake(Int64Value input)
         {
+            Assert(Context.CurrentBlockTime < State.StakingShutdownTimestamp.Value && Context.CurrentBlockTime > State.StakingStartTimestamp.Value, "Staking shutdown.");
             State.Staking[Context.Sender] = State.Staking[Context.Sender].Add(input.Value);
             State.StakingTotal.Value = State.StakingTotal.Value.Add(input.Value);
             State.TokenContract.TransferFrom.Send(new TransferFromInput
@@ -260,6 +266,28 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = State.TokenSymbol.Value,
                 Amount = input.Value
             });
+
+            return new Empty();
+        }
+
+        public override Empty SetStakingTimestamp(SetStakingTimestampInput input)
+        {
+            Assert(State.Admin.Value == Context.Sender, "No permission.");
+            if (input.IsStartTimestamp)
+            {
+                Assert(
+                    State.StakingStartTimestamp.Value == null || input.Timestamp < State.StakingStartTimestamp.Value,
+                    "Invalid start timestamp.");
+                State.StakingStartTimestamp.Value = input.Timestamp;
+            }
+            else
+            {
+                Assert(
+                    State.StakingShutdownTimestamp.Value == null ||
+                    input.Timestamp > State.StakingShutdownTimestamp.Value,
+                    "Invalid shutdown timestamp.");
+                State.StakingShutdownTimestamp.Value = input.Timestamp;
+            }
             
             return new Empty();
         }

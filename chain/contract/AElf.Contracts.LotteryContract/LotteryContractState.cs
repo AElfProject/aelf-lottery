@@ -1,8 +1,10 @@
+using System.Net.Sockets;
 using AElf.Contracts.MultiToken;
 using AElf.Sdk.CSharp.State;
 using AElf.Types;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Standards.ACS1;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Contracts.LotteryContract
 {
@@ -49,5 +51,8 @@ namespace AElf.Contracts.LotteryContract
         public SingletonState<AuthorityInfo> MethodFeeController { get; set; }
         
         public MappedState<string, MethodFees> TransactionFees { get; set; }
+        
+        public SingletonState<Timestamp> StakingStartTimestamp { get; set; }
+        public SingletonState<Timestamp> StakingShutdownTimestamp { get; set; }
     }
 }
