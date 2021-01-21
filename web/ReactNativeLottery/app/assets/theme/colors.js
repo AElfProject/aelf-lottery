@@ -12,6 +12,7 @@ const Colors = {
   fontColor: '#FC4D30',
 
   bgColor: '#ffffff',
+  bgColor2: 'white',
 
   btnDefault: '',
   btnColor: '#8FC323',

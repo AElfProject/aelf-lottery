@@ -340,6 +340,16 @@
       "expired": "Out of Date",
       "awarded": "Claimed",
       "noPrize": "Unclaimed"
+    },
+    "leaderBoard": {
+      "leaderBoard": "Ranking",
+      "leaderBoardRule": "Ranking Rules",
+      "cumulativeWinning": "Accumulated Bonus",
+      "Bonus": "Bonus",
+      "cumulativePeriod": "Accumulated Participated Times",
+      "Times": "Times",
+      "notOnTheList": "Not on the list",
+      "article": "Top {{count}}"
     }
   }
 }

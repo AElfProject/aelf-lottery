@@ -1,9 +1,8 @@
 import React, {memo, useMemo} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View} from 'react-native';
 import {GStyle} from '../../../../assets/theme';
-import {CommonHeader, BounceSpinner} from '../../../../components/template';
+import {CommonHeader, WebViewComponent} from '../../../../components/template';
 import i18n from 'i18n-js';
-import {WebView} from 'react-native-webview';
 import aelfUtils from '../../../../utils/pages/aelfUtils';
 import {useStateToProps} from '../../../../utils/pages/hooks';
 const TransactionManagement = () => {
@@ -21,15 +20,7 @@ const TransactionManagement = () => {
           title={i18n.t('mineModule.transactionManagementT')}
           canBack
         />
-        <WebView
-          source={{uri}}
-          startInLoadingState={true}
-          renderLoading={() => (
-            <View style={styles.loadingBox}>
-              <BounceSpinner type="Wave" />
-            </View>
-          )}
-        />
+        <WebViewComponent source={{uri}} startInLoadingState={true} />
       </View>
     );
   }, [address]);
@@ -37,10 +28,3 @@ const TransactionManagement = () => {
 };
 
 export default memo(TransactionManagement);
-const styles = StyleSheet.create({
-  loadingBox: {
-    position: 'absolute',
-    alignSelf: 'center',
-    marginTop: '50%',
-  },
-});

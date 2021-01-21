@@ -2,21 +2,17 @@
 import React, {memo} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import navigationService from '../../../utils/common/navigationService';
-import {
-  statusBarHeight,
-  pixelSize,
-  bottomBarHeigth,
-} from '../../../utils/common/device';
+import {statusBarHeight, pixelSize} from '../../../utils/common/device';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {pTd} from '../../../utils/common';
 import {Colors} from '../../../assets/theme';
 import Touchable from '../Touchable';
 import {TextM} from '../CommonText';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import KeyboardScrollView from '../KeyboardScrollView';
 const styles = StyleSheet.create({
   statusBarStyle: {
     paddingTop: statusBarHeight,
-    backgroundColor: 'white',
+    backgroundColor: Colors.bgColor2,
   },
   headerWrap: {
     height: pTd(88),
@@ -46,11 +42,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   leftBox: {
-    height: '100%',
+    paddingVertical: 3,
     paddingHorizontal: 15,
-    justifyContent: 'center',
   },
   titleBox: {
+    flex: 2,
     alignItems: 'center',
   },
   leftTitleStyle: {
@@ -81,6 +77,8 @@ const Header = props => {
     rightOnPress,
     leftTitle,
     leftOnPress,
+    titleBox,
+    hideBottomWidth,
   } = props;
   return (
     <View
@@ -91,7 +89,13 @@ const Header = props => {
         },
       ]}>
       {statusBar && statusBar}
-      <View style={[styles.headerWrap, headerStyle]}>
+      <View
+        style={[
+          styles.headerWrap,
+          headerStyle,
+          // eslint-disable-next-line react-native/no-inline-styles
+          hideBottomWidth && {borderBottomWidth: 0},
+        ]}>
         <View style={styles.leftStyle}>
           {canBack ? (
             <TouchableOpacity
@@ -114,8 +118,17 @@ const Header = props => {
         {titleElement ? (
           titleElement
         ) : (
-          <View style={styles.titleBox}>
-            <Text style={[styles.title, titleStyle]}>{title || ''}</Text>
+          <View
+            style={[
+              [styles.titleBox, {flex: rightElement || rightTitle ? 2 : 3}],
+              titleBox,
+            ]}>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="middle"
+              style={[styles.title, titleStyle]}>
+              {title || ''}
+            </Text>
           </View>
         )}
 
@@ -135,18 +148,12 @@ const Header = props => {
   );
 };
 const CommonHeader = props => {
-  const {children} = props;
+  const {children, scrollViewProps} = props;
   if (children) {
     return (
       <>
         <Header {...props} />
-        <KeyboardAwareScrollView
-          keyboardShouldPersistTaps="handled"
-          keyboardOpeningTime={0}
-          extraHeight={50}>
-          {children}
-          <View style={{height: bottomBarHeigth}} />
-        </KeyboardAwareScrollView>
+        <KeyboardScrollView {...scrollViewProps}>{children}</KeyboardScrollView>
       </>
     );
   }

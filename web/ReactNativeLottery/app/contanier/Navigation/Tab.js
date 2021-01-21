@@ -4,6 +4,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../template/Home';
 import MineScreen from '../template/Mine';
 import DrawScreen from '../template/Draw';
+import LeaderBoard from '../template/LeaderBoard';
 import {pixelSize} from '../../utils/common/device';
 import i18n from 'i18n-js';
 import {Colors} from '../../assets/theme';
@@ -90,6 +91,16 @@ const TabNavigatorStack = () => {
           tabBarLabel: i18n.t('lottery.drawT'),
           tabBarIcon: ({color}) => (
             <Icon name="staro" size={20} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="LeaderBoard"
+        component={LeaderBoard}
+        options={{
+          tabBarLabel: i18n.t('lottery.leaderBoard.leaderBoard'),
+          tabBarIcon: ({color}) => (
+            <Icon name="Trophy" size={20} color={color} />
           ),
         }}
       />

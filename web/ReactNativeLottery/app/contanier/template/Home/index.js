@@ -137,7 +137,9 @@ const Home = () => {
           <View style={styles.currentItem}>
             <Octicons name="database" size={30} />
             <TextM style={styles.endTip}>{i18n.t('lottery.prizePool')}</TextM>
-            <TextL style={styles.lotteryBalance}>{lotteryBalance}</TextL>
+            <TextL style={styles.lotteryBalance}>
+              {aelfUtils.digits(lotteryBalance)}
+            </TextL>
           </View>
         </View>
       </View>

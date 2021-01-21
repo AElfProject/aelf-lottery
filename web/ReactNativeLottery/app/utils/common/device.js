@@ -8,7 +8,7 @@ const sreenWidth = Dimensions.get('screen').width;
 const sreenHeight = Dimensions.get('screen').height;
 const windowHeight = Dimensions.get('window').height;
 
-const pixelSize = (function() {
+const pixelSize = (function () {
   let pixelRatio = PixelRatio.get();
   let size = 1;
   if (pixelRatio >= 3) {
@@ -19,7 +19,7 @@ const pixelSize = (function() {
   return size;
 })();
 
-const isIphoneX = (function() {
+const isIphoneX = (function () {
   return (
     Platform.OS === 'ios' &&
     ((sreenHeight >= X_HEIGHT && sreenWidth >= X_WIDTH) ||
@@ -29,7 +29,7 @@ const isIphoneX = (function() {
 
 const statusBarHeight = Constants.statusBarHeight;
 
-const bottomBarHeigth = (function() {
+const bottomBarHeigth = (function () {
   let Height = 0;
   if (isIos && isIphoneX) {
     Height = 34;

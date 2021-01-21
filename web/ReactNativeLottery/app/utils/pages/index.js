@@ -35,6 +35,7 @@ const saveImagesToAlbum = async FilePath => {
         CommonToast.success(i18n.t('saveSuccess'));
       })
       .catch(err => {
+        console.log(err,'=====saveImagesToAlbum');
         reject(err);
         CommonToast.fail(i18n.t('fail'));
       });
@@ -49,6 +50,7 @@ const checkImageToAlbum = async url => {
         PermissionsAndroid.PERMISSIONS.CAMERA,
       ];
       const granteds = await PermissionsAndroid.requestMultiple(permissions);
+      console.log(granteds,'=====granteds');
       if (
         granteds['android.permission.CAMERA'] === 'granted' &&
         granteds['android.permission.WRITE_EXTERNAL_STORAGE'] === 'granted'
@@ -65,6 +67,7 @@ const checkImageToAlbum = async url => {
         CommonToast.fail(i18n.t('permissionDen'));
       }
     } catch (err) {
+      console.log(err, '=======err');
       CommonToast.fail(i18n.t('fail'));
     }
   } else {
@@ -86,6 +89,7 @@ const screenshots = async saveView => {
           }
         })
         .catch(e => {
+          console.log(e, '=======e');
           reject();
           CommonToast.fail(i18n.t('fail'));
         });

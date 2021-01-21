@@ -97,7 +97,23 @@ const timeConversion = (time, format) => {
 const getTxResult = TransactionId => {
   return aelfInstance.chain.getTxResult(TransactionId);
 };
+const digits = (count, num = 8) => {
+  let SCount = String(count);
+  const floatPart = SCount.split('.')[1];
+  if (count && floatPart && floatPart.length > num) {
+    count = Math.floor(count * 10 ** num) / 10 ** num;
+    SCount = String(count);
+  }
+  if (SCount.indexOf('-') >= 0) {
+    SCount = '0' + String(Number(SCount) + 1).substr(1);
+  }
+  if (SCount > 0) {
+    return SCount;
+  }
+  return '0';
+};
 export default {
+  digits,
   checkPassword,
   webURLAddress,
   formatAddress,

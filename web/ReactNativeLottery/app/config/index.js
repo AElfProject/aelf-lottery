@@ -23,6 +23,11 @@ const keystoreOptions = {
 // test environment
 const explorerURL = 'http://1.119.195.50:11107';
 const walletURL = 'http://1.119.195.50:11109';
+
+const lotteryTokens = [
+  {tokenSymbol: 'ELF', tokenDecimal: 8, tokenDecimalFormat: 10 ** 8},
+  {tokenSymbol: 'LOT', tokenDecimal: 8, tokenDecimalFormat: 10 ** 8},
+];
 export default {
   commonPrivateKey:
     'b7a6b643f2a66848cb2229bf26c8330d5384e0eac325709a66f4baacc89d3108',
@@ -58,9 +63,9 @@ export default {
     // lotteryContract: 'sr4zX6E7yVVL7HevExVcWv2ru3HSZakhsJMXfzxzfpnXofnZw',
 
     //
-    consensusContract: 'BNPFPPwQ3DE9rwxzdY61Q2utU9FZx9KYUnrYHQqCR6N4LLhUE',
+    // consensusContract: 'BNPFPPwQ3DE9rwxzdY61Q2utU9FZx9KYUnrYHQqCR6N4LLhUE',
     tokenContract: '7RzVGiuVWkvL4VfVHdZfQF2Tri3sgLe9U991bohHFfSRZXuGX',
-    lotteryContract: '2onFLTnPEiZrXGomzJ8g74cBre2cJuHrn1yBJF3P6Xu9K5Gbth',
+    lotteryContract: '2F5McxHg7fAqVjDX97v79j4drsMq442rArChpBii8TWuRb8ZnK',
   },
   address: {
     prefix: 'ELF',
@@ -72,7 +77,7 @@ export default {
   // tokenDecimalFormat: 10 ** 3,
 
   // test environment
-  tokenSymbol: 'ELF',
+  tokenSymbol: 'LOT',
   tokenDecimal: 8,
   tokenDecimalFormat: 10 ** 8,
 
@@ -92,5 +97,6 @@ export default {
   /**
    * Each bet is worth a few gold coins
    */
-  lotterySellerAddress: 'RXcxgSXuagn8RrvhQAV81Z652EEYSwR6JLnqHYJ5UVpEptW8Y',
+  lotterySellerAddress: 'eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ',
+  lotteryTokens,
 };

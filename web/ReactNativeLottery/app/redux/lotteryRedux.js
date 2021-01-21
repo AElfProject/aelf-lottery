@@ -46,6 +46,12 @@ const {Types, Creators} = createActions({
   setRewardedList: ['rewardedList'],
 
   reLottery: [],
+  getRewardAmountsList: ['callBack'],
+  setRewardAmountsList: ['rewardAmountsList'],
+  getPeriodCountList: ['callBack'],
+  setPeriodCountList: ['periodCountList'],
+  getSelfWinningInfo: ['callBack'],
+  setSelfWinningInfo: ['selfWinningInfo'],
 });
 
 export const lotteryTypes = Types;
@@ -66,6 +72,9 @@ export const INITIAL_STATE = Immutable({
   lotteryDetails: null,
   periodList: [],
   rewardedList: [],
+  rewardAmountsList: [],
+  periodCountList: [],
+  selfWinningInfo: null,
 });
 
 /* ------------- Selectors ------------- */
@@ -73,31 +82,16 @@ export const INITIAL_STATE = Immutable({
 const _baseSelector = state => state.lottery;
 
 export const lotterySelectors = {
-  getLotteryInfo: createSelector(
-    _baseSelector,
-    base => ({
-      ...base,
-      myBetList: null,
-      lotteryDetails: null,
-      periodList: null,
-    }),
-  ),
-  myBetList: createSelector(
-    _baseSelector,
-    base => base.myBetList,
-  ),
-  periodList: createSelector(
-    _baseSelector,
-    base => base.periodList,
-  ),
-  lotteryDetails: createSelector(
-    _baseSelector,
-    base => base.lotteryDetails,
-  ),
-  rewardedList: createSelector(
-    _baseSelector,
-    base => base.rewardedList,
-  ),
+  getLotteryInfo: createSelector(_baseSelector, base => ({
+    ...base,
+    myBetList: null,
+    lotteryDetails: null,
+    periodList: null,
+  })),
+  myBetList: createSelector(_baseSelector, base => base.myBetList),
+  periodList: createSelector(_baseSelector, base => base.periodList),
+  lotteryDetails: createSelector(_baseSelector, base => base.lotteryDetails),
+  rewardedList: createSelector(_baseSelector, base => base.rewardedList),
 };
 
 /* ------------- Reducers ------------- */
@@ -199,6 +193,24 @@ export const reLottery = state => {
     rewardedList: [],
   });
 };
+export const getRewardAmountsList = state => {
+  return state.merge();
+};
+export const setRewardAmountsList = (state, {rewardAmountsList}) => {
+  return state.merge({rewardAmountsList});
+};
+export const getPeriodCountList = state => {
+  return state.merge();
+};
+export const setPeriodCountList = (state, {periodCountList}) => {
+  return state.merge({periodCountList});
+};
+export const getSelfWinningInfo = state => {
+  return state.merge();
+};
+export const setSelfWinningInfo = (state, {selfWinningInfo}) => {
+  return state.merge({selfWinningInfo});
+};
 /* ------------- Hookup Reducers To Types ------------- */
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.BUY]: buy,
@@ -241,4 +253,13 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.SET_REWARDED_LIST]: setRewardedList,
 
   [Types.RE_LOTTERY]: reLottery,
+
+  [Types.GET_REWARD_AMOUNTS_LIST]: getRewardAmountsList,
+  [Types.SET_REWARD_AMOUNTS_LIST]: setRewardAmountsList,
+
+  [Types.GET_PERIOD_COUNT_LIST]: getPeriodCountList,
+  [Types.SET_PERIOD_COUNT_LIST]: setPeriodCountList,
+
+  [Types.GET_SELF_WINNING_INFO]: getSelfWinningInfo,
+  [Types.SET_SELF_WINNING_INFO]: setSelfWinningInfo,
 });

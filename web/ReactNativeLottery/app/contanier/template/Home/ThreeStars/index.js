@@ -59,10 +59,10 @@ const ThreeStars = () => {
   );
   return (
     <View style={GStyle.container}>
-      <CommonHeader title={i18n.t('lottery.directElection')} canBack>
+      <CommonHeader title={i18n.t('lottery.threeStars')} canBack>
         <View style={styles.titleBox}>
           <TextL style={styles.titleStyle}>
-            {i18n.t('lottery.threeStars')}
+            {i18n.t('lottery.directElection')}
           </TextL>
         </View>
         <TextL style={styles.tipStyle}>

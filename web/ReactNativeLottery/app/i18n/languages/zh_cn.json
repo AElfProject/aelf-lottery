@@ -267,8 +267,8 @@
     "express": "快报 恭喜 {{address}}成功领取第{{period}}期 {{details}}",
     "latestDraw": "最新开奖",
     "threeFrom": "三星形态",
-    "threeCombined": "三星合值",
-    "twoCombined": "二星合值",
+    "threeCombined": "三星和值",
+    "twoCombined": "二星和值",
     "threePackage": "组三",
     "sixPackage": "组六",
     "oneStar": "一星",
@@ -340,6 +340,16 @@
       "expired": "已过期",
       "awarded": "已领奖",
       "noPrize": "未领奖"
+    },
+    "leaderBoard": {
+      "leaderBoard": "排行榜",
+      "leaderBoardRule": "排行榜规则",
+      "cumulativeWinning": "累计领奖金额",
+      "Bonus": "累计领奖金额",
+      "cumulativePeriod": "累计参与期数",
+      "Times": "累计参与期数",
+      "notOnTheList": "未上榜",
+      "article": "第{{count}}名"
     }
   }
 }

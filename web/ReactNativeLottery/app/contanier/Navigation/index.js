@@ -16,6 +16,7 @@ import MineNav from '../template/Mine/stackNav';
 import TermsNav from '../template/Terms/stackNav';
 import HomeNav from '../template/Home/stackNav';
 import DrawNav from '../template/Draw/stackNav';
+import LeaderBoardNav from '../template/LeaderBoard/stackNav';
 const Stack = createStackNavigator();
 
 const stackNav = [
@@ -32,6 +33,7 @@ const stackNav = [
   ...TermsNav,
   ...LoginNav,
   ...MineNav,
+  ...LeaderBoardNav,
   ...DrawNav,
 ];
 const NavigationMain = () => (

@@ -8,6 +8,7 @@ import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import {useStateToProps} from '../../../../utils/pages/hooks';
 import i18n from 'i18n-js';
 import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
+import {bottomBarHeigth, isIphoneX} from '../../../../utils/common/device';
 const ShowBetComponent = props => {
   const {lotteryPrice} = useStateToProps(base => {
     const {lottery} = base;
@@ -119,6 +120,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     marginTop: pTd(50),
+    marginBottom: isIphoneX ? bottomBarHeigth : 20,
     width: '50%',
   },
   container: {

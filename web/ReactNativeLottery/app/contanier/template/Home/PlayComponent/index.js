@@ -56,7 +56,7 @@ const Item = memo(props => {
         <TextL style={styles.titleText}>{title}</TextL>
         <View style={styles.selectBox}>
           {playList.map((item, index) => {
-            const current = selected && selected.includes(String(index));
+            const current = selected?.includes(String(index));
             return (
               <Touchable
                 onPress={() => onSelect(String(first), String(index))}
@@ -69,7 +69,7 @@ const Item = memo(props => {
                 <TextL
                   style={[
                     styles.selectText,
-                    current && styles.whiteText,
+                    current ? styles.whiteText : styles.blackText,
                     {fontSize},
                   ]}>
                   {item}
@@ -168,5 +168,8 @@ const styles = StyleSheet.create({
   },
   whiteText: {
     color: 'white',
+  },
+  blackText: {
+    color: Colors.fontBlack,
   },
 });

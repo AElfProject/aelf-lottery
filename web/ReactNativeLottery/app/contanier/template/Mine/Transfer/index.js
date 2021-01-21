@@ -8,6 +8,7 @@ import {
   CommonButton,
   CommonToast,
   Loading,
+  ActionSheet,
 } from '../../../../components/template';
 import i18n from 'i18n-js';
 import {TextL, TextM} from '../../../../components/template/CommonText';
@@ -22,13 +23,15 @@ import userActions from '../../../../redux/userRedux';
 import TransactionVerification from '../../../../utils/pages/TransactionVerification';
 import unitConverter from '../../../../utils/pages/unitConverter';
 import aelfUtils from '../../../../utils/pages/aelfUtils';
-const {tokenSymbol} = config;
+import Entypo from 'react-native-vector-icons/Entypo';
+const {tokenSymbol, lotteryTokens} = config;
 const Transfer = props => {
   const input = useRef();
   const {params} = props.route || {};
   const [state, setState] = useSetState({
     address: '',
     amount: '',
+    symbol: tokenSymbol,
   });
   const dispatch = useDispatch();
   const {userInfo} = useStateToProps(base => {
@@ -37,10 +40,7 @@ const Transfer = props => {
       userInfo: {...user},
     };
   });
-  const transfer = useCallback(value => dispatch(userActions.transfer(value)), [
-    dispatch,
-  ]);
-  const {balance} = userInfo;
+  const {tokenBalance} = userInfo;
   useFocusEffect(
     useCallback(() => {
       const {address} = params || {};
@@ -49,7 +49,11 @@ const Transfer = props => {
       }
     }, [params, setState]),
   );
-  const {address, amount} = state;
+  const transfer = useCallback(value => dispatch(userActions.transfer(value)), [
+    dispatch,
+  ]);
+  const {address, amount, symbol} = state;
+  const balance = tokenBalance?.[symbol] || 0;
   const rightElement = useMemo(() => {
     return (
       <AntDesign
@@ -73,7 +77,7 @@ const Transfer = props => {
         return CommonToast.text(
           `${i18n.t(
             'mineModule.transferM.availableBalance',
-          )}${balance} ${tokenSymbol}`,
+          )}${balance} ${symbol}`,
         );
       }
       if (!aelfUtils.checkAddress(address)) {
@@ -91,7 +95,7 @@ const Transfer = props => {
         if (value) {
           Loading.show();
           transfer({
-            symbol: tokenSymbol,
+            symbol: symbol,
             to: address,
             amount: unitConverter.toHigher(amount),
             memo: input.current,
@@ -101,28 +105,61 @@ const Transfer = props => {
     } else {
       CommonToast.text(i18n.t('mineModule.transferM.enterTip'));
     }
-  }, [address, amount, balance, transfer, userInfo.address]);
+  }, [address, amount, balance, symbol, transfer, userInfo.address]);
   const onChangeAmount = useCallback(
     value => {
       if (value > balance) {
         CommonToast.text(
           `${i18n.t(
             'mineModule.transferM.availableBalance',
-          )}${balance} ${tokenSymbol}`,
+          )}${balance} ${symbol}`,
         );
-        setState({amount: String(balance)});
-      } else {
-        setState({amount: value});
       }
+      setState({amount: value});
     },
-    [balance, setState],
+    [balance, setState, symbol],
   );
+  const onSelect = useCallback(
+    item => {
+      setState({symbol: item.tokenSymbol});
+    },
+    [setState],
+  );
+  const selectToken = useMemo(() => {
+    const items = Array.isArray(lotteryTokens)
+      ? lotteryTokens.map(item => {
+          return {
+            ...item,
+            balance: tokenBalance?.[item.tokenSymbol] || '0',
+            title: item.tokenSymbol,
+            onPress: onSelect,
+          };
+        })
+      : [];
+    return (
+      <View style={styles.tokenBox}>
+        <Touchable
+          onPress={() => {
+            ActionSheet.show(items, {title: i18n.t('cancel')});
+          }}
+          style={styles.selectBox}>
+          <TextL style={{color: Colors.primaryColor}}>{symbol}</TextL>
+          <Entypo
+            color={Colors.primaryColor}
+            size={pTd(30)}
+            name="chevron-thin-down"
+          />
+        </Touchable>
+      </View>
+    );
+  }, [onSelect, symbol, tokenBalance]);
   return (
     <Touchable
       activeOpacity={1}
       onPress={() => Keyboard.dismiss()}
       style={GStyle.secondContainer}>
       <CommonHeader title={i18n.t('mineModule.transfer')} canBack>
+        {selectToken}
         <View style={styles.box}>
           <TextL>{i18n.t('mineModule.transferM.payAddress')}</TextL>
           <Input
@@ -136,7 +173,7 @@ const Transfer = props => {
           <View style={styles.rowBox}>
             <TextL>{i18n.t('mineModule.transferM.transferAmount')}</TextL>
             <TextM style={styles.colorStyle}>
-              {i18n.t('mineModule.balance')}:{balance} {tokenSymbol}
+              {i18n.t('mineModule.balance')}:{balance} {symbol}
             </TextM>
           </View>
           <Input
@@ -152,11 +189,12 @@ const Transfer = props => {
             placeholder={i18n.t('mineModule.transferM.memoTip')}
           />
         </View>
-        <View style={[styles.amountBox, styles.rowBox]}>
+        {/* <View style={[styles.amountBox, styles.rowBox]}>
           <TextL>{i18n.t('mineModule.transferM.fee')}</TextL>
-          <TextM style={styles.colorStyle}>≈ 0.027 {tokenSymbol}</TextM>
-        </View>
+          <TextM style={styles.colorStyle}>≈ 0.027 {symbol}</TextM>
+        </View> */}
         <CommonButton
+          disabled={!(balance && amount && Number(balance) >= Number(amount))}
           onPress={onTransfer}
           style={styles.buttonBox}
           title={i18n.t('mineModule.transfer')}
@@ -190,5 +228,17 @@ const styles = StyleSheet.create({
   },
   buttonBox: {
     marginTop: pTd(200),
+  },
+  selectBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: pTd(25),
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderColor,
+    alignItems: 'center',
+  },
+  tokenBox: {
+    backgroundColor: 'white',
+    paddingHorizontal: pTd(40),
   },
 });

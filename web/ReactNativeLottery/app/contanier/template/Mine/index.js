@@ -15,7 +15,8 @@ import i18n from 'i18n-js';
 import userActions from '../../../redux/userRedux';
 import config from '../../../config';
 import {useStateToProps} from '../../../utils/pages/hooks';
-const {tokenSymbol} = config;
+import aelfUtils from '../../../utils/pages/aelfUtils';
+const {lotteryTokens} = config;
 const Tool = () => {
   const {language} = useStateToProps(base => {
     const {settings} = base;
@@ -110,10 +111,10 @@ const Tool = () => {
   return Element;
 };
 const Mine = props => {
-  const {balance, userName} = useStateToProps(base => {
+  const {userName, tokenBalance} = useStateToProps(base => {
     const {settings, user} = base;
     return {
-      balance: user.balance,
+      tokenBalance: user.tokenBalance,
       userName: user.userName,
       language: settings.language,
       barStyle: settings.barStyle,
@@ -157,7 +158,11 @@ const Mine = props => {
       </Touchable>
       <View style={styles.balanceBox}>
         <TextL style={styles.textTitle}>
-          {i18n.t('mineModule.balance')}:{balance} {tokenSymbol}
+          {i18n.t('mineModule.balance')}:
+          {lotteryTokens.map(i => {
+            const token = tokenBalance[i.tokenSymbol];
+            return ' ' + aelfUtils.digits(token, 4) + i.tokenSymbol;
+          })}
         </TextL>
       </View>
       <Tool />
@@ -169,7 +174,4 @@ const mapDispatchToProps = {
   getUserBalance: userActions.getUserBalance,
   onAppInit: userActions.onAppInit,
 };
-export default connect(
-  null,
-  mapDispatchToProps,
-)(memo(Mine));
+export default connect(null, mapDispatchToProps)(memo(Mine));

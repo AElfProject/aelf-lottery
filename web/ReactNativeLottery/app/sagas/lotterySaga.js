@@ -379,6 +379,63 @@ function* getRewardedListSaga({loadingPaging, callBack}) {
     console.log(error, '======getRewardedListSaga');
   }
 }
+function* getRewardAmountsListSaga({callBack}) {
+  try {
+    const userInfo = yield select(userSelectors.getUserInfo);
+    const {lotteryContract} = userInfo.contracts || {};
+    if (lotteryContract) {
+      const result = yield lotteryContract.GetRewardAmountsBoard.call();
+      yield put(
+        lotteryActions.setRewardAmountsList(result?.rewardAmountList || []),
+      );
+    }
+    callBack?.();
+  } catch (error) {
+    callBack?.();
+    console.log(error, '======getRewardAmountsListSaga');
+  }
+}
+function* getPeriodCountListSaga({callBack}) {
+  try {
+    const userInfo = yield select(userSelectors.getUserInfo);
+    const {lotteryContract} = userInfo.contracts || {};
+    if (lotteryContract) {
+      const result = yield lotteryContract.GetPeriodCountBoard.call();
+      yield put(
+        lotteryActions.setPeriodCountList(result?.periodCountList || []),
+      );
+    }
+    callBack?.();
+  } catch (error) {
+    callBack?.();
+    console.log(error, '======getPeriodCountListSaga');
+  }
+}
+function* getSelfWinningInfoSaga({callBack}) {
+  try {
+    const userInfo = yield select(userSelectors.getUserInfo);
+    const {lotteryContract} = userInfo.contracts || {};
+    if (lotteryContract) {
+      const self = yield Promise.all([
+        lotteryContract.GetTotalRewardAmount.call(
+          aelfUtils.formatRestoreAddress(userInfo?.address),
+        ),
+        lotteryContract.GetTotalPeriodCount.call(
+          aelfUtils.formatRestoreAddress(userInfo?.address),
+        ),
+      ]);
+      const obj = {
+        amount: self?.[0]?.value,
+        periodCount: self?.[1]?.value,
+      };
+      yield put(lotteryActions.setSelfWinningInfo(obj));
+      callBack?.();
+    }
+  } catch (error) {
+    callBack?.();
+    console.log(error, '======getPeriodCountListSaga');
+  }
+}
 export default function* SettingsSaga() {
   yield all([
     yield takeLatest(lotteryTypes.BUY, buySaga),
@@ -396,5 +453,18 @@ export default function* SettingsSaga() {
 
     yield takeLatest(lotteryTypes.GET_PERIOD_LIST, getPeriodListSaga),
     yield takeLatest(lotteryTypes.GET_REWARDED_LIST, getRewardedListSaga),
+
+    yield takeLatest(
+      lotteryTypes.GET_SELF_WINNING_INFO,
+      getSelfWinningInfoSaga,
+    ),
+    yield takeLatest(
+      lotteryTypes.GET_REWARD_AMOUNTS_LIST,
+      getRewardAmountsListSaga,
+    ),
+    yield takeLatest(
+      lotteryTypes.GET_PERIOD_COUNT_LIST,
+      getPeriodCountListSaga,
+    ),
   ]);
 }
