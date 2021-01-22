@@ -2,18 +2,21 @@
 import React, {memo, useMemo} from 'react';
 import {StyleSheet, Switch, View} from 'react-native';
 import {pTd} from '../../../utils/common';
-import {TextL, TextS, TextM} from '../CommonText';
+import {TextS, TextM} from '../CommonText';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Touchable from '../Touchable';
 import {Colors} from '../../../assets/theme';
 const ListItem = props => {
   const {
     title,
+    titleElement,
     onPress,
     subtitle,
     style,
     titleStyle,
     subtitleStyle,
+    subtitleDetails,
+    subtitleDetailsStyle,
     disabled,
     details,
     detailsStyle,
@@ -40,25 +43,40 @@ const ListItem = props => {
         name={'right'}
         size={pTd(40)}
         style={styles.iconStyle}
-        color={Colors.fontGray}
+        color={subtitleStyle?.color || Colors.fontGray}
       />
     );
-  }, [onValueChange, switching, value]);
+  }, [onValueChange, subtitleStyle, switching, value]);
   return (
     <Touchable
       disabled={disabled}
       onPress={onPress}
       style={[styles.container, style]}>
-      {details ? (
+      {titleElement ? (
+        titleElement
+      ) : details ? (
         <View style={styles.titleStyle}>
-          <TextL style={[titleStyle]}>{title}</TextL>
+          <TextM style={[titleStyle]}>{title}</TextM>
           <TextS style={[styles.detailsStyle, detailsStyle]}>{details}</TextS>
         </View>
       ) : (
-        <TextL style={[styles.titleStyle, titleStyle]}>{title}</TextL>
+        <TextM style={[styles.titleStyle, titleStyle]}>{title}</TextM>
       )}
       {subtitle ? (
-        <TextM style={[styles.subtitleStyle, subtitleStyle]}>{subtitle}</TextM>
+        subtitleDetails ? (
+          <View style={styles.subtitleBox}>
+            <TextM style={[styles.subtitleStyle, subtitleStyle]}>
+              {subtitle}
+            </TextM>
+            <TextM style={[styles.subtitleDetailsStyle, subtitleDetailsStyle]}>
+              {subtitleDetails}
+            </TextM>
+          </View>
+        ) : (
+          <TextM style={[styles.subtitleStyle, subtitleStyle]}>
+            {subtitle}
+          </TextM>
+        )
       ) : null}
       {rightElement !== undefined ? rightElement : RightElement}
     </Touchable>
@@ -68,9 +86,9 @@ export default memo(ListItem);
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    minHeight: pTd(110),
+    minHeight: pTd(100),
     paddingVertical: pTd(30),
-    backgroundColor: 'white',
+    backgroundColor: Colors.bgColor2,
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderColor,
     alignItems: 'center',
@@ -81,8 +99,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subtitleStyle: {
+    fontSize: pTd(28),
+    color: Colors.fontGray,
+  },
+  subtitleDetailsStyle: {
     fontSize: pTd(30),
     color: Colors.fontGray,
+    marginTop: pTd(10),
   },
   detailsStyle: {
     marginTop: pTd(5),
@@ -90,5 +113,8 @@ const styles = StyleSheet.create({
   },
   iconStyle: {
     marginTop: pTd(4),
+  },
+  subtitleBox: {
+    alignItems: 'flex-end',
   },
 });

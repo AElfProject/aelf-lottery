@@ -78,7 +78,6 @@ const Header = props => {
     leftTitle,
     leftOnPress,
     titleBox,
-    hideBottomWidth,
   } = props;
   return (
     <View
@@ -89,13 +88,7 @@ const Header = props => {
         },
       ]}>
       {statusBar && statusBar}
-      <View
-        style={[
-          styles.headerWrap,
-          headerStyle,
-          // eslint-disable-next-line react-native/no-inline-styles
-          hideBottomWidth && {borderBottomWidth: 0},
-        ]}>
+      <View style={[styles.headerWrap, headerStyle]}>
         <View style={styles.leftStyle}>
           {canBack ? (
             <TouchableOpacity

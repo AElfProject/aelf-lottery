@@ -4,7 +4,7 @@ import unitConverter from './unitConverter';
 import moment from 'moment';
 import {TIME_FORMAT} from '../../config/constant';
 import {aelfInstance} from '../common/aelfProvider';
-const {explorerURL, address} = config;
+const {webURL, address} = config;
 const {prefix, suffix} = address;
 
 const unlockKeystore = (params, pwd) => {
@@ -39,24 +39,11 @@ const formatRestoreAddress = addressInput => {
     .replace(new RegExp(tail, 'g'), '');
 };
 const formatAddress = addressInput => {
-  if (!addressInput || typeof addressInput !== 'string') {
+  if (!addressInput) {
     return '';
   }
   addressInput = formatRestoreAddress(addressInput);
   return prefix + '_' + addressInput + '_' + suffix;
-};
-const formatAddressHide = addressInput => {
-  const length = 20;
-  if (checkAddress(addressInput)) {
-    addressInput = formatAddress(addressInput);
-    if (typeof addressInput === 'string') {
-      return (
-        addressInput.substr(0, length) +
-        '***' +
-        addressInput.substr(addressInput.length - length, addressInput.length)
-      );
-    }
-  }
 };
 //checkAddress
 const checkAddress = addressInput => {
@@ -69,7 +56,7 @@ const webURLAddress = addressInput => {
     return;
   }
   addressInput = formatRestoreAddress(addressInput);
-  return `${explorerURL}/address/${addressInput}`;
+  return `${webURL}/address/${addressInput}`;
 };
 
 const webURLTx = addressInput => {
@@ -77,7 +64,7 @@ const webURLTx = addressInput => {
     return;
   }
   addressInput = formatRestoreAddress(addressInput);
-  return `${explorerURL}/tx/${addressInput}`;
+  return `${webURL}/tx/${addressInput}`;
 };
 const getMillisecond = time => {
   const {seconds} = time || {};
@@ -97,33 +84,81 @@ const timeConversion = (time, format) => {
 const getTxResult = TransactionId => {
   return aelfInstance.chain.getTxResult(TransactionId);
 };
-const digits = (count, num = 8) => {
-  let SCount = String(count);
-  const floatPart = SCount.split('.')[1];
-  if (count && floatPart && floatPart.length > num) {
-    count = Math.floor(count * 10 ** num) / 10 ** num;
-    SCount = String(count);
+const compareAllTokens = (first, second, type) => {
+  if (
+    Array.isArray(first) &&
+    Array.isArray(second) &&
+    first.length === second.length &&
+    first.every((item, index) => item[type] === second[index][type])
+  ) {
+    return true;
+  } else {
+    return false;
   }
-  if (SCount.indexOf('-') >= 0) {
-    SCount = '0' + String(Number(SCount) + 1).substr(1);
+};
+const containsAllTokens = (first, second, type) => {
+  let contains = false;
+  if (Array.isArray(first) && Array.isArray(second)) {
+    contains = true;
+    second.forEach(item => {
+      const obj = first.find(i => {
+        return i[type] === item[type];
+      });
+      if (!obj) {
+        contains = false;
+      }
+    });
   }
-  if (SCount > 0) {
-    return SCount;
+  return contains;
+};
+const deepEqual = (x, y) => {
+  if (x === y) {
+    return true;
   }
-  return '0';
+  if (x == null || y == null) {
+    return x === y;
+  }
+
+  if (
+    //Object.prototype.toString.call
+    toString.call(x) !== toString.call(y) ||
+    typeof x !== 'object' ||
+    typeof y !== 'object' ||
+    Object.keys(x).length !== Object.keys(y).length
+  ) {
+    return false;
+  }
+  if (x.constructor !== y.constructor) {
+    return false;
+  }
+
+  for (var p in x) {
+    if (!y.hasOwnProperty(p)) {
+      return false;
+    }
+    // If they have the same strict value or identity then they are equal
+    if (x[p] === y[p]) {
+      continue;
+    }
+    if (!deepEqual(x[p], y[p])) {
+      return false;
+    }
+  }
+  return true;
 };
 export default {
-  digits,
+  webURLTx,
+  deepEqual,
+  getTxResult,
+  getKeystore,
+  checkAddress,
   checkPassword,
   webURLAddress,
   formatAddress,
-  formatAddressHide,
-  formatRestoreAddress,
-  webURLTx,
-  getTransactionFee,
-  getKeystore,
   unlockKeystore,
-  checkAddress,
   timeConversion,
-  getTxResult,
+  compareAllTokens,
+  containsAllTokens,
+  getTransactionFee,
+  formatRestoreAddress,
 };

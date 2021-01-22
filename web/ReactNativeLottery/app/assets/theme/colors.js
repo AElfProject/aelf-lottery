@@ -1,18 +1,29 @@
 const Colors = {
+  kRed: '#D34A64',
+  kGreen: '#07A88B',
+
+  red: 'red',
+  green: 'green',
+
+  modalBlackBG: 'rgba(0,0,0,0.2)',
+
   primaryColor: '#FC4D30',
   bottonPressColor: '##FC2000',
-  disabledColor: '#d7d7d7',
-
-  purpleColor: '#5c28a9',
+  disabledColor: '#d7d7d7', //Buttons disable interactive colors
 
   borderColor: '#d0d0d0',
 
+  fontPrimary: '#333333', //main font color
   fontBlack: '#333333',
   fontGray: '#999999',
   fontColor: '#FC4D30',
+  fontWhite: 'white',
 
-  bgColor: '#ffffff',
+  icon1: 'white',
+
+  bgColor: 'white',
   bgColor2: 'white',
+  blanceBG: '#FC2000',
 
   btnDefault: '',
   btnColor: '#8FC323',

@@ -13,14 +13,12 @@ import {
   StyleSheet,
 } from 'react-native';
 import {Colors} from '../../../assets/theme';
-import {sreenHeight, bottomBarHeigth} from '../../../utils/common/device';
+import {sreenHeight, bottomBarHeight} from '../../../utils/common/device';
 export default class ListComponent extends Component {
   //renderItem
   static propTypes = {
     whetherAutomatic: PropTypes.bool, //Whether to automatically load more, if there is a ceiling, you can not set this property to true
     upPullRefresh: PropTypes.func, //Pull-down refresh callback
-    data: PropTypes.array.isRequired, //Data source array
-    onEndReachedThreshold: PropTypes.number, //Determines how far away the onEndReached callback is when it is far from the bottom of the content. default0.3
     onEndReached: PropTypes.func, //Pull-refresh callback,
     loadCompleted: PropTypes.bool, //Whether all data has been loaded and the tail component is hidden
     noPositionTips: PropTypes.string,
@@ -29,7 +27,6 @@ export default class ListComponent extends Component {
   };
   static defaultProps = {
     data: [],
-    onEndReachedThreshold: 0.3,
     whetherAutomatic: false,
   };
   constructor(props) {
@@ -43,7 +40,7 @@ export default class ListComponent extends Component {
     this.endRefresh && clearTimeout(this.endRefresh);
   }
   onEndReached = touch => {
-    if (touch === true || (this.canLoadMore && !this.props.loadCompleted)) {
+    if (touch || (this.canLoadMore && !this.props.loadCompleted)) {
       this.setState({bottomLoad: true}, () => {
         this.props.onEndReached && this.props.onEndReached();
         this.canLoadMore = false;
@@ -126,9 +123,7 @@ export default class ListComponent extends Component {
               tintColor={Colors.primaryColor}
               onRefresh={this.onRefresh}
             />
-          ) : (
-            refreshing
-          )
+          ) : null
         }
       />
     ) : (
@@ -162,7 +157,7 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: bottomBarHeigth,
+    marginBottom: bottomBarHeight,
   },
   emptyBox: {
     marginTop: 200,

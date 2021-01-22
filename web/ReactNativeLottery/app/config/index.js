@@ -17,17 +17,13 @@ const keystoreOptions = {
   },
 };
 
-// const explorerURL = 'https://explorer-test-side01.aelf.io';
-// const walletURL = 'https://tdvv-wallet-test.aelf.io';
-
+const explorerURL = 'https://explorer-test-side01.aelf.io';
+const walletURL = 'https://tdvv-wallet-test.aelf.io';
+const swapURL = 'https://swap-test.aelf.io';
 // test environment
-const explorerURL = 'http://1.119.195.50:11107';
-const walletURL = 'http://1.119.195.50:11109';
-
-const lotteryTokens = [
-  {tokenSymbol: 'ELF', tokenDecimal: 8, tokenDecimalFormat: 10 ** 8},
-  {tokenSymbol: 'LOT', tokenDecimal: 8, tokenDecimalFormat: 10 ** 8},
-];
+// const swapURL = 'http://192.168.197.55:7300';
+// const explorerURL = 'http://1.119.195.50:11107';
+// const walletURL = 'http://1.119.195.50:11109';
 export default {
   commonPrivateKey:
     'b7a6b643f2a66848cb2229bf26c8330d5384e0eac325709a66f4baacc89d3108',
@@ -35,6 +31,9 @@ export default {
   keystoreOptions,
   httpProvider: `${walletURL}/chain`,
   explorerURL,
+  walletURL,
+  swapURL,
+  webURL: explorerURL,
   // contractNames & contractAddresses will be init by appInit of `/common/utils/aelfProvider`;
   contractNames: {
     consensusContract: 'AElf.ContractNames.Consensus',
@@ -47,39 +46,27 @@ export default {
       contractAdress: '2wRDbyVF28VBQoSPgdSEFaL4x7CaXz8TCBujYhgWc9qTMxBE3n',
       contractName: 'bingoGameContract',
     },
-    {
-      name: 'lottery',
-      contractAdress: '2onFLTnPEiZrXGomzJ8g74cBre2cJuHrn1yBJF3P6Xu9K5Gbth',
-      contractName: 'lotteryContract',
-    },
   ],
   contractNameAddressSets: {
-    // consensusContract: 'BNPFPPwQ3DE9rwxzdY61Q2utU9FZx9KYUnrYHQqCR6N4LLhUE',
-    // tokenContract: '7RzVGiuVWkvL4VfVHdZfQF2Tri3sgLe9U991bohHFfSRZXuGX',
-
-    // test environment
-    // consensusContract: 'pGa4e5hNGsgkfjEGm72TEvbF7aRDqKBd4LuXtab4ucMbXLcgJ',
-    // tokenContract: 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE',
-    // lotteryContract: 'sr4zX6E7yVVL7HevExVcWv2ru3HSZakhsJMXfzxzfpnXofnZw',
-
-    //
-    // consensusContract: 'BNPFPPwQ3DE9rwxzdY61Q2utU9FZx9KYUnrYHQqCR6N4LLhUE',
+    consensusContract: 'BNPFPPwQ3DE9rwxzdY61Q2utU9FZx9KYUnrYHQqCR6N4LLhUE',
     tokenContract: '7RzVGiuVWkvL4VfVHdZfQF2Tri3sgLe9U991bohHFfSRZXuGX',
-    lotteryContract: '2F5McxHg7fAqVjDX97v79j4drsMq442rArChpBii8TWuRb8ZnK',
+    swapContract: 'RXcxgSXuagn8RrvhQAV81Z652EEYSwR6JLnqHYJ5UVpEptW8Y',
+    //test environment
+    // swapContract: '2wRDbyVF28VBQoSPgdSEFaL4x7CaXz8TCBujYhgWc9qTMxBE3n',
   },
   address: {
     prefix: 'ELF',
     suffix: 'tDVV',
   },
 
-  // tokenSymbol: 'AEUSD',
-  // tokenDecimal: 3,
-  // tokenDecimalFormat: 10 ** 3,
+  tokenSymbol: 'AEUSD',
+  tokenDecimal: 3,
+  tokenDecimalFormat: 10 ** 3,
 
   // test environment
-  tokenSymbol: 'LOT',
-  tokenDecimal: 8,
-  tokenDecimalFormat: 10 ** 8,
+  // tokenSymbol: 'ELF',
+  // tokenDecimal: 8,
+  // tokenDecimalFormat: 10 ** 8,
 
   fetchTimeout: 10000,
   /**
@@ -94,9 +81,9 @@ export default {
    * milliseconds as a unit
    */
   safeTime: 600000,
-  /**
-   * Each bet is worth a few gold coins
-   */
-  lotterySellerAddress: 'eFU9Quc8BsztYpEHKzbNtUpu9hGKgwGD2tyL13MqtFkbnAoCZ',
-  lotteryTokens,
+
+  //swap
+  swapFloat: 0.005,
+  swapDeadline: 20, //swap waiting time #second
+  swapFee: 0.003,
 };

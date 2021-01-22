@@ -15,25 +15,29 @@ import userActions, {userTypes, userSelectors} from '../redux/userRedux';
 import contractsActions from '../redux/contractsRedux';
 import config from '../config';
 import {removeDuplicates, isNumber} from '../utils/pages';
-import {getContract} from '../utils/common/aelfProvider';
+import {getContract, aelfInstance} from '../utils/common/aelfProvider';
 import navigationService from '../utils/common/navigationService';
 import {Loading, CommonToast} from '../components/template';
 import unitConverter from '../utils/pages/unitConverter';
 import aelfUtils from '../utils/pages/aelfUtils';
+import swapUtils from '../utils/pages/swapUtils';
 import {isIos} from '../utils/common/device';
 import settingsActions from '../redux/settingsRedux';
 import i18n from 'i18n-js';
 import {Alert} from 'react-native';
+import swapActions from '../redux/swapRedux';
+import {getFetchRequest} from '../utils/common/networkRequest';
+const {swapURL} = config;
+const swapRoute = '/api/swap';
+const swapPath = swapURL + swapRoute;
 const {
+  explorerURL,
   tokenSymbol,
+  walletURL,
   contractAddresses,
   keystoreOptions,
   contractNameAddressSets,
-  lotteryTokens,
-  tokenDecimalFormat,
 } = config;
-import lotteryActions from '../redux/lotteryRedux';
-
 function* onRegisteredSaga(actios) {
   Loading.show();
   yield delay(500);
@@ -76,79 +80,52 @@ function* onRegisteredSaga(actios) {
 function* onAppInitSaga({privateKey}) {
   try {
     const userInfo = yield select(userSelectors.getUserInfo);
+    yield put(userActions.getAllTokens());
     if (
       userInfo.address &&
       userInfo.contracts &&
       Object.keys(userInfo.contracts).length > 0
     ) {
-      yield put(lotteryActions.initLottery());
       return;
     }
     privateKey = privateKey || userInfo.privateKey;
-    console.log(privateKey, '=====privateKey');
     const contract = yield getContract(privateKey, contractNameAddressSets);
     if (contract && Object.keys(contract).length > 0) {
       yield put(contractsActions.setContracts({contracts: contract}));
       yield put(userActions.getAllowanceList());
       yield put(userActions.getUserBalance());
-      yield put(lotteryActions.initLottery());
+      yield put(swapActions.getPairs());
     }
   } catch (error) {
     console.log(error, 'appInitSaga');
-    yield delay(3000);
     yield put(userActions.onAppInit());
   }
 }
 function* getUserBalanceSaga() {
   try {
+    yield put(userActions.getTokenUsd());
+    yield put(swapActions.getOverviewInfo());
     const userInfo = yield select(userSelectors.getUserInfo);
     const {address, contracts, privateKey} = userInfo;
     if (address && privateKey) {
+      yield put(userActions.getUserBalances(address));
       if (
         contracts &&
         contracts.tokenContract &&
         contracts.tokenContract.GetBalance
       ) {
         const {tokenContract} = contracts;
-        const tokens = {};
-        const promise = lotteryTokens.map(i => {
-          return tokenContract.GetBalance.call({
-            symbol: i.tokenSymbol,
-            owner: aelfUtils.formatRestoreAddress(address),
-          }).then(v => {
-            tokens[v.symbol] = unitConverter.toLower(
-              v.balance,
-              i.tokenDecimalFormat,
-            );
-          });
+        const balance = yield tokenContract.GetBalance.call({
+          symbol: tokenSymbol,
+          owner: aelfUtils.formatRestoreAddress(address),
         });
-        yield Promise.all(promise);
-        const confirmBlance = tokens?.[tokenSymbol];
+        const confirmBlance = unitConverter.toLower(balance.balance);
         if (userInfo.balance !== confirmBlance) {
           yield put(
             userActions.setUserBalance(
               isNumber(confirmBlance) ? confirmBlance : 0,
             ),
           );
-        }
-        if (JSON.stringify(userInfo.tokenBalance !== JSON.stringify(tokens))) {
-          yield put(userActions.setTokenBalance(tokens));
-        }
-        const res = yield tokenContract.GetAllowance.call({
-          symbol: tokenSymbol,
-          owner: address,
-          spender: contractNameAddressSets.lotteryContract,
-        });
-        const {allowance} = res;
-        if (
-          allowance !== -1 &&
-          unitConverter.toLower(allowance) < confirmBlance
-        ) {
-          yield tokenContract.Approve({
-            symbol: tokenSymbol,
-            spender: contractNameAddressSets.lotteryContract,
-            amount: unitConverter.toHigher(confirmBlance, tokenDecimalFormat),
-          });
         }
       }
     }
@@ -157,6 +134,7 @@ function* getUserBalanceSaga() {
   }
 }
 function* onLoginSuccessSaga({data}) {
+  console.log(data, '=====data');
   try {
     yield put(
       contractsActions.setContracts({
@@ -164,7 +142,6 @@ function* onLoginSuccessSaga({data}) {
       }),
     );
     yield put(userActions.setAllowanceList([]));
-    yield put(lotteryActions.reLottery());
 
     data.address = aelfUtils.formatAddress(data.address);
     let userList = [];
@@ -209,6 +186,7 @@ function* logOutSaga({address}) {
       address: null,
       balance: null,
       privateKey: null,
+      userBalances: [],
     };
     const contractsObj = {
       contracts: {},
@@ -218,20 +196,19 @@ function* logOutSaga({address}) {
     yield put(contractsActions.setContracts(contractsObj));
     yield put(settingsActions.reSetSettings());
     yield put(userActions.setAllowanceList([]));
-    yield put(lotteryActions.reLottery());
-    if (address) {
-      navigationService.reset('Entrance');
-    }
+    yield put(swapActions.reSwap());
+    navigationService.reset('Entrance');
   } catch (error) {
     console.log(error, 'logOutSaga');
   }
 }
 function* transferSaga({param}) {
   try {
-    console.log(param);
     const {contracts} = yield select(userSelectors.getUserInfo);
     const transaction = yield contracts.tokenContract.Transfer(param);
-    const result = yield aelfUtils.getTxResult(transaction.TransactionId);
+    const result = yield aelfInstance.chain.getTxResult(
+      transaction.TransactionId,
+    );
     console.log(result, '=====result');
     yield delay(2000);
     Loading.hide();
@@ -254,9 +231,6 @@ function* getAllowanceListSaga() {
   try {
     const userInfo = yield select(userSelectors.getUserInfo);
     const {contracts, address} = userInfo;
-    if (!address) {
-      return;
-    }
     const {tokenContract} = contracts;
     let allowanceList = [];
     const promises = contractAddresses.map(
@@ -292,8 +266,8 @@ function* onApproveSaga({amount, appContractAddress}) {
       spender: appContractAddress,
       amount: unitConverter.toHigher(amount),
     });
-    const result = yield aelfUtils.getTxResult(approve.TransactionId);
-    console.log(result, '=====result');
+    const result = yield aelfInstance.chain.getTxResult(approve.TransactionId);
+    console.log(result, '=======result');
     yield delay(2000);
     Loading.hide();
     CommonToast.success(i18n.t('userSaga.authorizationSucceeded'));
@@ -307,6 +281,178 @@ function* onApproveSaga({amount, appContractAddress}) {
     console.log(error, 'onApproveSaga');
   }
 }
+// const getUSD = data => {
+//   const promise = data.map(item => {
+//     return getFetchRequest(
+//       `https://wallet-test.aelf.io/api/token/price?fsym=${
+//         item.symbol
+//       }&tsyms=USD`,
+//     ).then(v => {
+//       const {USD} = v || {};
+//       if (USD) {
+//         return {
+//           ...item,
+//           USD,
+//         };
+//       } else {
+//         return {
+//           ...item,
+//           USD: 0,
+//         };
+//       }
+//     });
+//   });
+//   return Promise.all(promise);
+// };
+const allTokenPageSize = 100;
+function* getAllTokensSaga({num}) {
+  const pageNum = num || 1;
+  try {
+    const result = yield getFetchRequest(
+      `${explorerURL}/api/viewer/getAllTokens?total=0&pageSize=${allTokenPageSize}&pageNum=${pageNum}`,
+    );
+    const {
+      msg,
+      data: {list},
+    } = result;
+    if (msg === 'success') {
+      let AllList = [];
+      if (list) {
+        const allTokens = yield select(userSelectors.allTokens);
+        if (num) {
+          if (Array.isArray(allTokens)) {
+            AllList = AllList.concat(allTokens);
+          }
+        }
+        AllList = AllList.concat(list);
+        if (
+          (pageNum === 1 &&
+            allTokenPageSize > AllList.length &&
+            JSON.stringify(allTokens) !== JSON.stringify(AllList)) ||
+          !aelfUtils.containsAllTokens(allTokens, AllList, 'symbol')
+        ) {
+          AllList = swapUtils.removeDuplicates(AllList, 'symbol');
+          yield put(userActions.setAllTokens(AllList));
+          yield put(userActions.getTokenUsd());
+        }
+        if (list.length >= allTokenPageSize) {
+          yield put(userActions.getAllTokens(pageNum + 1));
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error, 'getAllTokensSaga');
+  }
+}
+function* getUserBalancesSaga({address}) {
+  try {
+    let obj = {};
+    const result = yield getFetchRequest(
+      `${walletURL}/address/api/tokens?address=${aelfUtils.formatRestoreAddress(
+        address,
+      )}&limit=100&all=true`,
+    );
+    if (Array.isArray(result)) {
+      result.forEach(item => {
+        obj[item.symbol] = unitConverter.toDecimalLower(
+          item.balance,
+          item.decimals,
+        );
+      });
+      const userBalances = yield select(userSelectors.userBalances);
+      if (JSON.stringify(userBalances) !== JSON.stringify(obj)) {
+        yield put(userActions.setUserBalances(obj));
+      }
+      yield put(userActions.approve());
+    }
+  } catch (error) {
+    console.log(error, 'getUserBalancesSaga');
+  }
+}
+function* getTokenUsdSaga() {
+  try {
+    // let obj = {};
+    // const allTokens = yield select(userSelectors.allTokens);
+    // if (Array.isArray(allTokens)) {
+    //   let symbols = '';
+    //   allTokens.forEach((item, index) => {
+    //     if (index === 0) {
+    //       symbols = item.symbol;
+    //     } else {
+    //       symbols = symbols + ',' + item.symbol;
+    //     }
+    //   });
+    //   const result = yield getFetchRequest(
+    //     `${swapPath}/getPrices?symbols=${symbols}`,
+    //   );
+    //   if (result.msg === 'success') {
+    //     const USDList = result.data;
+    //     Array.isArray(USDList) &&
+    //       allTokens.forEach(item => {
+    //         const usd = USDList.find(i => i.symbol === item.symbol);
+    //         if (usd?.price) {
+    //           obj[item.symbol] = {
+    //             ...item,
+    //             USD: swapUtils.USDdigits(usd?.price),
+    //           };
+    //         } else {
+    //           obj[item.symbol] = {...item, USD: 0};
+    //         }
+    //       });
+    //     const tokenUSD = yield select(userSelectors.tokenUSD);
+    //     if (JSON.stringify(tokenUSD) !== JSON.stringify(obj)) {
+    //       yield put(userActions.setTokenUsd(obj));
+    //     }
+    //   }
+    // }
+  } catch (error) {
+    console.log('getTokenUsdSaga', error);
+  }
+}
+const getApprove = (userBalances, tokenContract, address, allTokens) => {
+  const promise = Object.entries(userBalances).map(([symbol, balance]) => {
+    return tokenContract.GetAllowance.call({
+      symbol,
+      owner: address,
+      spender: contractNameAddressSets.swapContract,
+    }).then(async v => {
+      const {allowance} = v;
+      if (Array.isArray(allTokens)) {
+        const token = allTokens.find(item => {
+          return item.symbol === symbol;
+        });
+        const dBalance = unitConverter.toDecimalHigher(balance, token.decimals);
+        if (
+          allowance !== undefined &&
+          allowance !== null &&
+          allowance !== -1 &&
+          unitConverter.toDecimalLower(allowance, token.decimals) <
+            Number(balance)
+        ) {
+          await tokenContract.Approve({
+            symbol,
+            spender: contractNameAddressSets.swapContract,
+            amount: dBalance,
+          });
+        }
+      }
+    });
+  });
+  return Promise.all(promise);
+};
+function* approveSaga() {
+  try {
+    const {contracts, address} = yield select(userSelectors.getUserInfo);
+    const userBalances = yield select(userSelectors.userBalances);
+    const allTokens = yield select(userSelectors.allTokens);
+    const {tokenContract} = contracts || {};
+    if (tokenContract) {
+      yield getApprove(userBalances, tokenContract, address, allTokens);
+    }
+  } catch (error) {
+    console.log('approveSaga', error);
+  }
+}
 export default function* LoginSaga() {
   yield all([
     yield takeLatest(userTypes.ON_APP_INIT, onAppInitSaga),
@@ -318,5 +464,9 @@ export default function* LoginSaga() {
     yield takeLatest(userTypes.TRANSFER, transferSaga),
     yield takeLatest(userTypes.GET_ALLOWANCE_LIST, getAllowanceListSaga),
     yield takeLatest(userTypes.ON_APPROVE, onApproveSaga),
+    yield takeLatest(userTypes.GET_ALL_TOKENS, getAllTokensSaga),
+    yield takeLatest(userTypes.GET_USER_BALANCES, getUserBalancesSaga),
+    yield takeLatest(userTypes.GET_TOKEN_USD, getTokenUsdSaga),
+    yield takeLatest(userTypes.APPROVE, approveSaga),
   ]);
 }

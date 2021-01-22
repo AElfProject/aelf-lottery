@@ -1,9 +1,15 @@
-import {Dimensions, Platform, PixelRatio} from 'react-native';
+import {Dimensions, Platform, PixelRatio, UIManager} from 'react-native';
 import Constants from 'expo-constants';
 const X_WIDTH = 375;
 const X_HEIGHT = 812;
 
 const isIos = Platform.OS === 'ios';
+
+//Turn on Android layout animation
+if (!isIos && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 const sreenWidth = Dimensions.get('screen').width;
 const sreenHeight = Dimensions.get('screen').height;
 const windowHeight = Dimensions.get('window').height;
@@ -27,16 +33,24 @@ const isIphoneX = (function () {
   );
 })();
 
-const statusBarHeight = Constants.statusBarHeight;
-
-const bottomBarHeigth = (function () {
+const statusBarHeight = (function () {
+  let BarHeight = Constants.statusBarHeight;
+  if (isIos && !BarHeight) {
+    if (isIphoneX) {
+      BarHeight = 44;
+    } else {
+      BarHeight = 20;
+    }
+  }
+  return BarHeight;
+})();
+const bottomBarHeight = (function () {
   let Height = 0;
   if (isIos && isIphoneX) {
     Height = 34;
   }
   return Height;
 })();
-
 const getWindowWidth = () => {
   return Dimensions.get('window').width;
 };
@@ -47,7 +61,7 @@ export {
   pixelSize,
   isIphoneX,
   windowHeight,
-  getWindowWidth,
   statusBarHeight,
-  bottomBarHeigth,
+  bottomBarHeight,
+  getWindowWidth,
 };

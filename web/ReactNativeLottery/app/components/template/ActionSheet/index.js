@@ -4,8 +4,12 @@
 
 import React from 'react';
 import OverlayModal from '../OverlayModal';
-import {View, Text, StyleSheet} from 'react-native';
-import {bottomBarHeigth, statusBarHeight} from '../../../utils/common/device';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {
+  bottomBarHeight,
+  statusBarHeight,
+  getWindowWidth,
+} from '../../../utils/common/device';
 import Touchable from '../Touchable';
 import {Colors} from '../../../assets/theme';
 /**
@@ -16,23 +20,32 @@ import {Colors} from '../../../assets/theme';
 const show = (items, cancelItem) => {
   OverlayModal.show(
     <>
-      <View style={styles.sheetBox}>
-        {items &&
-          items.map((item, index) => {
-            const {title, onPress} = item;
-            return (
-              <Touchable
-                key={index}
-                style={styles.itemBox}
-                onPress={() => {
-                  OverlayModal.hide();
-                  onPress && onPress(item);
-                }}>
-                <Text style={styles.itemText}>{title}</Text>
-              </Touchable>
-            );
-          })}
-      </View>
+      <ScrollView>
+        <View style={styles.sheetBox}>
+          {items &&
+            items.map((item, index) => {
+              const {title, onPress} = item;
+              return (
+                <Touchable
+                  disabled={item.disabled}
+                  key={index}
+                  style={styles.itemBox}
+                  onPress={() => {
+                    OverlayModal.hide();
+                    onPress && onPress(item);
+                  }}>
+                  <Text
+                    style={[
+                      styles.itemText,
+                      item.disabled && {color: Colors.fontGray},
+                    ]}>
+                    {title}
+                  </Text>
+                </Touchable>
+              );
+            })}
+        </View>
+      </ScrollView>
       {cancelItem && (
         <Touchable onPress={() => OverlayModal.hide()} style={styles.cancelBox}>
           <Text style={styles.concelText}>{cancelItem.title}</Text>
@@ -91,22 +104,23 @@ export default {
 };
 const styles = StyleSheet.create({
   alertBgstyle: {
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: Colors.modalBlackBG,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bgStyle: {
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: Colors.modalBlackBG,
     flexDirection: 'column-reverse',
   },
   containerStyle: {
+    marginTop: getWindowWidth() * 0.4,
     paddingHorizontal: 20,
-    marginBottom: bottomBarHeigth + 50,
+    marginBottom: bottomBarHeight + 50,
   },
   sheetBox: {
     overflow: 'hidden',
     borderRadius: 5,
-    backgroundColor: 'white',
+    backgroundColor: Colors.bgColor2,
   },
   itemText: {
     color: Colors.primaryColor,
@@ -132,14 +146,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
+    backgroundColor: Colors.bgColor2,
   },
   alertBox: {
     overflow: 'hidden',
     borderRadius: 10,
     alignItems: 'center',
     width: '85%',
-    backgroundColor: 'white',
+    backgroundColor: Colors.bgColor2,
   },
   alertContainerStyle: {
     marginBottom: statusBarHeight,

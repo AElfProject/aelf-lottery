@@ -7,7 +7,7 @@ export const reducers = combineReducers({
   user: require('./userRedux').reducer,
   settings: require('./settingsRedux').reducer,
   contracts: require('./contractsRedux').reducer,
-  lottery: require('./lotteryRedux').reducer,
+  swap: require('./swapRedux').reducer,
 });
 let store;
 export default () => {
@@ -23,6 +23,7 @@ export default () => {
   const sagaMiddleware = createSagaMiddleware();
   store = createStore(finalReducers, applyMiddleware(sagaMiddleware));
   sagaMiddleware.run(sagas);
+
   if (module.hot) {
     module.hot.accept(() => {
       const nextRootReducer = require('./').reducers;
@@ -30,8 +31,6 @@ export default () => {
     });
   }
   const persistor = persistStore(store);
-
   return {store, persistor};
 };
-
 export {store};

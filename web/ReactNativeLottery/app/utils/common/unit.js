@@ -7,7 +7,7 @@ const deviceWidthDp = Dimensions.get('window').width;
 const uiWidthPx = 750;
 
 // px to dp (px in the design draft to dp in rn)
-const pTd = (uiElePx) => {
+const pTd = uiElePx => {
   return Math.round((uiElePx * deviceWidthDp) / uiWidthPx);
 };
 global.pTd = pTd;

@@ -35,7 +35,6 @@ const saveImagesToAlbum = async FilePath => {
         CommonToast.success(i18n.t('saveSuccess'));
       })
       .catch(err => {
-        console.log(err,'=====saveImagesToAlbum');
         reject(err);
         CommonToast.fail(i18n.t('fail'));
       });
@@ -50,7 +49,6 @@ const checkImageToAlbum = async url => {
         PermissionsAndroid.PERMISSIONS.CAMERA,
       ];
       const granteds = await PermissionsAndroid.requestMultiple(permissions);
-      console.log(granteds,'=====granteds');
       if (
         granteds['android.permission.CAMERA'] === 'granted' &&
         granteds['android.permission.WRITE_EXTERNAL_STORAGE'] === 'granted'
@@ -67,7 +65,6 @@ const checkImageToAlbum = async url => {
         CommonToast.fail(i18n.t('permissionDen'));
       }
     } catch (err) {
-      console.log(err, '=======err');
       CommonToast.fail(i18n.t('fail'));
     }
   } else {
@@ -89,7 +86,6 @@ const screenshots = async saveView => {
           }
         })
         .catch(e => {
-          console.log(e, '=======e');
           reject();
           CommonToast.fail(i18n.t('fail'));
         });
@@ -176,18 +172,6 @@ const onCopyText = text => {
     console.log('onCopyText', error);
   }
 };
-const splitString = str => {
-  let strArr = [];
-  if (!str) {
-    return strArr;
-  }
-  if (typeof str === 'string') {
-    strArr = str.split('');
-  } else if (typeof str === 'number') {
-    strArr = String(str).split('');
-  }
-  return strArr;
-};
 export {
   isNumber,
   screenshots,
@@ -197,5 +181,4 @@ export {
   removeDuplicates,
   onCopyText,
   sleep,
-  splitString,
 };

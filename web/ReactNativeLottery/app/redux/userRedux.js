@@ -9,7 +9,6 @@ const {Types, Creators} = createActions({
   setUserData: ['data'],
   getUserBalance: [],
   setUserBalance: ['balance'],
-  setTokenBalance: ['tokenBalance'],
   deleteUser: ['address'],
   setUserList: ['userList'],
   logOut: ['address'],
@@ -18,6 +17,16 @@ const {Types, Creators} = createActions({
   getAllowanceList: [],
   setAllowanceList: ['allowanceList'],
   onApprove: ['amount', 'appContractAddress'],
+  getAllTokens: ['num'],
+  setAllTokens: ['allTokens'],
+
+  getUserBalances: ['address'],
+  setUserBalances: ['userBalances'],
+
+  getTokenUsd: [],
+  setTokenUsd: ['tokenUSD'],
+
+  approve: [],
 });
 
 export const userTypes = Types;
@@ -34,7 +43,10 @@ export const INITIAL_STATE = {
   keystore: {},
   allowanceList: [],
   privateKey: null,
-  tokenBalance: {},
+  allTokens: [],
+  allTokenObj: {},
+  userBalances: {},
+  tokenUSD: {},
 };
 
 /* ------------- Selectors ------------- */
@@ -56,6 +68,10 @@ export const userSelectors = {
   allowanceList: createSelector(_baseSelector, base => base.allowanceList),
   getPrivateKey: createSelector(_baseSelector, base => base.privateKey),
   getBalance: createSelector(_baseSelector, base => base.balance),
+  allTokens: createSelector(_baseSelector, base => base.allTokens),
+  userBalances: createSelector(_baseSelector, base => base.userBalances),
+  tokenUSD: createSelector(_baseSelector, base => base.tokenUSD),
+  allTokenObj: createSelector(_baseSelector, base => base.allTokenObj),
 };
 
 /* ------------- Reducers ------------- */
@@ -76,9 +92,6 @@ export const getUserBalance = state => {
 };
 export const setUserBalance = (state, {balance}) => {
   return Object.assign({}, state, {balance});
-};
-export const setTokenBalance = (state, {tokenBalance}) => {
-  return Object.assign({}, state, {tokenBalance});
 };
 export const deleteUser = state => {
   return state;
@@ -104,6 +117,35 @@ export const setAllowanceList = (state, {allowanceList}) => {
 export const onApprove = state => {
   return state;
 };
+export const getAllTokens = state => {
+  return state;
+};
+export const setAllTokens = (state, {allTokens}) => {
+  let obj = {};
+  if (Array.isArray(allTokens)) {
+    for (let i = 0, j = allTokens.length; i < j; i++) {
+      const element = allTokens[i];
+      obj[element.symbol] = element;
+    }
+  }
+  return Object.assign({}, state, {allTokens, allTokenObj: obj});
+};
+export const getUserBalances = state => {
+  return state;
+};
+export const setUserBalances = (state, {userBalances}) => {
+  return Object.assign({}, state, {userBalances});
+};
+export const getTokenUsd = state => {
+  return state;
+};
+export const setTokenUsd = (state, {tokenUSD}) => {
+  return Object.assign({}, state, {tokenUSD});
+};
+export const approve = state => {
+  return state;
+};
+
 /* ------------- Hookup Reducers To Types ------------- */
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.ON_REGISTERED]: onRegistered,
@@ -112,7 +154,6 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.SET_USER_DATA]: setUserData,
   [Types.GET_USER_BALANCE]: getUserBalance,
   [Types.SET_USER_BALANCE]: setUserBalance,
-  [Types.SET_TOKEN_BALANCE]: setTokenBalance,
   [Types.DELETE_USER]: deleteUser,
   [Types.SET_USER_LIST]: setUserList,
   //logOut
@@ -123,4 +164,14 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_ALLOWANCE_LIST]: getAllowanceList,
   [Types.SET_ALLOWANCE_LIST]: setAllowanceList,
   [Types.ON_APPROVE]: onApprove,
+
+  //
+  [Types.GET_ALL_TOKENS]: getAllTokens,
+  [Types.SET_ALL_TOKENS]: setAllTokens,
+  [Types.GET_USER_BALANCES]: getUserBalances,
+  [Types.SET_USER_BALANCES]: setUserBalances,
+
+  [Types.GET_TOKEN_USD]: getTokenUsd,
+  [Types.SET_TOKEN_USD]: setTokenUsd,
+  [Types.APPROVE]: approve,
 });
