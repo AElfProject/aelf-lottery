@@ -152,21 +152,6 @@ namespace AElf.Contracts.LotteryContract
         }
 
         [Fact]
-        public async Task Initialize_No_Permission()
-        {
-            var initializeInput = new InitializeInput
-            {
-                TokenSymbol = "ELF",
-                Price = Price,
-                BonusRate = 100,
-                CashDuration = 60
-            };
-            var executionResult = await AliceLotteryContractStub.Initialize.SendWithExceptionAsync(initializeInput);
-            executionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
-            executionResult.TransactionResult.Error.ShouldContain("No permission");
-        }
-
-        [Fact]
         public async Task Initialize_Invalid_Token_Symbol()
         {
             var initializeInput = new InitializeInput

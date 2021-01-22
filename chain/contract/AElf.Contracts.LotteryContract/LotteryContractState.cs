@@ -1,4 +1,3 @@
-using AElf.Standards.ACS0;
 using AElf.Contracts.Consensus.AEDPoS;
 using AElf.Contracts.MultiToken;
 using AElf.Contracts.TokenHolder;
@@ -12,7 +11,6 @@ namespace AElf.Contracts.LotteryContract
     {
         internal AEDPoSContractContainer.AEDPoSContractReferenceState AEDPoSContract { get; set; }
         internal TokenContractContainer.TokenContractReferenceState TokenContract { get; set; }
-        internal ACS0Container.ACS0ReferenceState GenesisContract { get; set; }
         internal TokenHolderContractContainer.TokenHolderContractReferenceState TokenHolderContract { get; set; }
 
         public StringState TokenSymbol { get; set; }

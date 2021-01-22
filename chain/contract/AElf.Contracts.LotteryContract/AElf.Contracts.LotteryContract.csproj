@@ -20,9 +20,6 @@
     </ItemGroup>
     
     <ItemGroup>
-        <ContractReference Include="..\..\protobuf\acs0.proto">
-            <Link>Protobuf\Proto\reference\acs0.proto</Link>
-        </ContractReference>
         <ContractReference Include="..\..\protobuf\token_holder_contract.proto">
             <Link>Protobuf\Proto\reference\token_holder_contract.proto</Link>
         </ContractReference>

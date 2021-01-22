@@ -14,8 +14,7 @@ namespace AElf.Contracts.LotteryContract
             Assert(input.Price > 0 && input.CashDuration > 0, "Invalid input");
             Assert(State.TokenSymbol.Value == null, "Already initialized");
             
-            State.GenesisContract.Value = Context.GetZeroSmartContractAddress();
-            State.Admin.Value = State.GenesisContract.GetContractAuthor.Call(Context.Self);
+            State.Admin.Value = Context.Sender;
             
             Assert(Context.Sender == State.Admin.Value, "No permission");
             State.TokenContract.Value =
