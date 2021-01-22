@@ -33,6 +33,7 @@ const Component = props => {
       address: user.address,
     };
   });
+  console.log(balance, '====balance');
   const {data, betList, title, lotteryType} = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
   const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);

@@ -191,6 +191,7 @@ export const reLottery = state => {
     myBetList: [],
     lotteryDetails: null,
     rewardedList: [],
+    selfWinningInfo: null,
   });
 };
 export const getRewardAmountsList = state => {

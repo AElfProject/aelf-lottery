@@ -1,18 +1,20 @@
-import React, {memo} from 'react';
+import React, {memo, useCallback} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {TextM, TextL} from '../../../../components/template/CommonText';
 import {Colors} from '../../../../assets/theme';
 import {pTd} from '../../../../utils/common';
-import {CommonButton} from '../../../../components/template';
+import {ActionSheet, CommonButton} from '../../../../components/template';
 import lotteryUtils from '../../../../utils/pages/lotteryUtils';
 import {useStateToProps} from '../../../../utils/pages/hooks';
 import i18n from 'i18n-js';
 import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
 import {bottomBarHeigth, isIphoneX} from '../../../../utils/common/device';
+import navigationService from '../../../../utils/common/navigationService';
 const ShowBetComponent = props => {
-  const {lotteryPrice} = useStateToProps(base => {
-    const {lottery} = base;
+  const {lotteryPrice, address} = useStateToProps(base => {
+    const {lottery, user} = base;
     return {
+      address: user.address,
       lotteryPrice: lottery.lotteryPrice,
     };
   });
@@ -38,6 +40,17 @@ const ShowBetComponent = props => {
     Amount = A;
     profit = P;
   }
+  const onAlert = useCallback(() => {
+    ActionSheet.alert(i18n.t('toLogin'), i18n.t('toLoginTip'), [
+      {title: i18n.t('cancel'), type: 'cancel'},
+      {
+        title: i18n.t('determine'),
+        onPress: () => {
+          navigationService.reset('Entrance');
+        },
+      },
+    ]);
+  }, []);
   return (
     <View style={[styles.bottomBox, betComponentStyle]}>
       <TextL>
@@ -82,7 +95,7 @@ const ShowBetComponent = props => {
         </TextL>
         <CommonButton
           disabled={!disabled}
-          onPress={onBet}
+          onPress={!address ? onAlert : onBet}
           title={i18n.t('lottery.order')}
           style={styles.buttonStyle}
         />

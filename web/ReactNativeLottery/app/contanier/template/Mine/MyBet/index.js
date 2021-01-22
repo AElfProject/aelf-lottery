@@ -93,7 +93,8 @@ const MyBet = () => {
         reward,
       } = item || {};
       const noDraw = currentPeriod?.periodNumber === periodNumber;
-      const rewardStyle = reward && reward > 0 ? styles.colorText : {};
+      const rewardStyle =
+        reward && reward > 0 ? styles.colorText : styles.blackText;
       return (
         <Touchable
           disabled={noDraw}
@@ -194,6 +195,9 @@ const styles = StyleSheet.create({
   },
   colorText: {
     color: Colors.fontColor,
+  },
+  blackText: {
+    color: Colors.fontBlack,
   },
   marginText: {
     marginTop: pTd(5),

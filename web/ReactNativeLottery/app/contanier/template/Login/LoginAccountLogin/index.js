@@ -14,6 +14,7 @@ import userActions from '../../../../redux/userRedux';
 import {pTd} from '../../../../utils/common';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {useStateToProps} from '../../../../utils/pages/hooks';
+import aelfUtils from '../../../../utils/pages/aelfUtils';
 const LoginAccountLogin = () => {
   const {userList, address} = useStateToProps(base => {
     const {user} = base;
@@ -39,7 +40,7 @@ const LoginAccountLogin = () => {
           onLoginSuccess({
             address,
             keystore,
-            userName,
+            userName: userName || aelfUtils.formatAddress(address),
             balance: 0,
             saveQRCode: true,
             privateKey,
