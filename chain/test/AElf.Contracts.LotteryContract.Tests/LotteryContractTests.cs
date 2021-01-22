@@ -152,21 +152,6 @@ namespace AElf.Contracts.LotteryContract
         }
 
         [Fact]
-        public async Task Initialize_No_Permission()
-        {
-            var initializeInput = new InitializeInput
-            {
-                TokenSymbol = "ELF",
-                Price = Price,
-                BonusRate = 100,
-                CashDuration = 60
-            };
-            var executionResult = await AliceLotteryContractStub.Initialize.SendWithExceptionAsync(initializeInput);
-            executionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
-            executionResult.TransactionResult.Error.ShouldContain("No permission");
-        }
-
-        [Fact]
         public async Task Initialize_Invalid_Token_Symbol()
         {
             var initializeInput = new InitializeInput
@@ -312,7 +297,7 @@ namespace AElf.Contracts.LotteryContract
             var beforeBalance = balanceOutput.Balance;
             var seller = SampleAccount.Accounts[2].Address;
             var aliceTokenHolderStub = GetTokenHolderStub(AliceKeyPair);
-            
+
             await aliceTokenHolderStub.RegisterForProfits.SendAsync(new RegisterForProfitsInput
             {
                 SchemeManager = LotteryContractAddress,
@@ -328,7 +313,7 @@ namespace AElf.Contracts.LotteryContract
 
                 aliceBalance.Balance.ShouldBe(90000000_00000000);
             }
-            
+
             await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
             {
                 Seller = seller,
@@ -358,7 +343,7 @@ namespace AElf.Contracts.LotteryContract
                 Beneficiary = AliceAddress,
                 SchemeManager = LotteryContractAddress
             });
-            
+
             {
                 var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
                 {
@@ -1457,7 +1442,7 @@ namespace AElf.Contracts.LotteryContract
             executionResult.TransactionResult.Status.ShouldBe(TransactionResultStatus.Failed);
             executionResult.TransactionResult.Error.ShouldContain("Period 1 hasn't drew");
         }
-        
+
         [Fact]
         public async Task Buy_Between_PrepareDraw_And_Draw()
         {
@@ -1482,7 +1467,7 @@ namespace AElf.Contracts.LotteryContract
                 }
             });
             await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
-            
+
             // period 2, lottery 2
             await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
             {
@@ -1498,7 +1483,7 @@ namespace AElf.Contracts.LotteryContract
             });
 
             await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 1});
-            
+
             // period 2, lottery 3
             await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
             {
@@ -1512,7 +1497,7 @@ namespace AElf.Contracts.LotteryContract
                     }
                 }
             });
-            
+
             // period 2, lottery 4
             await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
             {
@@ -1556,7 +1541,7 @@ namespace AElf.Contracts.LotteryContract
             {
                 LotteryId = 1
             });
-                
+
             {
                 var rewardedLotteries = await AliceLotteryContractStub.GetRewardedLotteries.CallAsync(
                     new GetLotteriesInput
@@ -1566,9 +1551,9 @@ namespace AElf.Contracts.LotteryContract
                     });
                 rewardedLotteries.Lotteries.Count.ShouldBe(0);
             }
-            
+
             await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
-            
+
             // period 3, lottery 5
             await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
             {
@@ -1582,9 +1567,9 @@ namespace AElf.Contracts.LotteryContract
                     }
                 }
             });
-            
+
             await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 2});
-            
+
             {
                 var lotteries = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
                 {
@@ -2585,10 +2570,10 @@ namespace AElf.Contracts.LotteryContract
 
                 rewardAmountBoard.RewardAmountList
                     .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[i].Address).ShouldBeTrue();
-                
+
                 var periodCountBoard = await LotteryContractStub.GetPeriodCountBoard.CallAsync(new Empty());
                 periodCountBoard.PeriodCountList.Count.ShouldBe(i - 10 + 1);
-                
+
                 var periodCount =
                     await LotteryContractStub.GetTotalPeriodCount.CallAsync(ContractTestKit.SampleAccount.Accounts[i]
                         .Address);
@@ -2642,9 +2627,11 @@ namespace AElf.Contracts.LotteryContract
 
                 var periodCountBoard = await LotteryContractStub.GetPeriodCountBoard.CallAsync(new Empty());
                 periodCountBoard.PeriodCountList.Count.ShouldBe(10);
-                periodCountBoard.PeriodCountList.Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[20].Address).ShouldBeFalse();
-                periodCountBoard.PeriodCountList.Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[10].Address).ShouldBeTrue();
-                
+                periodCountBoard.PeriodCountList
+                    .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[20].Address).ShouldBeFalse();
+                periodCountBoard.PeriodCountList
+                    .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[10].Address).ShouldBeTrue();
+
                 lotteryCount += 10;
             }
 
@@ -2673,10 +2660,11 @@ namespace AElf.Contracts.LotteryContract
                     .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[11].Address).ShouldBeTrue();
                 lotteryCount += 1;
                 var rewardAmount =
-                    await LotteryContractStub.GetTotalRewardAmount.CallAsync(ContractTestKit.SampleAccount.Accounts[10].Address);
+                    await LotteryContractStub.GetTotalRewardAmount.CallAsync(ContractTestKit.SampleAccount.Accounts[10]
+                        .Address);
                 rewardAmount.Value.ShouldBe(20_0000_0000);
             }
-            
+
             {
                 var lotteryContractStub = GetLotteryContractStub(SampleAccount.Accounts[10].KeyPair);
 
@@ -2707,12 +2695,67 @@ namespace AElf.Contracts.LotteryContract
                 var lotteryContractStub = GetLotteryContractStub(SampleAccount.Accounts[20].KeyPair);
 
                 await lotteryContractStub.Buy.SendAsync(buyInput);
-                
+
                 var periodCountBoard = await LotteryContractStub.GetPeriodCountBoard.CallAsync(new Empty());
                 periodCountBoard.PeriodCountList.Count.ShouldBe(10);
-                periodCountBoard.PeriodCountList.Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[20].Address).ShouldBeTrue();
-                periodCountBoard.PeriodCountList.Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[19].Address).ShouldBeFalse();
+                periodCountBoard.PeriodCountList
+                    .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[20].Address).ShouldBeTrue();
+                periodCountBoard.PeriodCountList
+                    .Any(r => r.Address == ContractTestKit.SampleAccount.Accounts[19].Address).ShouldBeFalse();
             }
+        }
+
+        [Fact]
+        public async Task TakeBackTokentTest()
+        {
+            await InitializeAsync(true);
+            await TokenContractStub.Transfer.SendAsync(new TransferInput
+            {
+                Amount = 1000_000_000_000,
+                Symbol = "ELF",
+                To = LotteryContractAddress
+            });
+
+            var adminBalanceBefore = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = SampleAccount.Accounts.First().Address,
+                Symbol = "ELF"
+            });
+
+            var lotteryBalanceBefore = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = LotteryContractAddress,
+                Symbol = "ELF"
+            });
+
+            var takeBack = await AliceLotteryContractStub.TakeBackToken.SendWithExceptionAsync(new TakeBackTokenInput
+            {
+                Symbol = "ELF",
+                Amount = 1000_000_000_000
+            });
+            
+            takeBack.TransactionResult.Error.ShouldContain("No permission.");
+            
+            await LotteryContractStub.TakeBackToken.SendAsync(new TakeBackTokenInput
+            {
+                Symbol = "ELF",
+                Amount = 1000_000_000_000
+            });
+
+            var adminBalanceAfter = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = SampleAccount.Accounts.First().Address,
+                Symbol = "ELF"
+            });
+
+            var lotteryBalanceAfter = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = LotteryContractAddress,
+                Symbol = "ELF"
+            });
+
+            (adminBalanceAfter.Balance - adminBalanceBefore.Balance).ShouldBe(1000_000_000_000);
+            (lotteryBalanceBefore.Balance - lotteryBalanceAfter.Balance).ShouldBe(1000_000_000_000);
         }
 
 
