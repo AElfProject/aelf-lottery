@@ -154,7 +154,7 @@ const AccountManagement = () => {
         }))
       : [];
     return accountList.map((item, index) => {
-      const current = item.details || item.userName === address;
+      const current = (item.details || item.userName) === address;
       return (
         <View
           key={index}

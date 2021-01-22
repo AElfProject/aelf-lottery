@@ -163,7 +163,7 @@ const Mine = props => {
         <TextL style={styles.textTitle}>
           {i18n.t('mineModule.balance')}:
           {lotteryTokens.map(i => {
-            const token = tokenBalance[i.tokenSymbol];
+            const token = tokenBalance?.[i.tokenSymbol];
             return ' ' + aelfUtils.digits(token, 4) + i.tokenSymbol;
           })}
         </TextL>
