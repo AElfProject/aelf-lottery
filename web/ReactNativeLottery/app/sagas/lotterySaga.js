@@ -38,7 +38,7 @@ function* buySaga({data}) {
         type: lotteryType,
         seller: lotterySellerAddress,
       };
-      console.log(betInfos, '=====betInfos');
+      console.log(BuyInput, '=====BuyInput');
       const buy = yield lotteryContract.Buy(BuyInput);
       yield delay(3000);
       const result = yield aelfUtils.getTxResult(buy.TransactionId);
@@ -161,15 +161,12 @@ function* getLotteryRewardsSaga({lotteryContract, lotteryInfo}) {
 function* getLotteryCashedSaga({lotteryContract, lotteryInfo}) {
   try {
     const result = yield lotteryContract.GetLatestCashedLottery.call();
-    const {periodNumber} = lotteryInfo.lotteryCashed || {};
-    if (periodNumber !== result.periodNumber) {
-      const period = yield lotteryContract.GetPeriod.call({
-        value: result.periodNumber,
-      });
-      const obj = {...result, ...period};
-      if (JSON.stringify(lotteryInfo.lotteryCashed) !== JSON.stringify(obj)) {
-        yield put(lotteryActions.setLotteryCashed(obj));
-      }
+    const period = yield lotteryContract.GetPeriod.call({
+      value: result.periodNumber,
+    });
+    const obj = {...result, ...period};
+    if (JSON.stringify(lotteryInfo.lotteryCashed) !== JSON.stringify(obj)) {
+      yield put(lotteryActions.setLotteryCashed(obj));
     }
   } catch (error) {
     console.log('getLotteryCashedSaga', error);

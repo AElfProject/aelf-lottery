@@ -37,10 +37,10 @@ const Transfer = props => {
   const {userInfo} = useStateToProps(base => {
     const {user} = base;
     return {
-      userInfo: {...user},
+      userInfo: {...(user || {})},
     };
   });
-  const {tokenBalance} = userInfo;
+  const {tokenBalance} = userInfo || {};
   useFocusEffect(
     useCallback(() => {
       const {address} = params || {};
@@ -130,7 +130,7 @@ const Transfer = props => {
       ? lotteryTokens.map(item => {
           return {
             ...item,
-            balance: tokenBalance?.[item.tokenSymbol] || '0',
+            balance: tokenBalance?.[item.tokenSymbol] || 0,
             title: item.tokenSymbol,
             onPress: onSelect,
           };
