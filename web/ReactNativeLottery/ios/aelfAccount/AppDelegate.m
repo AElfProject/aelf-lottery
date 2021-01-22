@@ -9,6 +9,8 @@
 #import <UMCore/UMModuleRegistry.h>
 #import <UMReactNativeAdapter/UMNativeModulesProxy.h>
 #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
+#import <EXScreenOrientation/EXScreenOrientationViewController.h>
+
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
 #import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
@@ -50,7 +52,8 @@ static void InitializeFlipper(UIApplication *application) {
      rootView.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
   }
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [UIViewController new];
+  
+  UIViewController *rootViewController = [[EXScreenOrientationViewController alloc] init]; // The default screen orientation will be set to `portrait`.
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
