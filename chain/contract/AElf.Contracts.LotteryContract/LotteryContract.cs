@@ -297,5 +297,18 @@ namespace AElf.Contracts.LotteryContract
 
             return new Empty();
         }
+        
+        public override Empty TakeBackToken(TakeBackTokenInput input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            State.TokenContract.Transfer.Send(new TransferInput
+            {
+                Amount = input.Amount,
+                Symbol = input.Symbol,
+                To = State.Admin.Value
+            });
+            
+            return new Empty();
+        }
     }
 }

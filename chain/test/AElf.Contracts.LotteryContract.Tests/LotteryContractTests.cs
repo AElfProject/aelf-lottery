@@ -634,6 +634,60 @@ namespace AElf.Contracts.LotteryContract
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Start timestamp already passed.");
             }
         }
+        
+        [Fact]
+        public async Task TakeBackTokentTest()
+        {
+            await InitializeAndCheckStatus();
+            await TokenContractStub.Transfer.SendAsync(new TransferInput
+            {
+                Amount = 1000_000_000_000,
+                Symbol = "ELF",
+                To = LotteryContractAddress
+            });
+
+            var adminBalanceBefore = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = DefaultAccount.Address,
+                Symbol = "ELF"
+            });
+
+            var lotteryBalanceBefore = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = LotteryContractAddress,
+                Symbol = "ELF"
+            });
+
+            var takeBack = await AliceLotteryContractStub.TakeBackToken.SendWithExceptionAsync(new TakeBackTokenInput
+            {
+                Symbol = "ELF",
+                Amount = 1000_000_000_000
+            });
+            
+            takeBack.TransactionResult.Error.ShouldContain("No permission.");
+            
+            await LotteryContractStub.TakeBackToken.SendAsync(new TakeBackTokenInput
+            {
+                Symbol = "ELF",
+                Amount = 1000_000_000_000
+            });
+
+            var adminBalanceAfter = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = DefaultAccount.Address,
+                Symbol = "ELF"
+            });
+
+            var lotteryBalanceAfter = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = LotteryContractAddress,
+                Symbol = "ELF"
+            });
+
+            (adminBalanceAfter.Balance - adminBalanceBefore.Balance).ShouldBe(1000_000_000_000);
+            (lotteryBalanceBefore.Balance - lotteryBalanceAfter.Balance).ShouldBe(1000_000_000_000);
+        }
+
 
         private List<int> GetRanks(List<int> levelsCount)
         {

@@ -46,6 +46,8 @@ service LotteryContract {
     }
     rpc RegisterDividend (RegisterDividendDto) returns (google.protobuf.Empty) {
     }
+    rpc TakeBackToken(TakeBackTokenInput) returns (google.protobuf.Empty) {
+    }
     
     rpc GetRewardResult (google.protobuf.Int64Value) returns (GetRewardResultOutput) {
         option (aelf.is_view) = true;
@@ -191,4 +193,9 @@ message SetStakingTimestampInput{
 message GetStakingTimestampOutput{
     google.protobuf.Timestamp start_timestamp = 1;
     google.protobuf.Timestamp shutdown_timestamp = 2;
+}
+
+message TakeBackTokenInput{
+    string symbol = 1;
+    int64 amount = 2;
 }
