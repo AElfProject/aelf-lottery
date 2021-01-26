@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   ballBox: {
     width: '100%',
-    height: pTd(100),
+    height: pTd(150),
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

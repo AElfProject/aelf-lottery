@@ -68,7 +68,7 @@ const Tool = () => {
               onPress={() => navigationService.navigate('MyBet')}
               style={styles.toolItem}>
               <Icon name="star" size={30} color={Colors.primaryColor} />
-              <TextL>{i18n.t('lottery.bet')}</TextL>
+              <TextL>{i18n.t('lottery.myBet')}</TextL>
             </Touchable>
             <Touchable
               onPress={() => navigationService.navigate('Receive')}

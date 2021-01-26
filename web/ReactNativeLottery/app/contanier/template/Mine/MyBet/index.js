@@ -19,7 +19,7 @@ let isActive;
 const MyBet = () => {
   const list = useRef();
   const dispatch = useDispatch();
-  const [loadCompleted, setLoadCompleted] = useState(false);
+  const [loadCompleted, setLoadCompleted] = useState(true);
   const getMyBetList = useCallback(
     (loadingPaging, callBack) =>
       dispatch(lotteryActions.getMyBetList(loadingPaging, callBack)),
@@ -123,7 +123,7 @@ const MyBet = () => {
             </TextM>
           </View>
           <View style={styles.rightBox}>
-            <TextM style={rewardStyle}>
+            <TextM style={[styles.rightText, rewardStyle]}>
               {lotteryUtils.getWinningSituation(
                 cashed,
                 expired,
@@ -183,15 +183,20 @@ const styles = StyleSheet.create({
   },
   intermediateBox: {
     flexDirection: 'row',
-    width: '40%',
+    width: '30%',
     alignItems: 'center',
   },
   intermediateText: {
     flex: 1,
+    textAlign: 'center',
   },
   rightBox: {
+    flex: 1,
     alignItems: 'flex-end',
-    width: '24%',
+    marginLeft: pTd(20),
+  },
+  rightText: {
+    textAlign: 'right',
   },
   colorText: {
     color: Colors.fontColor,

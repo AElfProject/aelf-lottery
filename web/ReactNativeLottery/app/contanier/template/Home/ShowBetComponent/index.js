@@ -54,10 +54,12 @@ const ShowBetComponent = props => {
   return (
     <View style={[styles.bottomBox, betComponentStyle]}>
       <TextL>
-        {i18n.t('lottery.currentlySelected')}
+        {i18n.t('lottery.currentlySelected')}&nbsp;
         <TextL style={styles.colorText}>{betNumber}</TextL>
-        {i18n.t('lottery.note')}, {i18n.t('lottery.total')}
+        &nbsp;
+        {i18n.t('lottery.note')}, {i18n.t('lottery.total')}&nbsp;
         <TextL style={styles.colorText}>{betValue}</TextL>
+        &nbsp;
         {i18n.t('lottery.unit')}
       </TextL>
       <TextM style={styles.winningTip}>
@@ -74,15 +76,15 @@ const ShowBetComponent = props => {
                   return (
                     <View key={index} style={styles.itemBox}>
                       <TextM>
-                        {item.title} [{' '}
+                        {item.title} [&nbsp;
                         {betList[index].map((i, j) => {
                           let text = item.playList[i];
                           if (j !== 0) {
                             text = `/${text}`;
                           }
                           return text;
-                        })}{' '}
-                        ]
+                        })}
+                        &nbsp;]
                       </TextM>
                     </View>
                   );

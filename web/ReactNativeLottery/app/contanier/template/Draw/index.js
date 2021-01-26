@@ -19,7 +19,7 @@ import i18n from 'i18n-js';
 import {useFocusEffect} from '@react-navigation/native';
 let isActive;
 const Draw = () => {
-  const [loadCompleted, setLoadCompleted] = useState(false);
+  const [loadCompleted, setLoadCompleted] = useState(true);
   const dispatch = useDispatch();
   const list = useRef();
   const {drawPeriod, periodList, language, address} = useStateToProps(state => {
@@ -76,7 +76,7 @@ const Draw = () => {
             startPeriodNumberOfDay,
             periodNumber,
           )}
-          {i18n.t('lottery.period')} {i18n.t('lottery.draw.drawTime')}{' '}
+          {i18n.t('lottery.period')} {i18n.t('lottery.draw.drawTime')}&nbsp;
           {lotteryUtils.getStartMonthTime(drawTime)}
         </TextM>
         <WinningNumbers winningNumbers={luckyNumber} />
@@ -141,6 +141,7 @@ const Draw = () => {
         title={i18n.t('lottery.draw.title')}
         rightTitle={address ? i18n.t('lottery.draw.acceptAward') : null}
         leftTitle={i18n.t('lottery.play')}
+        titleBox={GStyle.flex1}
         leftOnPress={() => navigationService.navigate('HowToPlay')}
         rightOnPress={() => navigationService.navigate('AwardList')}
       />

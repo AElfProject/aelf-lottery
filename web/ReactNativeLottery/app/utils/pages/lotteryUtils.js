@@ -140,7 +140,7 @@ const getMillisecond = time => {
   }
   return tim;
 };
-const getPeriod = (time, start, periodNumber) => {
+const getPeriod = (time, start, periodNumber, noSpace) => {
   if (!time || start === undefined || periodNumber === undefined) {
     return '';
   }
@@ -151,7 +151,10 @@ const getPeriod = (time, start, periodNumber) => {
   //     moment(getMillisecond(time)).format(LOTTERY_DAY) + padLeft(period + 1, 3);
   // }
   // return period;
-  return periodNumber;
+  if (noSpace) {
+    return periodNumber;
+  }
+  return ' ' + periodNumber + ' ';
 };
 const getWinningNumbers = winningNumbers => {
   let win = '';
@@ -213,6 +216,9 @@ const getBetType = type => {
   return text;
 };
 const getStartMonthTime = time => {
+  if (!time) {
+    return '';
+  }
   return moment(getMillisecond(time)).format('MM-DD HH:mm');
 };
 const getWinningSituation = (cashed, expired, reward, noDraw) => {

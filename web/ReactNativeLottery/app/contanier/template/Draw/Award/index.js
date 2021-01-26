@@ -20,7 +20,9 @@ const TextComponent = memo(props => {
   const {title, details, detailsStyle} = props;
   return (
     <View style={styles.TextBox}>
-      <TextM style={styles.whiteColor}>{title}</TextM>
+      <View style={styles.textTitleBox}>
+        <TextM style={styles.whiteColor}>{title}</TextM>
+      </View>
       <TextM style={[styles.colorText, styles.detailsText, detailsStyle]}>
         {details}
       </TextM>
@@ -81,7 +83,7 @@ const Award = () => {
             {i18n.t('lottery.draw.purchasePeriod')} {periods}
           </TextS>
           <TextS style={styles.whiteColor}>
-            {betNumber}
+            {betNumber}&nbsp;
             {i18n.t('lottery.note')}
           </TextS>
         </View>
@@ -196,6 +198,10 @@ const styles = StyleSheet.create({
     borderBottomColor: 'white',
     borderBottomWidth: pixelSize,
   },
+  textTitleBox: {
+    height: pTd(80),
+    justifyContent: 'center',
+  },
   whiteColor: {
     color: 'white',
   },
@@ -214,7 +220,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailsText: {
-    marginTop: pTd(20),
+    marginTop: pTd(10),
   },
   bottomBox: {
     paddingTop: pTd(40),

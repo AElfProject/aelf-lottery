@@ -6,6 +6,9 @@ const GStyle = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bgColor,
   },
+  flex1: {
+    flex: 1,
+  },
   secondContainer: {
     flex: 1,
     backgroundColor: '#f5f5f5',

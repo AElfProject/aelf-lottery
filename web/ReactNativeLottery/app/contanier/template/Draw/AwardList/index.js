@@ -19,7 +19,7 @@ let isActive;
 const AwardList = () => {
   const list = useRef();
   const dispatch = useDispatch();
-  const [loadCompleted, setLoadCompleted] = useState(false);
+  const [loadCompleted, setLoadCompleted] = useState(true);
   const getRewardedList = useCallback(
     (loadingPaging, callBack) =>
       dispatch(lotteryActions.getRewardedList(loadingPaging, callBack)),

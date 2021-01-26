@@ -17,12 +17,12 @@ const keystoreOptions = {
   },
 };
 
-// const explorerURL = 'https://explorer-test-side01.aelf.io';
-// const walletURL = 'https://tdvv-wallet-test.aelf.io';
+const explorerURL = 'https://explorer-test-side01.aelf.io';
+const walletURL = 'https://tdvv-wallet-test.aelf.io';
 
 // test environment
-const explorerURL = 'http://1.119.195.50:11107';
-const walletURL = 'http://1.119.195.50:11109';
+// const explorerURL = 'http://1.119.195.50:11107';
+// const walletURL = 'http://1.119.195.50:11109';
 
 const lotteryTokens = [
   {tokenSymbol: 'ELF', tokenDecimal: 8, tokenDecimalFormat: 10 ** 8},
@@ -65,7 +65,8 @@ export default {
     //
     // consensusContract: 'BNPFPPwQ3DE9rwxzdY61Q2utU9FZx9KYUnrYHQqCR6N4LLhUE',
     tokenContract: '7RzVGiuVWkvL4VfVHdZfQF2Tri3sgLe9U991bohHFfSRZXuGX',
-    lotteryContract: '2F5McxHg7fAqVjDX97v79j4drsMq442rArChpBii8TWuRb8ZnK',
+    // lotteryContract: '2F5McxHg7fAqVjDX97v79j4drsMq442rArChpBii8TWuRb8ZnK',
+    lotteryContract: 'buePNjhmHckfZn9D8GTL1wq6JgA8K24SeTWnjCNcrz6Sf1FDh',
   },
   address: {
     prefix: 'ELF',
