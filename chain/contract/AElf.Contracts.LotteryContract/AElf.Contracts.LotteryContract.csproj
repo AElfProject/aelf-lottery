@@ -5,9 +5,6 @@
         <IsContract>true</IsContract>
     </PropertyGroup>
     <ItemGroup>
-        <ContractBase Include="..\..\protobuf\acs1.proto">
-            <Link>Protobuf\Proto\base\acs1.proto</Link>
-        </ContractBase>
         <ContractBase Include="..\..\protobuf\acs9.proto">
             <Link>Protobuf\Proto\base\acs9.proto</Link>
         </ContractBase>

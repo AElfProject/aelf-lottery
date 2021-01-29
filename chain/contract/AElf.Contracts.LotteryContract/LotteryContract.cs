@@ -104,7 +104,9 @@ namespace AElf.Contracts.LotteryContract
             State.CurrentLotteryId.Value = lotteryId.Add(1);
             
             ClearExpiredToBeClaimedLotteries();
-            ContributeProfits(totalAmount.Mul(State.ProfitRate.Value).Div(GetRateDenominator()));
+            
+            if (State.ProfitRate.Value > 0)
+                ContributeProfits(totalAmount.Mul(State.ProfitRate.Value).Div(GetRateDenominator()));
             
             return new Empty();
         }

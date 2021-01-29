@@ -209,7 +209,7 @@ namespace AElf.Contracts.LotteryContract
 
         private void SetProfitsRate(int profitsRate)
         {
-            Assert(profitsRate > 0 && profitsRate.Div(GetRateDenominator()) < 1, "Invalid bonus rate");
+            Assert(profitsRate >= 0 && profitsRate.Div(GetRateDenominator()) < 1, "Invalid bonus rate");
             Assert(Context.Sender == State.Admin.Value, "No permission");
             State.ProfitRate.Value = profitsRate;
         }
