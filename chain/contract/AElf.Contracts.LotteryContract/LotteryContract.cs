@@ -39,7 +39,11 @@ namespace AElf.Contracts.LotteryContract
             Assert(Context.CurrentBlockTime < input.StartTimestamp, "Staking start timestamp already passed.");
             State.StakingShutdownTimestamp.Value = input.ShutdownTimestamp;
             State.StakingStartTimestamp.Value = input.StartTimestamp;
-
+            
+            Assert(input.ProfitsRate <= TotalSharesForProfitRate && input.ProfitsRate >= 0, "Invalid profit rate.");
+            State.ProfitRate.Value = input.ProfitsRate;
+            
+            InitializeTokenHolderProfitScheme();
             return new Empty();
         }
 
@@ -88,6 +92,9 @@ namespace AElf.Contracts.LotteryContract
             currentIds.Ids.Add(newIds);
             State.OwnerToLotteries[Context.Sender][currentPeriod] = currentIds;
 
+            if (State.ProfitRate.Value > 0)
+                ContributeProfits(amount.Mul(State.ProfitRate.Value).Div(TotalSharesForProfitRate));
+            
             return new BoughtLotteriesInformation
             {
                 StartId = startId,
@@ -308,6 +315,14 @@ namespace AElf.Contracts.LotteryContract
                 To = State.Admin.Value
             });
             
+            return new Empty();
+        }
+
+        public override Empty SetProfitsRate(Int64Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            Assert(input.Value <= TotalSharesForProfitRate && input.Value >= 0, "Invalid profit rate.");
+            State.ProfitRate.Value = input.Value;
             return new Empty();
         }
     }

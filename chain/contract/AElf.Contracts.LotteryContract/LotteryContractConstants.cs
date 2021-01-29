@@ -6,5 +6,7 @@ namespace AElf.Contracts.LotteryContract
         private const long DefaultDrawingLag = 80;
         private const long MaximumBuyAmount = 100;
         private const int MaximumReturnAmount = 20;
+
+        private const long TotalSharesForProfitRate = 10000;
     }
 }

@@ -55,6 +55,9 @@
         <ContractStub Include="..\..\protobuf\aedpos_contract.proto">
             <Link>Protobuf\Proto\aedpos_contract.proto</Link>
         </ContractStub>
+        <ContractStub Include="..\..\protobuf\token_holder_contract.proto">
+            <Link>Protobuf\Proto\token_holder_contract.proto</Link>
+        </ContractStub>
     </ItemGroup>
 
     <ItemGroup>

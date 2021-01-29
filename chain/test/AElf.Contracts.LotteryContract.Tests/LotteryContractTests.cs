@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AElf.Contracts.MultiToken;
+using AElf.Contracts.TokenHolder;
 using AElf.Kernel.Consensus.Application;
+using AElf.Standards.ACS9;
 using AElf.Types;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
@@ -117,6 +119,87 @@ namespace AElf.Contracts.LotteryContract
                 lotteries.Count.ShouldBe(5);
             }
         }
+        
+        [Fact]
+        public async Task Acs9Test()
+        {
+            await InitializeAndCheckStatus();
+
+            
+            {
+                var profitRate = await AliceLotteryContractStub.GetProfitsRate.CallAsync(new Empty());
+                profitRate.Value.ShouldBe(0);
+            }
+
+            var setProfitsRate = await AliceLotteryContractStub.SetProfitsRate.SendWithExceptionAsync(new Int64Value {Value = 10});
+            setProfitsRate.TransactionResult.Error.ShouldContain("No permission.");
+            await LotteryContractStub.SetProfitsRate.SendAsync(new Int64Value {Value = 10});
+
+            {
+                var profitRate = await AliceLotteryContractStub.GetProfitsRate.CallAsync(new Empty());
+                profitRate.Value.ShouldBe(10);
+            }
+            
+            var aliceTokenHolderStub = GetTokenHolderStub(AliceKeyPair);
+            await aliceTokenHolderStub.RegisterForProfits.SendAsync(new RegisterForProfitsInput
+            {
+                SchemeManager = LotteryContractAddress,
+                Amount = 10000000_00000000
+            });
+            
+            {
+                var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Symbol = "ELF",
+                    Owner = AliceAddress
+                });
+
+                aliceBalance.Balance.ShouldBe(90000000_00000000);
+            }
+            
+            await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
+            {
+                Value = 100
+            });
+            
+            {
+                var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Symbol = "ELF",
+                    Owner = AliceAddress
+                });
+
+                aliceBalance.Balance.ShouldBe(89999000_00000000);
+            }
+            
+            await LotteryContractStub.TakeContractProfits.SendAsync(new TakeContractProfitsInput());
+            
+            await aliceTokenHolderStub.ClaimProfits.SendAsync(new ClaimProfitsInput
+            {
+                Beneficiary = AliceAddress,
+                SchemeManager = LotteryContractAddress
+            });
+
+            {
+                var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Symbol = "ELF",
+                    Owner = AliceAddress
+                });
+
+                aliceBalance.Balance.ShouldBe(89999001_00000000);
+            }
+            
+            {
+                var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+                {
+                    Symbol = "ELF",
+                    Owner = LotteryContractAddress
+                });
+
+                aliceBalance.Balance.ShouldBe(999_00000000);
+            }
+        }
 
         [Fact]
         public async Task PrepareDrawTest()
@@ -155,16 +238,6 @@ namespace AElf.Contracts.LotteryContract
             var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 2});
             period.RandomHash.ShouldBe(Hash.Empty);
             period.StartId.ShouldBe(26);
-
-            // {
-            //     var lotteries = await AliceBuy(1, 2);
-            //     lotteries.Count.ShouldBe(1);
-            // }
-            //
-            // {
-            //     var lotteries = await BobBuy(1, 2);
-            //     lotteries.Count.ShouldBe(1); // Only return 20 at one time.
-            // }
 
             var result = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
             result.TransactionResult.Error.ShouldContain("hasn't drew.");

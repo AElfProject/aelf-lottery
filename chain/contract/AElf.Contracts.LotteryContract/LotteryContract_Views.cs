@@ -183,5 +183,13 @@ namespace AElf.Contracts.LotteryContract
                 StartTimestamp = State.StakingStartTimestamp.Value
             };
         }
+
+        public override Int64Value GetProfitsRate(Empty input)
+        {
+            return new Int64Value
+            {
+                Value = State.ProfitRate.Value
+            };
+        }
     }
 }
