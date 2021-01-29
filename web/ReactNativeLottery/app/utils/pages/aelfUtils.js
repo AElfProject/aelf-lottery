@@ -13,6 +13,12 @@ const unlockKeystore = (params, pwd) => {
 const checkPassword = (keyStore, pwd) => {
   return AElf.wallet.keyStore.checkPassword(keyStore, pwd);
 };
+const getWalletByPrivateKey = privateKey => {
+  return AElf.wallet.getWalletByPrivateKey(privateKey);
+};
+const getWalletByMnemonic = mnemonic => {
+  return AElf.wallet.getWalletByMnemonic(mnemonic);
+};
 const getTransactionFee = Logs => {
   const free = AElf.pbUtils.getTransactionFee(Logs || []);
   let cost = 0;
@@ -112,7 +118,20 @@ const digits = (count, num = 8) => {
   }
   return '0';
 };
+const unshift = (userList, userObj) => {
+  if (Array.isArray(userList)) {
+    const index = userList.findIndex(i => i.address === userObj?.address);
+    if (index === -1) {
+      userList.unshift(userObj);
+    } else {
+      userList.splice(index, 1);
+      userList.unshift(userObj);
+    }
+  }
+  return userList;
+};
 export default {
+  unshift,
   digits,
   checkPassword,
   webURLAddress,
@@ -126,4 +145,6 @@ export default {
   checkAddress,
   timeConversion,
   getTxResult,
+  getWalletByPrivateKey,
+  getWalletByMnemonic,
 };

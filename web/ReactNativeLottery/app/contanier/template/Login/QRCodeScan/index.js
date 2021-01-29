@@ -59,6 +59,7 @@ const QRCodeLogin = props => {
           setState({scanned: false});
         }, 1000);
         const {data} = result; //Determine whether to log in the QR code
+        console.log(result, '======result');
         if (data && typeof data === 'string' && data.includes('aelf')) {
           CommonToast.success(i18n.t('success'));
           if (scanResult) {

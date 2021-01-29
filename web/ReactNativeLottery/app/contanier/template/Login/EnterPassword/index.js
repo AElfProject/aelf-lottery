@@ -50,6 +50,7 @@ const EnterPassword = props => {
     setState({pwdErr: false, loading: true, pwdRule: false});
     await sleep(500);
     try {
+      console.log(params, '=======params');
       const {privateKey} = aelfUtils.unlockKeystore(params, pwd);
       if (privateKey) {
         onLoginSuccess({

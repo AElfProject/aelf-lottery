@@ -83,6 +83,7 @@ const Header = props => {
     hideBottomWidth,
     leftStyle,
     rightStyle,
+    canBackOnPress,
   } = props;
   return (
     <View
@@ -105,7 +106,9 @@ const Header = props => {
             <TouchableOpacity
               style={styles.leftBox}
               activeOpacity={0.75}
-              onPress={() => navigationService.goBack()}>
+              onPress={() =>
+                canBackOnPress ? canBackOnPress() : navigationService.goBack()
+              }>
               <Icon name={'left'} size={24} color={Colors.fontColor} />
             </TouchableOpacity>
           ) : null}

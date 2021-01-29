@@ -54,9 +54,9 @@ const Draw = () => {
         <TextM style={[styles.equallyBox, styles.intermediateBox]}>
           {i18n.t('lottery.draw.prizeNumber')}
         </TextM>
-        <TextL style={[styles.equallyBox, styles.rightBox]}>
+        <TextM style={[styles.equallyBox, styles.rightBox]}>
           {i18n.t('lottery.draw.drawTime')}
-        </TextL>
+        </TextM>
       </View>
     );
   }, [language]);

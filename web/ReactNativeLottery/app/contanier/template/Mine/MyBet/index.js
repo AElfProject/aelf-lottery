@@ -67,9 +67,10 @@ const MyBet = () => {
       setLoadCompleted(value);
     }
   }, []);
-  const {myBetList, currentPeriod} = useStateToProps(base => {
-    const {lottery} = base;
+  const {myBetList, currentPeriod, language} = useStateToProps(base => {
+    const {lottery, settings} = base;
     return {
+      language: settings.language,
       myBetList: lottery.myBetList,
       currentPeriod: lottery.currentPeriod,
     };
@@ -117,6 +118,9 @@ const MyBet = () => {
                   createTime,
                   startPeriodNumberOfDay,
                   periodNumber,
+                  typeof language === 'string' && language.includes('zh')
+                    ? false
+                    : 2,
                 )}
               </TextM>
               {i18n.t('lottery.period')}
@@ -138,7 +142,7 @@ const MyBet = () => {
         </Touchable>
       );
     },
-    [currentPeriod, onGetLottery],
+    [currentPeriod.periodNumber, language, onGetLottery],
   );
   return (
     <View style={GStyle.container}>
@@ -177,7 +181,7 @@ const styles = StyleSheet.create({
     marginLeft: pTd(10),
   },
   leftBox: {
-    width: '36%',
+    width: '38%',
     flexDirection: 'row',
     alignItems: 'center',
   },

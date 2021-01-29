@@ -97,7 +97,7 @@ const PasswordComponents = props => {
     const checkResult = aelfUtils.checkPassword(keystore, intervalRef.current);
     setLoading(false);
     if (checkResult) {
-      callBack && callBack(true);
+      callBack && callBack(true, intervalRef.current);
       OverlayModal.hide();
     } else {
       setPwTip(true);

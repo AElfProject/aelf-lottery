@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {splitString} from '.';
+import {splitString} from './index';
 import i18n from 'i18n-js';
 /**
  * processing Number
@@ -151,8 +151,14 @@ const getPeriod = (time, start, periodNumber, noSpace) => {
   //     moment(getMillisecond(time)).format(LOTTERY_DAY) + padLeft(period + 1, 3);
   // }
   // return period;
-  if (noSpace) {
+  if (noSpace === true) {
     return periodNumber;
+  }
+  if (noSpace === 1) {
+    return ' ' + periodNumber;
+  }
+  if (noSpace === 2) {
+    return periodNumber + ' ';
   }
   return ' ' + periodNumber + ' ';
 };
@@ -198,18 +204,20 @@ const getBetType = type => {
       text = i18n.t('lottery.simple');
       break;
     case 10:
-      text = `${i18n.t('lottery.oneStar')}${i18n.t('lottery.directElection')}`;
+      text = `${i18n.t('lottery.oneStar')} ${i18n.t('lottery.directElection')}`;
       break;
     case 20:
-      text = `${i18n.t('lottery.twoStars')}${i18n.t('lottery.directElection')}`;
+      text = `${i18n.t('lottery.twoStars')} ${i18n.t(
+        'lottery.directElection',
+      )}`;
       break;
     case 30:
-      text = `${i18n.t('lottery.threeStars')}${i18n.t(
+      text = `${i18n.t('lottery.threeStars')} ${i18n.t(
         'lottery.directElection',
       )}`;
       break;
     case 40:
-      text = `${i18n.t('lottery.fiveStars')}${i18n.t(
+      text = `${i18n.t('lottery.fiveStars')} ${i18n.t(
         'lottery.directElection',
       )}`;
   }

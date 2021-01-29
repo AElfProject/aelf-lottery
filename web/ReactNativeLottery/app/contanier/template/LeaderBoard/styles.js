@@ -20,6 +20,7 @@ export default StyleSheet.create({
     padding: pTd(20),
     paddingHorizontal: pTd(30),
     flexDirection: 'row',
+    alignItems: 'center',
   },
   itemBox: {
     padding: pTd(30),
