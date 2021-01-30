@@ -278,7 +278,7 @@
     "loadMore": "Click to load more",
     "unit": "Lucky Coin",
     "lottery": "Lucky Box",
-    "play": "How to Play",
+    "play": "Rules",
     "current": "Current Section",
     "first": "No.",
     "period": "Period",
@@ -322,13 +322,13 @@
     "confirmPayment": "Confirm Payment",
     "recharge": "Top-up",
     "howToPlay": {
-      "title": "How to play"
+      "title": "Rules"
     },
     "currentlySelected": "You have selected",
     "note": "times",
     "total": "Total",
     "winningTip": "If you win, the bonus amount is {{bonusAmount}}, and the profit is {{profit}}",
-    "clearSelection": "Clear the selected number",
+    "clearSelection": " Clear",
     "order": "Place an order",
     "draw": {
       "lottery": "Lucky Box",

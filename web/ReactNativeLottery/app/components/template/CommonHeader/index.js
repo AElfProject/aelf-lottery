@@ -42,8 +42,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   leftBox: {
-    paddingVertical: 3,
-    paddingLeft: 15,
+    flexWrap: 'wrap',
+    padding: 5,
   },
   titleBox: {
     flex: 2,

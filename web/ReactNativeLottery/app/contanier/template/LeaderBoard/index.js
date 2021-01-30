@@ -249,7 +249,7 @@ const LeaderBoard = () => {
             fontSize: pTd(25),
           },
           style: {
-            marginHorizontal: pTd(80),
+            // marginHorizontal: pTd(40),
             elevation: 0,
             borderBottomWidth: pixelSize,
             borderColor: Colors.borderColor,

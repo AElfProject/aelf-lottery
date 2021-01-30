@@ -481,7 +481,7 @@ const AdvancedLogin = ({navigation}) => {
             fontSize: pTd(25),
           },
           style: {
-            marginHorizontal: pTd(20),
+            // marginHorizontal: pTd(20),
             elevation: 0,
             borderBottomWidth: pixelSize,
             borderColor: Colors.borderColor,
