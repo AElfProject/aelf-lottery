@@ -45,9 +45,9 @@
     "jLook": "Look around",
     "login": "Login",
     "register": "Register",
-    "premiumTips": "Premium account login",
+    "premiumTips": "Advanced account login",
     "loginAccountLogin": "Account logged in",
-    "loginAccountLoginTip": "Use A logged-in account to log in",
+    "loginAccountLoginTip": "Use a logged-in to log in",
     "userName": "Username",
     "nameErr": "Username format error",
     "pwdFormatErr": "Password format error",
@@ -65,7 +65,7 @@
       "saveQRCode": "Save QR Code to album"
     },
     "advancedLogin": {
-      "title": "Premium account login",
+      "title": "Advanced account login",
       "PrivateKey": "Private Key",
       "Mnemonic": "Mnemonic",
       "PrivateKeyTip": "Please enter the correct private key",
@@ -80,7 +80,8 @@
     "qRCodeScan": {
       "imageFailed": "Image loading failed",
       "scanQRCode": "Scan QR Code",
-      "QRCodeErr": "Please scan the correct QR Code"
+      "QRCodeErr": "Please scan the correct QR Code",
+      "UserCanceled": "User canceled"
     }
   },
   "mineModule": {
@@ -170,7 +171,7 @@
     "personalCenter": {
       "title": "Personal Center",
       "qRCodeTip": "This QR Code is your account. Losing the QR Code is the same as losing the account. Your assets will also not be recovered. Please back up your QR Code and keep it safe",
-      "advancedAccount": "Premium account",
+      "advancedAccount": "Advanced account",
       "authentication": "Authentication",
       "notCompleted": "Not completed",
       "authenticationTip": "After completing identity authentication, you can get the following rights：\n* You can make a single fiat currency transaction of more than 2,000 CNY or a cumulative amount of more than 10,000 CNY",
@@ -327,7 +328,7 @@
     "note": "times",
     "total": "Total",
     "winningTip": "If you win, the bonus amount is {{bonusAmount}}, and the profit is {{profit}}",
-    "clearSelection": "Clear the selected number.",
+    "clearSelection": "Clear the selected number",
     "order": "Place an order",
     "draw": {
       "lottery": "Lucky Box",

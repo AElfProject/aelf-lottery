@@ -129,6 +129,7 @@ const PrivateKeyLogin = () => {
             placeholder={i18n.t('login.pleaseEnt')}
           />
           <Input
+            maxLength={30}
             leftTitleBox={styles.leftTitleBox}
             leftTextStyle={styles.leftTextStyle}
             leftTitle={i18n.t('login.userName')}
@@ -248,7 +249,7 @@ const MnemonicLogin = () => {
       ) {
         onRegistered(newWallet, pwd, userName, true);
       } else {
-        CommonToast.fail(i18n.t('fail'));
+        CommonToast.fail(i18n.t('login.advancedLogin.MnemonicTip'));
       }
     } catch (error) {
       console.log(error, '=======error');
@@ -281,6 +282,7 @@ const MnemonicLogin = () => {
             placeholder={i18n.t('login.pleaseEnt')}
           />
           <Input
+            maxLength={30}
             leftTitleBox={styles.leftTitleBox}
             leftTextStyle={styles.leftTextStyle}
             leftTitle={i18n.t('login.userName')}
@@ -398,7 +400,7 @@ const KeyStoreLogin = () => {
     }
     // navigationService.reset('Tab');
   }, [onLoginSuccess, payPw, setState, state]);
-  const {pwdRule, loading} = state;
+  const {pwdRule, loading, topInput, pwd} = state;
   return (
     <Touchable
       style={GStyle.container}
@@ -412,7 +414,7 @@ const KeyStoreLogin = () => {
           <Input
             multiline={true}
             style={styles.input}
-            onChangeText={topInput => setState({topInput})}
+            onChangeText={v => setState({topInput: v})}
             placeholder={i18n.t('login.pleaseEnt')}
           />
           <Input
@@ -421,7 +423,7 @@ const KeyStoreLogin = () => {
             leftTextStyle={styles.leftTextStyle}
             leftTitle={i18n.t('login.pwd')}
             onBlur={pwdBlur}
-            onChangeText={pwd => setState({pwd})}
+            onChangeText={v => setState({pwd: v})}
             placeholder={i18n.t('login.pleaseEnt')}
           />
           {pwdRule && (
@@ -429,6 +431,7 @@ const KeyStoreLogin = () => {
           )}
           <NamePasswordTips />
           <CommonButton
+            disabled={!pwd || !topInput}
             loading={loading}
             onPress={login}
             title={i18n.t('login.login')}

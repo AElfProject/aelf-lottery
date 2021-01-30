@@ -6,7 +6,6 @@ import {
   Touchable,
 } from '../../../../components/template';
 import {GStyle, Colors} from '../../../../assets/theme';
-import {ball} from '../../../../assets/images';
 import {pTd} from '../../../../utils/common';
 import {TextS, TextM} from '../../../../components/template/CommonText';
 import {useDispatch} from 'react-redux';
@@ -102,7 +101,11 @@ const MyBet = () => {
           onPress={() => onGetLottery(item)}
           style={styles.itemBox}>
           <View style={styles.leftBox}>
-            <Image resizeMode="contain" style={styles.ballBox} source={ball} />
+            <Image
+              resizeMode="contain"
+              style={styles.ballBox}
+              source={lotteryUtils.getBetImage(type)}
+            />
             <View style={styles.titleBox}>
               <TextM>{i18n.t('lottery.draw.lottery')}</TextM>
               <TextS style={styles.marginText}>
@@ -174,7 +177,7 @@ const styles = StyleSheet.create({
   },
   ballBox: {
     height: pTd(100),
-    width: pTd(100),
+    width: pTd(90),
   },
   titleBox: {
     flex: 1,

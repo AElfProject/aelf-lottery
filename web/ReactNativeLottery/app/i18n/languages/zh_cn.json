@@ -80,7 +80,8 @@
     "qRCodeScan": {
       "imageFailed": "图像加载失败",
       "scanQRCode": "扫描二维码",
-      "QRCodeErr": "请扫描正确二维码"
+      "QRCodeErr": "请扫描正确二维码",
+      "UserCanceled": "用户操作取消"
     }
   },
   "mineModule": {

@@ -117,6 +117,7 @@ const Registered = () => {
           activeOpacity={1}
           onPress={() => Keyboard.dismiss()}>
           <Input
+            maxLength={30}
             leftTitleBox={styles.leftTitleBox}
             leftTextStyle={styles.leftTextStyle}
             leftTitle={i18n.t('login.userName')}

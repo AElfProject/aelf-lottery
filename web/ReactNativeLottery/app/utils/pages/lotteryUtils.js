@@ -1,6 +1,7 @@
 import moment from 'moment';
 import {splitString} from './index';
 import i18n from 'i18n-js';
+import {homeImage} from '../../assets/images';
 /**
  * processing Number
  * @param  {Array}   list         operation array
@@ -197,6 +198,20 @@ const getCombined = (winningNumbers, number = 3) => {
   });
   return s.toString();
 };
+const getBetImage = type => {
+  switch (type) {
+    case 10:
+      return homeImage[3];
+    case 20:
+      return homeImage[2];
+    case 30:
+      return homeImage[1];
+    case 40:
+      return homeImage[0];
+    default:
+      return homeImage[4];
+  }
+};
 const getBetType = type => {
   let text = '';
   switch (type) {
@@ -326,6 +341,7 @@ export default {
   getThreeForm,
   getCombined,
   getBetType,
+  getBetImage,
   getStartMonthTime,
   getDrawBetNumber,
   getWinningSituation,

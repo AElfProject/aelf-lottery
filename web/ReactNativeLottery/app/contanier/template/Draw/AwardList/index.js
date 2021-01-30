@@ -6,7 +6,7 @@ import {
   ListComponent,
 } from '../../../../components/template';
 import {GStyle, Colors} from '../../../../assets/theme';
-import {awardLogo, ball} from '../../../../assets/images';
+import {awardLogo} from '../../../../assets/images';
 import {pTd} from '../../../../utils/common';
 import {TextM, TextS} from '../../../../components/template/CommonText';
 import {useFocusEffect} from '@react-navigation/native';
@@ -100,7 +100,11 @@ const AwardList = () => {
           onPress={() => onGetLottery(item)}
           style={styles.itemBox}>
           <View style={styles.leftBox}>
-            <Image resizeMode="contain" style={styles.ballBox} source={ball} />
+            <Image
+              resizeMode="contain"
+              style={styles.ballBox}
+              source={lotteryUtils.getBetImage(type)}
+            />
             <View style={styles.titleBox}>
               <TextM>{i18n.t('lottery.draw.lottery')}</TextM>
               <TextS style={styles.marginText}>

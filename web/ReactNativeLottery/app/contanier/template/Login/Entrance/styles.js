@@ -32,12 +32,11 @@ export default StyleSheet.create({
   },
   premiumAccountBox: {
     marginTop: pTd(20),
+    marginHorizontal: pTd(5),
   },
   loginAccountBox: {
     marginTop: pTd(20),
-    marginLeft: pTd(20),
-    // paddingLeft: pTd(20),
-    // borderLeftWidth: 1,
+    marginHorizontal: pTd(5),
     borderLeftColor: Colors.borderColor,
   },
   loginAccount: {
