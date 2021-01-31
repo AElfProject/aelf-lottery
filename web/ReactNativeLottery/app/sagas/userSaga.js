@@ -33,7 +33,7 @@ const {
   tokenDecimalFormat,
 } = config;
 import lotteryActions from '../redux/lotteryRedux';
-
+const approveAmount = 10000000;
 function* onRegisteredSaga(actions) {
   Loading.show();
   yield delay(500);
@@ -148,14 +148,17 @@ function* getUserBalanceSaga() {
           spender: contractNameAddressSets.lotteryContract,
         });
         const {allowance} = res;
+        console.log(allowance, '=====allowance');
         if (
           allowance !== -1 &&
           unitConverter.toLower(allowance) < confirmBlance
         ) {
+          const amount =
+            confirmBlance < approveAmount ? approveAmount : confirmBlance;
           yield tokenContract.Approve({
             symbol: tokenSymbol,
             spender: contractNameAddressSets.lotteryContract,
-            amount: unitConverter.toHigher(confirmBlance, tokenDecimalFormat),
+            amount: unitConverter.toHigher(amount, tokenDecimalFormat),
           });
         }
       }

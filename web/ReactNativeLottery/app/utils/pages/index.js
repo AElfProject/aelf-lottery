@@ -75,7 +75,7 @@ const checkImageToAlbum = async url => {
   }
 };
 const screenshots = async saveView => {
-  const {status} = await ImagePicker.requestCameraRollPermissionsAsync();
+  const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (status !== 'granted') {
     permissionDenied(i18n.t('permission.cameraRoll'));
     return false;

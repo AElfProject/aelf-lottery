@@ -144,8 +144,6 @@ const Award = () => {
                         <TextM>{title}</TextM>
                         <View style={styles.detailsBox}>
                           {list.map((item, index) => {
-                            console.log(item, '=====item');
-                            console.log(bets, '=====bets');
                             const style =
                               Array.isArray(bets) && bets.includes(item)
                                 ? {color: Colors.fontColor}
