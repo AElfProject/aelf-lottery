@@ -191,5 +191,13 @@ namespace AElf.Contracts.LotteryContract
                 Value = State.ProfitRate.Value
             };
         }
+
+        public override Int64Value GetBoughtLotteryCountInOnePeriod(GetBoughtLotteryCountInOnePeriodInput input)
+        {
+            return new Int64Value
+            {
+                Value = State.OwnerToLotteries[input.Owner][input.PeriodNumber]?.Ids.Count ?? 0
+            };
+        }
     }
 }

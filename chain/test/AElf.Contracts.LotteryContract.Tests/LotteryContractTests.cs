@@ -121,6 +121,37 @@ namespace AElf.Contracts.LotteryContract
         }
         
         [Fact]
+        public async Task BuyMultiTimesTest()
+        {
+            await InitializeAndCheckStatus();
+
+            int i = 0;
+            while (i++ < 20)
+            {
+                var boughtInformation = (await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
+                {
+                    Value = 50
+                })).Output;
+
+                boughtInformation.Amount.ShouldBe(50);
+
+                var boughtInfo = await LotteryContractStub.GetBoughtLotteryCountInOnePeriod.CallAsync(new GetBoughtLotteryCountInOnePeriodInput
+                {
+                    Owner = AliceAddress,
+                    PeriodNumber = 1
+                });
+
+                boughtInfo.Value.ShouldBe(i * 50);
+            }
+            
+            var buy = await AliceLotteryContractStub.Buy.SendWithExceptionAsync(new Int64Value
+            {
+                Value = 1
+            });
+            buy.TransactionResult.Error.ShouldContain("Too many lottery bought.");
+        }
+        
+        [Fact]
         public async Task Acs9Test()
         {
             await InitializeAndCheckStatus();

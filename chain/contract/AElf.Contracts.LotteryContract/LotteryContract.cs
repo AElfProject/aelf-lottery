@@ -90,6 +90,7 @@ namespace AElf.Contracts.LotteryContract
 
             var currentIds = State.OwnerToLotteries[Context.Sender][currentPeriod];
             currentIds.Ids.Add(newIds);
+            Assert(currentIds.Ids.Count <= LotteryBoughtCountLimitInOnePeriod, "Too many lottery bought.");
             State.OwnerToLotteries[Context.Sender][currentPeriod] = currentIds;
 
             if (State.ProfitRate.Value > 0)
