@@ -119,19 +119,20 @@ namespace AElf.Contracts.LotteryContract
                 lotteries.Count.ShouldBe(5);
             }
         }
-        
+
         [Fact]
         public async Task Acs9Test()
         {
             await InitializeAndCheckStatus();
 
-            
+
             {
                 var profitRate = await AliceLotteryContractStub.GetProfitsRate.CallAsync(new Empty());
                 profitRate.Value.ShouldBe(0);
             }
 
-            var setProfitsRate = await AliceLotteryContractStub.SetProfitsRate.SendWithExceptionAsync(new Int64Value {Value = 10});
+            var setProfitsRate =
+                await AliceLotteryContractStub.SetProfitsRate.SendWithExceptionAsync(new Int64Value {Value = 10});
             setProfitsRate.TransactionResult.Error.ShouldContain("No permission.");
             await LotteryContractStub.SetProfitsRate.SendAsync(new Int64Value {Value = 10});
 
@@ -139,14 +140,14 @@ namespace AElf.Contracts.LotteryContract
                 var profitRate = await AliceLotteryContractStub.GetProfitsRate.CallAsync(new Empty());
                 profitRate.Value.ShouldBe(10);
             }
-            
+
             var aliceTokenHolderStub = GetTokenHolderStub(AliceKeyPair);
             await aliceTokenHolderStub.RegisterForProfits.SendAsync(new RegisterForProfitsInput
             {
                 SchemeManager = LotteryContractAddress,
                 Amount = 10000000_00000000
             });
-            
+
             {
                 var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
                 {
@@ -156,12 +157,12 @@ namespace AElf.Contracts.LotteryContract
 
                 aliceBalance.Balance.ShouldBe(90000000_00000000);
             }
-            
+
             await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
             {
                 Value = 100
             });
-            
+
             {
                 var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
                 {
@@ -171,9 +172,9 @@ namespace AElf.Contracts.LotteryContract
 
                 aliceBalance.Balance.ShouldBe(89999000_00000000);
             }
-            
+
             await LotteryContractStub.TakeContractProfits.SendAsync(new TakeContractProfitsInput());
-            
+
             await aliceTokenHolderStub.ClaimProfits.SendAsync(new ClaimProfitsInput
             {
                 Beneficiary = AliceAddress,
@@ -189,7 +190,7 @@ namespace AElf.Contracts.LotteryContract
 
                 aliceBalance.Balance.ShouldBe(89999001_00000000);
             }
-            
+
             {
                 var aliceBalance = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
                 {
@@ -205,7 +206,7 @@ namespace AElf.Contracts.LotteryContract
         public async Task PrepareDrawTest()
         {
             await BuyTest(); // buy 25 lotteries
-            
+
             await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
             {
                 Period = 1,
@@ -216,10 +217,10 @@ namespace AElf.Contracts.LotteryContract
                     {"啊啊啊", 23}
                 }
             });
-            
+
             var prepare = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
             prepare.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough lottery sold.");
-            
+
             await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
             {
                 Period = 1,
@@ -293,17 +294,145 @@ namespace AElf.Contracts.LotteryContract
                 }
             });
 
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = -1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20); //20 is max
+                boughtLotteries.Lotteries.First().Id.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 0
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20); //20 is max
+                boughtLotteries.Lotteries.First().Id.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(19);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(2);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 19
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 20
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(0);
+            }
+
             // in period 2, 26th lottery
             await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
             {
                 Value = 1
             });
-            
+
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = -1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20); //20 is max
+                boughtLotteries.Lotteries.First().Id.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 0
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20); //20 is max
+                boughtLotteries.Lotteries.First().Id.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(2);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(26);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(2);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(26);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 20
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(26);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 26
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(0);
+            }
+
             {
                 var prepare = await LotteryContractStub.PrepareDraw.SendWithExceptionAsync(new Empty());
-                prepare.TransactionResult.Error.ShouldContain("Unable to prepare draw because not enough lottery sold.");
+                prepare.TransactionResult.Error.ShouldContain(
+                    "Unable to prepare draw because not enough lottery sold.");
             }
-            
+
             await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
             {
                 Period = 2,
@@ -319,16 +448,85 @@ namespace AElf.Contracts.LotteryContract
             {
                 Value = 1
             });
-            
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = -1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20); //20 is max
+                boughtLotteries.Lotteries.First().Id.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 0
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20); //20 is max
+                boughtLotteries.Lotteries.First().Id.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(2);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(26);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 2
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(3);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(27);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 26
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(27);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 27
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(0);
+            }
+
             var currentPeriodNumber = await LotteryContractStub.GetCurrentPeriodNumber.CallAsync(new Empty());
             currentPeriodNumber.Value.ShouldBe(3);
-            
+
             {
                 var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 3});
                 period.RandomHash.ShouldBe(Hash.Empty);
                 period.StartId.ShouldBe(27);
             }
-            
+
             await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 2});
 
             {
@@ -336,17 +534,122 @@ namespace AElf.Contracts.LotteryContract
                 period.RewardIds.Count.ShouldBe(1);
 
                 var lotteryCount = await LotteryContractStub.GetAllLotteriesCount.CallAsync(new Empty());
-                
+
                 period.RewardIds.First().ShouldBe(26);
             }
-            
+
             //in period 3, 28th, 29th lottery
             await AliceLotteryContractStub.Buy.SendAsync(new Int64Value
             {
                 Value = 2
             });
+
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = -1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20); //20 is max
+                boughtLotteries.Lotteries.First().Id.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 0
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20); //20 is max
+                boughtLotteries.Lotteries.First().Id.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(20);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 1
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(2);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(26);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 2
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(3);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(27);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 3
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(4);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(28);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 4
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(20);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(5);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(29);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 27
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(2);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(28);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(29);
+            }
+
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 28
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(1);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(29);
+            }
             
-            
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 29
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(0);
+            }
+
             await LotteryContractStub.SetRewardListForOnePeriod.SendAsync(new RewardsInfo
             {
                 Period = 3,
@@ -356,19 +659,44 @@ namespace AElf.Contracts.LotteryContract
                 }
             });
             
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 0,
+                    Period = 3
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(3);
+                boughtLotteries.Lotteries.First().Id.ShouldBe(27);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(29);
+            }
+            
+            {
+                var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
+                {
+                    Owner = AliceAddress,
+                    StartId = 28,
+                    Period = 3
+                });
+
+                boughtLotteries.Lotteries.Count.ShouldBe(1);
+                boughtLotteries.Lotteries.Last().Id.ShouldBe(29);
+            }
+
             await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
             await LotteryContractStub.Draw.SendAsync(new Int64Value {Value = 3});
-            
+
             {
                 var period = await LotteryContractStub.GetPeriod.CallAsync(new Int64Value {Value = 3});
                 period.RewardIds.Count.ShouldBe(3);
-                
+
                 period.RewardIds.ShouldContain(27);
                 period.RewardIds.ShouldContain(28);
                 period.RewardIds.ShouldContain(29);
             }
         }
-        
+
 
         private async Task<RepeatedField<Lottery>> AliceBuy(int amount, long period)
         {
@@ -427,8 +755,8 @@ namespace AElf.Contracts.LotteryContract
                 StartTimestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)),
                 ShutdownTimestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10))
             });
-            
-            
+
+
             // Transfer some money to Alice & Bob.
             await TokenContractStub.Transfer.SendAsync(new TransferInput
             {
@@ -436,14 +764,14 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-            
+
             await TokenContractStub.Transfer.SendAsync(new TransferInput
             {
                 To = BobAddress,
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-            
+
             await AliceTokenContractStub.Approve.SendAsync(new ApproveInput
             {
                 Spender = LotteryContractAddress,
@@ -464,9 +792,10 @@ namespace AElf.Contracts.LotteryContract
                     Receiver = "123"
                 });
             registerDividend.TransactionResult.Error.ShouldContain("Not stake yet.");
-            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
+            GetRequiredService<IBlockTimeProvider>()
+                .SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
             await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 100_000_000});
-            
+
             await AliceLotteryContractStub.RegisterDividend.SendAsync(
                 new RegisterDividendDto
                 {
@@ -491,7 +820,7 @@ namespace AElf.Contracts.LotteryContract
                 var stakingAmount = await AliceLotteryContractStub.GetStakingAmount.CallAsync(BobAddress);
                 stakingAmount.Value.ShouldBe(1000_000_000);
             }
-            
+
             {
                 var stakingTotal = await AliceLotteryContractStub.GetStakingTotal.CallAsync(new Empty());
                 stakingTotal.Value.ShouldBe(1100_000_000);
@@ -518,14 +847,14 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-            
+
             await TokenContractStub.Transfer.SendAsync(new TransferInput
             {
                 To = BobAddress,
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-            
+
             await AliceTokenContractStub.Approve.SendAsync(new ApproveInput
             {
                 Spender = LotteryContractAddress,
@@ -539,28 +868,33 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-            
+
             {
                 var setStakingShutdown = await AliceLotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                     new SetStakingTimestampInput
                         {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow), IsStartTimestamp = false});
                 setStakingShutdown.TransactionResult.Error.ShouldContain("No permission.");
             }
-            
+
 
             {
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                         new SetStakingTimestampInput
-                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(-1)), IsStartTimestamp = false});
+                        {
+                            Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(-1)), IsStartTimestamp = false
+                        });
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid shutdown timestamp.");
             }
-            
+
             {
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                         new SetStakingTimestampInput
-                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(0.5)), IsStartTimestamp = false});
+                        {
+                            Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(0.5)),
+                            IsStartTimestamp = false
+                        });
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid shutdown timestamp.");
             }
 
@@ -571,7 +905,7 @@ namespace AElf.Contracts.LotteryContract
                 var shutdownTimestamp = await LotteryContractStub.GetStakingTimestamp.CallAsync(new Empty());
                 shutdownTimestamp.ShutdownTimestamp.ShouldBe(time);
             }
-            
+
             {
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
@@ -579,10 +913,11 @@ namespace AElf.Contracts.LotteryContract
                             {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow), IsStartTimestamp = false});
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid shutdown timestamp.");
             }
-            
-            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
+
+            GetRequiredService<IBlockTimeProvider>()
+                .SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
             await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 1000});
-            
+
             {
                 var time = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(3));
                 await LotteryContractStub.SetStakingTimestamp.SendAsync(new SetStakingTimestampInput
@@ -590,15 +925,16 @@ namespace AElf.Contracts.LotteryContract
                 var shutdownTimestamp = await LotteryContractStub.GetStakingTimestamp.CallAsync(new Empty());
                 shutdownTimestamp.ShutdownTimestamp.ShouldBe(time);
             }
-            
-            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10)));
 
-            
+            GetRequiredService<IBlockTimeProvider>()
+                .SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10)));
+
+
             {
                 var stake = await AliceLotteryContractStub.Stake.SendWithExceptionAsync(new Int64Value {Value = 1000});
                 stake.TransactionResult.Error.ShouldContain("Staking shutdown.");
             }
-            
+
             {
                 var time = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10));
                 await LotteryContractStub.SetStakingTimestamp.SendAsync(new SetStakingTimestampInput
@@ -606,11 +942,12 @@ namespace AElf.Contracts.LotteryContract
                 var shutdownTimestamp = await LotteryContractStub.GetStakingTimestamp.CallAsync(new Empty());
                 shutdownTimestamp.ShutdownTimestamp.ShouldBe(time);
             }
-            
-            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
+
+            GetRequiredService<IBlockTimeProvider>()
+                .SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
             await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 1000});
         }
-        
+
         [Fact]
         public async Task StakingStartTimestampTest()
         {
@@ -631,14 +968,14 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-            
+
             await TokenContractStub.Transfer.SendAsync(new TransferInput
             {
                 To = BobAddress,
                 Symbol = "ELF",
                 Amount = 100000000_00000000
             });
-            
+
             await AliceTokenContractStub.Approve.SendAsync(new ApproveInput
             {
                 Spender = LotteryContractAddress,
@@ -657,29 +994,33 @@ namespace AElf.Contracts.LotteryContract
                 var stake = await AliceLotteryContractStub.Stake.SendWithExceptionAsync(new Int64Value {Value = 1000});
                 stake.TransactionResult.Error.ShouldContain("Staking not started.");
             }
-            
-            
+
+
             {
                 var setStakingShutdown = await AliceLotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                     new SetStakingTimestampInput
                         {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow), IsStartTimestamp = true});
                 setStakingShutdown.TransactionResult.Error.ShouldContain("No permission.");
             }
-            
+
 
             {
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                         new SetStakingTimestampInput
-                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(-1)), IsStartTimestamp = true});
+                        {
+                            Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(-1)), IsStartTimestamp = true
+                        });
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid start timestamp.");
             }
-            
+
             {
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
                         new SetStakingTimestampInput
-                            {Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10)), IsStartTimestamp = true});
+                        {
+                            Timestamp = Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10)), IsStartTimestamp = true
+                        });
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Invalid start timestamp.");
             }
 
@@ -690,15 +1031,16 @@ namespace AElf.Contracts.LotteryContract
                 var shutdownTimestamp = await LotteryContractStub.GetStakingTimestamp.CallAsync(new Empty());
                 shutdownTimestamp.StartTimestamp.ShouldBe(time);
             }
-            
-            
+
+
             {
                 var stake = await AliceLotteryContractStub.Stake.SendWithExceptionAsync(new Int64Value {Value = 1000});
                 stake.TransactionResult.Error.ShouldContain("Staking not started.");
             }
-            GetRequiredService<IBlockTimeProvider>().SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(2)));
+            GetRequiredService<IBlockTimeProvider>()
+                .SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(2)));
             await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 1000});
-            
+
             {
                 var setStakingShutdown =
                     await LotteryContractStub.SetStakingTimestamp.SendWithExceptionAsync(
@@ -707,7 +1049,7 @@ namespace AElf.Contracts.LotteryContract
                 setStakingShutdown.TransactionResult.Error.ShouldContain("Start timestamp already passed.");
             }
         }
-        
+
         [Fact]
         public async Task TakeBackTokentTest()
         {
@@ -736,9 +1078,9 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = "ELF",
                 Amount = 1000_000_000_000
             });
-            
+
             takeBack.TransactionResult.Error.ShouldContain("No permission.");
-            
+
             await LotteryContractStub.TakeBackToken.SendAsync(new TakeBackTokenInput
             {
                 Symbol = "ELF",

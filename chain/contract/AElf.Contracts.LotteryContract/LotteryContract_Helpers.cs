@@ -94,5 +94,43 @@ namespace AElf.Contracts.LotteryContract
         {
             Assert(!State.IsSuspend.Value, "Cannot do anything.");
         }
+
+        private List<long> FillHigherLotteryIdList(long periodNumber, int start, Address owner)
+        {
+            var lotteryList = FillSamePeriodHigherLotteryIdList(periodNumber, start, owner);
+
+            if (lotteryList.Count >= MaximumReturnAmount) return lotteryList;
+            
+            for (var i = periodNumber + 1; i <= State.CurrentPeriod.Value; i++)
+            {
+                var list = State.OwnerToLotteries[owner][i];
+                if (list == null || list.Ids.Count <= 0) continue;
+                foreach (var t in list.Ids)
+                {
+                    lotteryList.Add(t);
+                    if (lotteryList.Count >= MaximumReturnAmount)
+                        break;
+                }
+                
+                if (lotteryList.Count >= MaximumReturnAmount)
+                    break;
+            }
+
+            return lotteryList;
+        }
+
+        private List<long> FillSamePeriodHigherLotteryIdList(long periodNumber, int start, Address owner)
+        {
+            var lotteryList = new List<long>();
+            Assert(start >= 0, "Start id not found.");
+            
+            var locatedList = State.OwnerToLotteries[owner][periodNumber].Ids;
+            for (var i = start; i < locatedList.Count; i++)
+            {
+                lotteryList.Add(locatedList[i]);
+            }
+
+            return lotteryList;
+        }
     }
 }

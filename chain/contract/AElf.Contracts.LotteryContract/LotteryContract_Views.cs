@@ -38,41 +38,47 @@ namespace AElf.Contracts.LotteryContract
 
         public override GetBoughtLotteriesOutput GetBoughtLotteries(GetBoughtLotteriesInput input)
         {
-            List<long> returnLotteryIds;
+            var returnLotteryIds = new List<long>();
             var owner = input.Owner ?? Context.Sender;
 
-            var lotteryList = new LotteryList();
             if (input.Period == 0)
             {
                 for (var period = 1; period <= State.CurrentPeriod.Value; period++)
                 {
                     var list = State.OwnerToLotteries[owner][period];
-                    if (list != null)
+                    if (list == null || list.Ids.Count <= 0 || list.Ids.Last() < input.StartId) continue;
+                    if (input.StartId <= 0)
                     {
-                        // TODO: Optimize this if current period number is big enough.
-                        lotteryList.Ids.Add(list.Ids.Where(i => i > input.StartId));
+                        returnLotteryIds = FillHigherLotteryIdList(period, 0, owner);
+                        break;
                     }
+
+                    var index = list.Ids.ToList().BinarySearch(input.StartId);
+                    Assert(index >= 0, "Start id not found.");
+                    var start = index.Add(1);
+                    returnLotteryIds = FillHigherLotteryIdList(period, start, owner);
+                    break;
                 }
             }
             else
             {
-                lotteryList = State.OwnerToLotteries[owner][input.Period];
-                if (lotteryList == null)
+                var list = State.OwnerToLotteries[owner][input.Period];
+                if (list == null || list.Ids.Count == 0)
                 {
                     return new GetBoughtLotteriesOutput();
                 }
-            }
 
-            var allLotteryIds = lotteryList.Ids.ToList();
-            if (allLotteryIds.Count <= MaximumReturnAmount)
-            {
-                returnLotteryIds = allLotteryIds;
-            }
-            else
-            {
-                Assert(input.StartId < allLotteryIds.Last(), "Start id is too big.");
-                var takeAmount = Math.Min(allLotteryIds.Count(i => i > input.StartId), MaximumReturnAmount);
-                returnLotteryIds = allLotteryIds.Where(i => i > input.StartId).Take(takeAmount).ToList();
+                if (input.StartId <= 0)
+                {
+                    returnLotteryIds = FillSamePeriodHigherLotteryIdList(input.Period, 0, owner);
+                }
+                else
+                {
+                    var index = list.Ids.ToList().BinarySearch(input.StartId);
+                    Assert(index >= 0, "Start id not found.");
+                    var start = index.Add(1);
+                    returnLotteryIds = FillSamePeriodHigherLotteryIdList(input.Period, start, owner);
+                }
             }
 
             return new GetBoughtLotteriesOutput
