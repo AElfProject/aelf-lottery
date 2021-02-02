@@ -50,6 +50,8 @@ service LotteryContract {
     }
     rpc SetProfitsRate (google.protobuf.Int64Value) returns (google.protobuf.Empty) {
     }
+    rpc ChangeBoughtLotteryReturnLimit (google.protobuf.Int32Value) returns (google.protobuf.Empty) {
+    }
     
     rpc GetRewardResult (google.protobuf.Int64Value) returns (GetRewardResultOutput) {
         option (aelf.is_view) = true;
@@ -108,9 +110,12 @@ service LotteryContract {
     rpc GetProfitsRate (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    rpc GetBoughtLotteryCountInOnePeriod (GetBoughtLotteryCountInOnePeriodInput) returns (google.protobuf.Int64Value){
+    rpc GetBoughtLotteryCountInOnePeriod (GetBoughtLotteryCountInOnePeriodInput) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
-    }   
+    }
+    rpc GetBoughtLotteryReturnLimit (google.protobuf.Empty) returns (google.protobuf.Int32Value) {
+        option (aelf.is_view) = true;
+    }
 }
 
 message InitializeInput {

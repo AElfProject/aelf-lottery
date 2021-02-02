@@ -64,14 +64,15 @@ namespace AElf.Contracts.LotteryContract
             }
 
             var allLotteryIds = lotteryList.Ids.ToList();
-            if (allLotteryIds.Count <= MaximumReturnAmount)
+            var limit = GetBoughtLotteryReturnLimit(new Empty()).Value;
+            if (allLotteryIds.Count <= limit)
             {
                 returnLotteryIds = allLotteryIds;
             }
             else
             {
                 Assert(input.StartId < allLotteryIds.Last(), "Start id is too big.");
-                var takeAmount = Math.Min(allLotteryIds.Count(i => i > input.StartId), MaximumReturnAmount);
+                var takeAmount = Math.Min(allLotteryIds.Count(i => i > input.StartId), limit);
                 returnLotteryIds = allLotteryIds.Where(i => i > input.StartId).Take(takeAmount).ToList();
             }
 
@@ -197,6 +198,16 @@ namespace AElf.Contracts.LotteryContract
             return new Int64Value
             {
                 Value = State.OwnerToLotteries[input.Owner][input.PeriodNumber]?.Ids.Count ?? 0
+            };
+        }
+
+        public override Int32Value GetBoughtLotteryReturnLimit(Empty input)
+        {
+            return new Int32Value
+            {
+                Value = State.BoughtLotteryReturnLimit.Value == 0
+                    ? MaximumReturnAmount
+                    : State.BoughtLotteryReturnLimit.Value
             };
         }
     }

@@ -51,5 +51,7 @@ namespace AElf.Contracts.LotteryContract
 
         public SingletonState<Timestamp> StakingStartTimestamp { get; set; }
         public SingletonState<Timestamp> StakingShutdownTimestamp { get; set; }
+        
+        public Int32State BoughtLotteryReturnLimit { get; set; }
     }
 }

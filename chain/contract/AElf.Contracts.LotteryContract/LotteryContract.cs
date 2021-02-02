@@ -326,5 +326,13 @@ namespace AElf.Contracts.LotteryContract
             State.ProfitRate.Value = input.Value;
             return new Empty();
         }
+
+        public override Empty ChangeBoughtLotteryReturnLimit(Int32Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            Assert(input.Value >= 0, "BoughtLotteryReturnLimit cannot be negative.");
+            State.BoughtLotteryReturnLimit.Value = input.Value;
+            return new Empty();
+        }
     }
 }
