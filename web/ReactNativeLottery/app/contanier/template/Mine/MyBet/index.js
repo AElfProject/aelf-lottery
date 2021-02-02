@@ -145,7 +145,7 @@ const MyBet = () => {
         </Touchable>
       );
     },
-    [currentPeriod.periodNumber, language, onGetLottery],
+    [currentPeriod, language, onGetLottery],
   );
   return (
     <View style={GStyle.container}>

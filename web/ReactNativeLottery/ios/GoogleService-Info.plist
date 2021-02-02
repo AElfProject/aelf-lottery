@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>509027181400-kvk3c8chgvi8hv5hpre352h3qp5qhhkr.apps.googleusercontent.com</string>
+	<string>328358300019-s3bo40lii3gbml2vdncpog9u39unu9s4.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.509027181400-kvk3c8chgvi8hv5hpre352h3qp5qhhkr</string>
+	<string>com.googleusercontent.apps.328358300019-s3bo40lii3gbml2vdncpog9u39unu9s4</string>
 	<key>API_KEY</key>
-	<string>AIzaSyD-byFHB6T-D5gxjPTgMs9iv4BW8V6zZPY</string>
+	<string>AIzaSyAkhliddwY73TJ8LPc-Y3lueojswOuPc30</string>
 	<key>GCM_SENDER_ID</key>
-	<string>509027181400</string>
+	<string>328358300019</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.aelf.aelfBox</string>
 	<key>PROJECT_ID</key>
-	<string>aelf-lottery</string>
+	<string>luck-box-aelf</string>
 	<key>STORAGE_BUCKET</key>
-	<string>aelf-lottery.appspot.com</string>
+	<string>luck-box-aelf.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:509027181400:ios:faa80fa9a545b547723b2d</string>
-	<key>DATABASE_URL</key>
-	<string>https://aelf-lottery.firebaseio.com</string>
+	<string>1:328358300019:ios:7b0ba5edb3b5b1c9fc5d06</string>
 </dict>
 </plist>
