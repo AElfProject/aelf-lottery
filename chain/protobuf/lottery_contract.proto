@@ -234,6 +234,7 @@ message LotteryDetail {
     google.protobuf.Timestamp create_time = 9;
     bool expired = 10;
     int64 start_period_number_of_day = 11;
+    int32 multiplied = 12;
 }
 
 message GetLatestCashedLotteryOutput {

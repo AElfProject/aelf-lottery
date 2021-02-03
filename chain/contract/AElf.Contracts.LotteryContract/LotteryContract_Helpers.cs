@@ -196,7 +196,8 @@ namespace AElf.Contracts.LotteryContract
                 CreateTime = lottery.CreateTime,
                 StartPeriodNumberOfDay = State.StartPeriodNumberOfDay[date],
                 Expired = lottery.Expired || period.DrawTime != null && !lottery.Cashed && reward > 0 &&
-                          period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime
+                          period.DrawTime.AddDays(State.CashDuration.Value) < Context.CurrentBlockTime,
+                Multiplied = GetLotteryMultiplied(lottery)
             };
         }
         
