@@ -65,12 +65,15 @@ namespace AElf.Contracts.LotteryContract
         {
             var currentPeriod = State.Periods[State.CurrentPeriodNumber.Value];
             Assert(currentPeriod.DrawTime == null, $"Period {State.CurrentPeriodNumber.Value} has been drew.");
+            Assert(input.Multiplied >= 0 && input.Multiplied <= GetMaxMultiplied(new Empty()).Value, "Invalid rate input.");
+            
             var lotteryType = (LotteryType) input.Type;
             var bit = GetBit(lotteryType);
-            Assert(bit.ValidateBetInfos(input.BetInfos), "Invalid bet info");
+            Assert(bit.ValidateBetInfos(input.BetInfos), "Invalid bet info.");
             var betCount = bit.CalculateBetCount(input.BetInfos);
-            var totalAmount = State.Price.Value.Mul(betCount);
+            var totalAmount = State.Price.Value.Mul(betCount).Mul(input.Multiplied);
             var bonus = totalAmount.Mul(State.BonusRate.Value).Div(GetRateDenominator());
+            
             State.TokenContract.TransferFrom.Send(new TransferFromInput
             {
                 From = Context.Sender,
@@ -97,7 +100,8 @@ namespace AElf.Contracts.LotteryContract
                 Price = State.Price.Value,
                 BlockNumber = Context.CurrentHeight,
                 CreateTime = Context.CurrentBlockTime,
-                Type = (LotteryType) input.Type
+                Type = (LotteryType) input.Type,
+                Multiplied = input.Multiplied
             };
             State.Lotteries[lotteryId] = lottery;
             AddUnDrawnLottery(Context.Sender, lotteryId);
@@ -249,6 +253,14 @@ namespace AElf.Contracts.LotteryContract
                 To = State.Admin.Value
             });
             
+            return new Empty();
+        }
+        
+        public override Empty SetMaxMultiplied(Int32Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            Assert(input.Value > 0, "Invalid input");
+            State.MaxMultiplied.Value = input.Value;
             return new Empty();
         }
     }

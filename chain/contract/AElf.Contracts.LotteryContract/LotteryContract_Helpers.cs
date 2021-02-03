@@ -217,7 +217,13 @@ namespace AElf.Contracts.LotteryContract
         private long CalculateReward(Lottery lottery, int luckNumber)
         {
             var bit = GetBit(lottery.Type);
-            return bit.GetWinBetCount(luckNumber, lottery.BetInfos) * State.Rewards[lottery.Type];
+            return bit.GetWinBetCount(luckNumber, lottery.BetInfos).Mul(GetLotteryMultiplied(lottery)) *
+                   State.Rewards[lottery.Type];
+        }
+
+        private int GetLotteryMultiplied(Lottery lottery)
+        {
+            return lottery.Multiplied == 0 ? 1 : lottery.Multiplied;
         }
 
         private int GetRateDenominator()

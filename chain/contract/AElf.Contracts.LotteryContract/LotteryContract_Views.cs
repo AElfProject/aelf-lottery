@@ -235,5 +235,13 @@ namespace AElf.Contracts.LotteryContract
                 Decimals = RateDecimals
             };
         }
+
+        public override Int32Value GetMaxMultiplied(Empty input)
+        {
+            return new Int32Value
+            {
+                Value = State.MaxMultiplied.Value == 0 ? DefaultMaxMultiplied : State.MaxMultiplied.Value
+            };
+        }
     }
 }

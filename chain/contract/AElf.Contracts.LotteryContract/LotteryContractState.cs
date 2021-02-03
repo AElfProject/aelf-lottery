@@ -21,6 +21,8 @@ namespace AElf.Contracts.LotteryContract
         public SingletonState<int> BonusRate { get; set; }
         public SingletonState<int> ProfitRate { get; set; }
 
+        public SingletonState<int> MaxMultiplied { get; set; }
+        
         public SingletonState<Address> Admin { get; set; }
         
         public MappedState<long, PeriodBody> Periods { get; set; }

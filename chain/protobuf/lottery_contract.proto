@@ -33,6 +33,8 @@ service LotteryContract {
     }
     rpc SetPrice(google.protobuf.Int64Value) returns (google.protobuf.Empty) {
     }
+    rpc SetMaxMultiplied (google.protobuf.Int32Value) returns (google.protobuf.Empty){
+    }
     rpc TakeBackToken(TakeBackTokenInput) returns (google.protobuf.Empty) {
     }
 
@@ -101,6 +103,9 @@ service LotteryContract {
     rpc GetTotalPeriodCount (aelf.Address) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
+    rpc GetMaxMultiplied (google.protobuf.Empty) returns (google.protobuf.Int32Value) {
+        option (aelf.is_view) = true;
+    }
 }
 
 message InitializeInput {
@@ -115,6 +120,7 @@ message BuyInput {
     int32 type = 1;
     repeated BetBody bet_infos = 2;
     aelf.Address seller = 3;
+    int32 multiplied = 4;
 }
 
 enum LotteryType {
@@ -213,6 +219,7 @@ message Lottery {
     int64 block_number = 11;
     google.protobuf.Timestamp create_time = 12;
     bool expired = 13;
+    int32 multiplied = 14;
 }
 
 message LotteryDetail {
