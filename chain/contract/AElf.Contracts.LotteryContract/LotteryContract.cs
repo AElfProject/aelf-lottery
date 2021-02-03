@@ -71,7 +71,7 @@ namespace AElf.Contracts.LotteryContract
             var bit = GetBit(lotteryType);
             Assert(bit.ValidateBetInfos(input.BetInfos), "Invalid bet info.");
             var betCount = bit.CalculateBetCount(input.BetInfos);
-            var totalAmount = State.Price.Value.Mul(betCount).Mul(input.Multiplied);
+            var totalAmount = State.Price.Value.Mul(betCount).Mul(input.Multiplied == 0 ? 1 : input.Multiplied);
             var bonus = totalAmount.Mul(State.BonusRate.Value).Div(GetRateDenominator());
             
             State.TokenContract.TransferFrom.Send(new TransferFromInput
