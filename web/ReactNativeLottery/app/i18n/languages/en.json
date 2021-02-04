@@ -272,6 +272,10 @@
 
   "_comment": "Lottery section",
   "lottery": {
+    "times": "times",
+    "Multiple": "Multiple",
+    "Times": "Times ",
+    "TimesTip": "Your chosen 'X' can only be an integer,can not be more than {{maxMultiplied}}",
     "drawT": "Draw",
     "bet": "Let's go",
     "myBet": "My Choice",

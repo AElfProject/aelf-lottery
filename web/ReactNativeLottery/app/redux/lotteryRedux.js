@@ -22,6 +22,9 @@ const {Types, Creators} = createActions({
   getLotteryPrice: ['lotteryContract', 'lotteryInfo'],
   setLotteryPrice: ['lotteryPrice'],
 
+  getMaxMultiplied: ['lotteryContract', 'lotteryInfo'],
+  setMaxMultiplied: ['maxMultiplied'],
+
   getLotteryRewards: ['lotteryContract', 'lotteryInfo'],
   setLotteryRewards: ['lotteryRewards'],
 
@@ -65,6 +68,7 @@ export const INITIAL_STATE = Immutable({
   lotterySymbol: null,
   lotteryBalance: 0,
   lotteryPrice: null,
+  maxMultiplied: 10,
   lotteryRewards: null,
   lotteryCashed: null,
   lotteryDuration: null,
@@ -133,6 +137,13 @@ export const getLotteryPrice = state => {
 };
 export const setLotteryPrice = (state, {lotteryPrice}) => {
   return state.merge({lotteryPrice});
+};
+
+export const getMaxMultiplied = state => {
+  return state.merge();
+};
+export const setMaxMultiplied = (state, {maxMultiplied}) => {
+  return state.merge({maxMultiplied});
 };
 
 export const getLotteryRewards = state => {
@@ -229,6 +240,9 @@ export const reducer = createReducer(INITIAL_STATE, {
 
   [Types.GET_LOTTERY_PRICE]: getLotteryPrice,
   [Types.SET_LOTTERY_PRICE]: setLotteryPrice,
+
+  [Types.GET_MAX_MULTIPLIED]: getMaxMultiplied,
+  [Types.SET_MAX_MULTIPLIED]: setMaxMultiplied,
 
   [Types.GET_LOTTERY_REWARDS]: getLotteryRewards,
   [Types.SET_LOTTERY_REWARDS]: setLotteryRewards,

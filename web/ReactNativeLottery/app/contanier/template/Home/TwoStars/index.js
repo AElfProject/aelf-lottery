@@ -23,6 +23,7 @@ const TwoStars = () => {
     },
   ]);
   const [betList, setBetList] = useState([]);
+  const [multiplied, setMultiplied] = useState(1);
   const {lotteryRewards} = useStateToProps(base => {
     const {lottery} = base;
     return {
@@ -42,8 +43,9 @@ const TwoStars = () => {
       data,
       betList,
       lotteryType,
+      multiplied,
     });
-  }, [betList, data]);
+  }, [betList, data, multiplied]);
   const onTool = useCallback(
     (first, type) => {
       const list = lotteryUtils.processingTool(data, betList, first, type);
@@ -53,26 +55,32 @@ const TwoStars = () => {
   );
   return (
     <View style={GStyle.container}>
-      <CommonHeader title={i18n.t('lottery.twoStars')} canBack />
-      <View style={styles.titleBox}>
-        <TextL style={styles.titleStyle}>
-          {i18n.t('lottery.directElection')}
+      <CommonHeader title={i18n.t('lottery.twoStars')} canBack>
+        <View style={styles.titleBox}>
+          <TextL style={styles.titleStyle}>
+            {i18n.t('lottery.directElection')}
+          </TextL>
+        </View>
+        <TextL style={styles.tipStyle}>
+          {i18n.t('lottery.twoStarsTip')}
+          {bonusAmount}
+          {i18n.t('lottery.unit')}
         </TextL>
-      </View>
-      <TextL style={styles.tipStyle}>
-        {i18n.t('lottery.twoStarsTip')}
-        {bonusAmount}
-        {i18n.t('lottery.unit')}
-      </TextL>
-      <BetBody
-        onTool={onTool}
-        betList={betList}
-        data={data}
-        onBet={onBet}
-        onClear={() => setBetList([])}
-        bonusAmount={bonusAmount}
-        onSelect={onSelect}
-      />
+        <BetBody
+          onTool={onTool}
+          betList={betList}
+          data={data}
+          onBet={onBet}
+          setMultiplied={setMultiplied}
+          multiplied={multiplied}
+          onClear={() => {
+            setBetList([]);
+            setMultiplied(1);
+          }}
+          bonusAmount={bonusAmount}
+          onSelect={onSelect}
+        />
+      </CommonHeader>
     </View>
   );
 };

@@ -10,6 +10,7 @@ const Colors = {
   fontBlack: '#333333',
   fontGray: '#999999',
   fontColor: '#FC4D30',
+  fontWhite: 'white',
 
   bgColor: '#ffffff',
   bgColor2: 'white',

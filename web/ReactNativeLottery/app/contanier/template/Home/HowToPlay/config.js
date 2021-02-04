@@ -18,7 +18,10 @@ Lucky Box选择区分为万位、千位、百位、十位和个位，各位号�
  
 5）至尊直选
 对万位、千位、百位、十位和个位各选1个号码为一次机会，每位号码可从0～9全选，选择号码与开奖号码按位一致，即为中奖，单次机会奖金100000幸运币。
- 
+
+6）倍数选择或输入
+对普通、优选、精选、臻选、至尊这5种玩法选择的机会进行加倍，只能按照整数进行加倍。
+
 2、设奖与中奖
 普通——中十位和个位大小单双——4幸运币
 优选——中个位号码——10幸运币
@@ -35,7 +38,7 @@ Lucky Box选择区分为万位、千位、百位、十位和个位，各位号�
   },
   en: {
     details: `
-The bets of Lucky Box is divided into 5 digit, 4 digit, 3 digit, 2 digit and 1 digit. Each digit range is 0-9. We will draw a number from each digit as the winning number, that is, the winning number is 5 digits. The Lucky Box is to guess all the numbers or part number of the 5-digit winning numbers. There are two ways to play Lucky Box, including ‘pick number’ and ‘big, small, odd, even’(Average). ‘Pick number’ includes pick 1(Fair) , pick 2(Good), pick 3 (Very Good) and pick 5 (Excellent).
+The bets of Lucky Box is divided into 5 digit, 4 digit, 3 digit, 2 digit and 1 digit. Each digit range is 0-9. We will draw a number from each digit as the winning number, that is, the winning number is 5 digits. The Lucky Box is to guess all the numbers or part number of the 5-digit winning numbers. There are two ways to play Lucky Box, including ‘big, small, odd, even’(Average), ‘Pick number’ includes pick 1(Fair) , pick 2(Good), pick 3 (Very Good) and pick 5 (Excellent).
 
 A. How to Play
 
@@ -51,9 +54,11 @@ Place a bet, select 2 number from 0 to 9 for the ten digits and one digit. If th
 4. Pick 3 - Straight (Exact Order) (Very Good)
 Select 3 digits from 0 to 9. If the 3 digits you choose match the last three digits of winning number in exact order, you can win. The prize for a single bet is 1000 lucky coins.
 
-Pick 5 - Straight (Exact Order) (Excellent)
+5. Pick 5 - Straight (Exact Order) (Excellent)
 Select 5 digits from 0 to 9. If the 5 digits you choose match the winning number in exact order, you can win. The prize for a single bet is 100,000 lucky coins.
-    
+
+6.Choose or input x times
+Increased x times for 5 play options. X can only be an integer (x = 1,2,3...n). 5 play options includes ‘big, small, odd, even’(Average), ‘Pick number’ includes pick 1(Fair) , pick 2(Good), pick 3 (Very Good) and pick 5 (Excellent).
 
 
 B. Prize rules

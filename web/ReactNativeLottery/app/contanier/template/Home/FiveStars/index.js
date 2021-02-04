@@ -35,6 +35,7 @@ const FiveStars = () => {
     },
   ]);
   const [betList, setBetList] = useState([]);
+  const [multiplied, setMultiplied] = useState(1);
   const {lotteryRewards} = useStateToProps(base => {
     const {lottery} = base;
     return {
@@ -56,8 +57,9 @@ const FiveStars = () => {
       data,
       betList,
       lotteryType,
+      multiplied,
     });
-  }, [betList, data]);
+  }, [betList, data, multiplied]);
   const onTool = useCallback(
     (first, type) => {
       const list = lotteryUtils.processingTool(data, betList, first, type);
@@ -83,10 +85,14 @@ const FiveStars = () => {
           betList={betList}
           data={data}
           onBet={onBet}
-          onClear={() => setBetList([])}
+          setMultiplied={setMultiplied}
+          multiplied={multiplied}
+          onClear={() => {
+            setBetList([]);
+            setMultiplied(1);
+          }}
           bonusAmount={bonusAmount}
           onSelect={onSelect}
-          betComponentStyle={styles.betComponentStyle}
         />
       </CommonHeader>
     </View>
@@ -107,8 +113,5 @@ const styles = StyleSheet.create({
   },
   titleStyle: {
     color: Colors.fontColor,
-  },
-  betComponentStyle: {
-    marginTop: pTd(10),
   },
 });

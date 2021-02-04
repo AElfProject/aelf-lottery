@@ -1,4 +1,4 @@
-import React, {memo, useCallback} from 'react';
+import React, {memo, useCallback, Fragment} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {TextM, TextL} from '../../../../components/template/CommonText';
 import {Colors} from '../../../../assets/theme';
@@ -19,7 +19,6 @@ const ShowBetComponent = props => {
       lotteryPrice: lottery.lotteryPrice,
     };
   });
-  console.log(props, '=====props');
   const {
     betList,
     data,
@@ -28,16 +27,28 @@ const ShowBetComponent = props => {
     bonusAmount,
     betComponentStyle,
     lotteryType,
+    multiplied,
   } = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
-  const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
+  const betValue = lotteryUtils.getBetValue(
+    betNumber,
+    lotteryPrice,
+    multiplied,
+  );
   const disabled = data.every((item, index) => {
-    return Array.isArray(betList[index]) && betList[index].length > 0;
+    return (
+      Array.isArray(betList[index]) && betList[index].length > 0 && multiplied
+    );
   });
-  let Amount = bonusAmount;
+  let Amount = bonusAmount * multiplied;
   let profit = (Amount || 1) - betValue;
   if (lotteryType === LOTTERY_TYPE.SIMPLE && disabled) {
-    const {A, P} = lotteryUtils.getSimpleAmount(bonusAmount, betList, betValue);
+    const {A, P} = lotteryUtils.getSimpleAmount(
+      bonusAmount,
+      betList,
+      betValue,
+      multiplied,
+    );
     Amount = A;
     profit = P;
   }
@@ -58,7 +69,9 @@ const ShowBetComponent = props => {
         {i18n.t('lottery.currentlySelected')}&nbsp;
         <TextL style={styles.colorText}>{betNumber}</TextL>
         &nbsp;
-        {i18n.t('lottery.note')}, {i18n.t('lottery.total')}&nbsp;
+        {i18n.t('lottery.note')},&nbsp;
+        <TextL style={styles.colorText}>×{multiplied}</TextL>&nbsp;
+        {i18n.t('lottery.times')}, {i18n.t('lottery.total')}&nbsp;
         <TextL style={styles.colorText}>{betValue}</TextL>
         &nbsp;
         {i18n.t('lottery.unit')}
@@ -75,19 +88,29 @@ const ShowBetComponent = props => {
             ? data.map((item, index) => {
                 if (Array.isArray(betList[index]) && betList[index].length) {
                   return (
-                    <View key={index} style={styles.itemBox}>
-                      <TextM>
-                        {item.title} [&nbsp;
-                        {betList[index].map((i, j) => {
-                          let text = item.playList[i];
-                          if (j !== 0) {
-                            text = `/${text}`;
-                          }
-                          return text;
-                        })}
-                        &nbsp;]
-                      </TextM>
-                    </View>
+                    <Fragment key={index}>
+                      <View key={index} style={styles.itemBox}>
+                        <TextM>
+                          {item.title} [&nbsp;
+                          {betList[index].map((i, j) => {
+                            let text = item.playList[i];
+                            if (j !== 0) {
+                              text = `/${text}`;
+                            }
+                            return text;
+                          })}
+                          &nbsp;]
+                        </TextM>
+                      </View>
+                      {index === data.length - 1 && (
+                        <View style={styles.itemBox}>
+                          <TextM>{i18n.t('lottery.Times')}&nbsp;</TextM>
+                          <TextM style={styles.multiplied}>
+                            [&nbsp;×{multiplied}&nbsp;]
+                          </TextM>
+                        </View>
+                      )}
+                    </Fragment>
                   );
                 }
               })
@@ -111,6 +134,7 @@ export default memo(ShowBetComponent);
 
 const styles = StyleSheet.create({
   bottomBox: {
+    marginTop: pTd(80),
     marginHorizontal: pTd(20),
     flex: 1,
     justifyContent: 'center',

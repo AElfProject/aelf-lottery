@@ -62,8 +62,8 @@ const processingTool = (data, list, first, type) => {
     return list;
   }
 };
-const getBetValue = (betNumber, betPerValue = 0) => {
-  return betNumber * betPerValue;
+const getBetValue = (betNumber, betPerValue = 0, multiplied = 1) => {
+  return betNumber * betPerValue * multiplied;
 };
 const getBetNumber = (data, betArr) => {
   let number = 0;
@@ -310,20 +310,26 @@ const getDrawBetStr = (type, betInfos) => {
   }
   return List;
 };
-const getSimpleAmount = (bonusAmount, betList, betValue) => {
+const getSimpleAmount = (
+  bonusAmount = 1,
+  betList,
+  betValue,
+  multiplied = 1,
+) => {
   let A = bonusAmount;
   let P = (bonusAmount || 1) - betValue;
+  const amount = bonusAmount * multiplied;
   if (Array.isArray(betList)) {
     let f = betList[0];
     let s = betList[1];
     if (Array.isArray(f) && Array.isArray(s)) {
       console.log(betList, '=====betList');
       if (f.length === 4 && s.length === 4) {
-        A = bonusAmount * 4;
-        P = bonusAmount * 4 - betValue;
+        A = amount * 4;
+        P = amount * 4 - betValue;
       } else if (f.length !== 1 || s.length !== 1) {
-        A = `${bonusAmount}~${bonusAmount * 4}`;
-        P = `${bonusAmount - betValue}~${bonusAmount * 4 - betValue}`;
+        A = `${amount}~${amount * 4}`;
+        P = `${amount - betValue}~${amount * 4 - betValue}`;
       }
     }
   }

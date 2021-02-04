@@ -272,6 +272,10 @@
 
   "_comment": "Lottery section",
   "lottery": {
+    "times": "倍",
+    "Multiple": "加倍",
+    "Times": "倍数",
+    "TimesTip": "*倍数的选择和输入只支持整数，不能超过 {{maxMultiplied}} 倍",
     "drawT": "开奖",
     "bet": "选择",
     "myBet": "我的选择",
@@ -328,7 +332,7 @@
     "note": "次机会",
     "total": "共",
     "winningTip": "如果中奖, 奖金金额为{{bonusAmount}}, 总共获利{{profit}}",
-    "clearSelection": "清除选号",
+    "clearSelection": "清空",
     "order": "下单",
     "draw": {
       "lottery": "Lucky Box",

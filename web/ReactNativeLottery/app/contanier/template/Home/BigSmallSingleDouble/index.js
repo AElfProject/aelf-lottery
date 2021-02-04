@@ -33,6 +33,7 @@ const BigSmallSingleDouble = () => {
     },
   ]);
   const [betList, setBetList] = useState([]);
+  const [multiplied, setMultiplied] = useState(1);
   const {lotteryRewards} = useStateToProps(base => {
     const {lottery} = base;
     return {
@@ -52,24 +53,31 @@ const BigSmallSingleDouble = () => {
       data,
       betList,
       lotteryType,
+      multiplied,
     });
-  }, [betList, data]);
+  }, [betList, data, multiplied]);
   return (
     <View style={GStyle.container}>
-      <CommonHeader title={i18n.t('lottery.simple')} canBack />
-      <TextL style={styles.tipStyle}>
-        {i18n.t('lottery.simpleTip')} {bonusAmount}
-        {i18n.t('lottery.unit')}!
-      </TextL>
-      <BetBody
-        betList={betList}
-        data={data}
-        onBet={onBet}
-        lotteryType={lotteryType}
-        onClear={() => setBetList([])}
-        bonusAmount={bonusAmount}
-        onSelect={onSelect}
-      />
+      <CommonHeader title={i18n.t('lottery.simple')} canBack>
+        <TextL style={styles.tipStyle}>
+          {i18n.t('lottery.simpleTip')} {bonusAmount}
+          {i18n.t('lottery.unit')}!
+        </TextL>
+        <BetBody
+          betList={betList}
+          data={data}
+          onBet={onBet}
+          lotteryType={lotteryType}
+          setMultiplied={setMultiplied}
+          multiplied={multiplied}
+          onClear={() => {
+            setBetList([]);
+            setMultiplied(1);
+          }}
+          bonusAmount={bonusAmount}
+          onSelect={onSelect}
+        />
+      </CommonHeader>
     </View>
   );
 };

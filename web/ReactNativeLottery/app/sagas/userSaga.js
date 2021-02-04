@@ -95,6 +95,7 @@ function* onAppInitSaga({privateKey}) {
     privateKey = privateKey || userInfo.privateKey;
     console.log(privateKey, '=====privateKey');
     const contract = yield getContract(privateKey, contractNameAddressSets);
+    console.log(contract, '=====contract');
     if (contract && Object.keys(contract).length > 0) {
       yield put(contractsActions.setContracts({contracts: contract}));
       yield put(userActions.getAllowanceList());

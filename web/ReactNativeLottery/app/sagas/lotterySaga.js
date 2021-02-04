@@ -28,7 +28,7 @@ const {contractNameAddressSets, lotterySellerAddress, tokenSymbol} = config;
 function* buySaga({data}) {
   try {
     Loading.show();
-    const {betList, lotteryType} = data || {};
+    const {betList, lotteryType, multiplied} = data || {};
     const userInfo = yield select(userSelectors.getUserInfo);
     const {lotteryContract} = userInfo.contracts || {};
     const betInfos = lotteryUtils.getBetInfos(lotteryType, betList);
@@ -37,6 +37,7 @@ function* buySaga({data}) {
         betInfos,
         type: lotteryType,
         seller: lotterySellerAddress,
+        multiplied,
       };
       console.log(BuyInput, '=====BuyInput');
       const buy = yield lotteryContract.Buy(BuyInput);
@@ -68,6 +69,8 @@ function* initLotterySaga() {
       yield put(lotteryActions.getCurrentPeriod(lotteryContract, lotteryInfo));
 
       yield put(lotteryActions.getLotteryPrice(lotteryContract, lotteryInfo));
+
+      yield put(lotteryActions.getMaxMultiplied(lotteryContract, lotteryInfo));
 
       yield put(lotteryActions.getLotteryRewards(lotteryContract, lotteryInfo));
 
@@ -122,6 +125,18 @@ function* getLotteryPriceSaga({lotteryContract, lotteryInfo}) {
     const lotteryPrice = unitConverter.toLower(price?.value);
     if (lotteryInfo.lotteryPrice !== lotteryPrice) {
       yield put(lotteryActions.setLotteryPrice(lotteryPrice));
+    }
+  } catch (error) {
+    console.log('getCurrentPeriodSaga', error);
+  }
+}
+function* getMaxMultipliedSaga({lotteryContract, lotteryInfo}) {
+  try {
+    const result = yield lotteryContract.GetMaxMultiplied.call();
+    const maxMultiplied = result?.value;
+    console.log(lotteryInfo.maxMultiplied, maxMultiplied, '=====maxMultiplied');
+    if (lotteryInfo.maxMultiplied !== maxMultiplied && !isNaN(maxMultiplied)) {
+      yield put(lotteryActions.setMaxMultiplied(maxMultiplied));
     }
   } catch (error) {
     console.log('getCurrentPeriodSaga', error);
@@ -238,6 +253,7 @@ function* getLotterySaga({lotteryId, periodNumber}) {
         lotteryId,
       });
       const {lottery} = lotteryResult || {};
+      console.log(lotteryResult, result);
       yield put(
         lotteryActions.setLottery({...(result || {}), ...(lottery || {})}),
       );
@@ -440,6 +456,7 @@ export default function* SettingsSaga() {
     yield takeLatest(lotteryTypes.GET_DRAW_PERIOD, getDrawPeriodSaga),
     yield takeLatest(lotteryTypes.GET_CURRENT_PERIOD, getCurrentPeriodSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY_PRICE, getLotteryPriceSaga),
+    yield takeLatest(lotteryTypes.GET_MAX_MULTIPLIED, getMaxMultipliedSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY_SYMBOL, getLotterySymbolSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY_REWARDS, getLotteryRewardsSaga),
     yield takeLatest(lotteryTypes.GET_LOTTERY_CASHED, getLotteryCashedSaga),

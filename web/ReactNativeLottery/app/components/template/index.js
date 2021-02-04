@@ -19,9 +19,11 @@ import Communication from './Communication';
 import VerifyPassword from './VerifyPassword';
 import WinningNumbers from './WinningNumbers';
 import WebViewComponent from './WebViewComponent';
+import Stepper from './Stepper';
 export {
   Input,
   Loading,
+  Stepper,
   Password,
   ListItem,
   MyQRCode,

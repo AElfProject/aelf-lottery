@@ -61,6 +61,7 @@ export default {
     lotteryContract: 'buePNjhmHckfZn9D8GTL1wq6JgA8K24SeTWnjCNcrz6Sf1FDh',
     //main tDVV
     // lotteryContract: '2AsEepqiFCRDnepVheYYN5LK7nvM2kUoXgk2zLKu1Zneh8fwmF',
+    // swapContract: 'RXcxgSXuagn8RrvhQAV81Z652EEYSwR6JLnqHYJ5UVpEptW8Y',
   },
   address: {
     prefix: 'ELF',
