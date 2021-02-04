@@ -76,7 +76,7 @@ namespace AElf.Contracts.LotteryContract
             {
                 var lotteryDetail = GetLotteryDetail(lotteryId);
                 if (lotteryDetail == null) break;
-                if (lotteryDetail.Expired) continue;
+                if (lotteryDetail.Expired) break;
                 
                 lotteryDetails.Add(lotteryDetail);
                 if (lotteryDetails.Count >= input.Offset + input.Limit) break;

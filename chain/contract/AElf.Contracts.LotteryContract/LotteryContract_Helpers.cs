@@ -66,10 +66,30 @@ namespace AElf.Contracts.LotteryContract
                 State.DoneLotteries[Context.Sender] = lotteryList;
         }
         
+        private void AddDoneLotteries(IEnumerable<long> lotteryIds)
+        {
+            var lotteryList = State.DoneLotteries[Context.Sender] ?? new LotteryList();
+            lotteryList.Ids.AddRange(lotteryIds);
+            if (lotteryList.Ids.Count > MaximalLotteryCountRecord)
+            {
+                State.DoneLotteries[Context.Sender] = new LotteryList
+                    {Ids = {lotteryList.Ids.Skip(lotteryList.Ids.Count - MaximalLotteryCountRecord)}};
+            }
+            else
+                State.DoneLotteries[Context.Sender] = lotteryList;
+        }
+        
         private void AddToBeClaimedLottery(long lotteryId)
         {
             var lotteryList = State.ToBeClaimedLotteries[Context.Sender] ?? new LotteryList();
             lotteryList.Ids.Add(lotteryId);
+            State.ToBeClaimedLotteries[Context.Sender] = lotteryList;
+        }
+        
+        private void AddToBeClaimedLotteries(IEnumerable<long> lotteryIds)
+        {
+            var lotteryList = State.ToBeClaimedLotteries[Context.Sender] ?? new LotteryList();
+            lotteryList.Ids.Add(lotteryIds);
             State.ToBeClaimedLotteries[Context.Sender] = lotteryList;
         }
 
@@ -111,6 +131,8 @@ namespace AElf.Contracts.LotteryContract
 
             var toBeCleared = 0;
             // the period already drawn, should move to unClaimedLotteries
+            var doneLotteries = new List<long>();
+            var toBeClaimedLotteries = new List<long>();
             foreach (var lotteryId in unDrawnLotteries.Ids)
             {
                 var lottery = State.Lotteries[lotteryId];
@@ -128,16 +150,22 @@ namespace AElf.Contracts.LotteryContract
                 if (lottery.Reward == 0 || lottery.Expired)
                 {
                     // expired or nothing to claim
-                    AddDoneLottery(lotteryId);
+                    doneLotteries.Add(lotteryId);
                 }
                 else
-                    AddToBeClaimedLottery(lotteryId);
+                    toBeClaimedLotteries.Add(lotteryId);
 
                 toBeCleared++;
             }
 
             if (toBeCleared <= 0) 
                 return;
+            
+            if (doneLotteries.Count > 0)
+                AddDoneLotteries(doneLotteries);
+            
+            if (toBeClaimedLotteries.Count > 0)
+                AddToBeClaimedLotteries(toBeClaimedLotteries);
             
             // clear
             unDrawnLotteries = new UnDrawnLotteries
@@ -160,6 +188,8 @@ namespace AElf.Contracts.LotteryContract
             var lotteryIds = lotteryList.Ids.ToList();
             var latestDrawPeriod = GetLatestDrawPeriod();
             //TODO consider lotteryIds count is very large.
+            var doneLotteries = new List<long>();
+            var toBeClearedCount = 0;
             foreach (var lotteryId in lotteryIds)
             {
                 var lottery = State.Lotteries[lotteryId];
@@ -172,11 +202,17 @@ namespace AElf.Contracts.LotteryContract
                 if (!lottery.Expired) break;
                 
                 // already expired
-                lotteryList.Ids.Remove(lotteryId);
-                AddDoneLottery(lotteryId);
+                toBeClearedCount++;
+                doneLotteries.Add(lotteryId);
             }
-            
-            State.ToBeClaimedLotteries[Context.Sender] = lotteryList;
+
+            if (doneLotteries.Count <= 0) return;
+            AddDoneLotteries(doneLotteries);
+
+            State.ToBeClaimedLotteries[Context.Sender] = new LotteryList
+            {
+                Ids = {lotteryList.Ids.Skip(toBeClearedCount)}
+            };
         }
 
         private LotteryDetail GetLotteryDetail(long lotteryId)
