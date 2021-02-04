@@ -113,7 +113,7 @@ namespace AElf.Contracts.LotteryContract
         private UnDrawnLotteries UpdateUnDrawnLottery(Address address)
         {
             var lotteryList = State.UnDrawnLotteries[address] ?? new UnDrawnLotteries();
-            ClearUnDrawnLotteries(ref lotteryList);
+            ClearUnDrawnLotteries(ref lotteryList, false);
             
             if (lotteryList.Ids.Count == 0)
             {
@@ -124,7 +124,7 @@ namespace AElf.Contracts.LotteryContract
             return lotteryList;
         }
 
-        private void ClearUnDrawnLotteries(ref UnDrawnLotteries unDrawnLotteries)
+        private void ClearUnDrawnLotteries(ref UnDrawnLotteries unDrawnLotteries, bool clearAll)
         {
             var latestDrawPeriod = GetLatestDrawPeriod();
             if (latestDrawPeriod == null || unDrawnLotteries == null)
@@ -136,6 +136,9 @@ namespace AElf.Contracts.LotteryContract
             var toBeClaimedLotteries = new List<long>();
             foreach (var lotteryId in unDrawnLotteries.Ids)
             {
+                if (!clearAll && toBeCleared >= GetClearLotteryCountLimit(new Empty()).Value)
+                    break;
+                
                 var lottery = State.Lotteries[lotteryId];
                 var period = State.Periods[lottery.PeriodNumber];
                 if (period.DrawTime == null)
