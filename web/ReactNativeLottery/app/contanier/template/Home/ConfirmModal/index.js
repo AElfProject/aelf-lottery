@@ -95,14 +95,14 @@ const Component = props => {
       <View style={styles.betBox}>
         <TextL>
           {i18n.t('lottery.consumption')}
-          {'   '}
+          &nbsp;
           <TextL style={styles.colorText}>{betValue}</TextL>
-          {'    '}
+          &nbsp;
           {i18n.t('lottery.unit')}
         </TextL>
         <TextM style={styles.balanceStyle}>
           {i18n.t('lottery.accountBalance')}
-          {balance}
+          &nbsp;{balance}&nbsp;
           {i18n.t('lottery.unit')}
         </TextM>
         <View style={styles.bottomBox}>
