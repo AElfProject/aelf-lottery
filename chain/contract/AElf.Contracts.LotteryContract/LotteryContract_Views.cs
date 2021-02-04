@@ -68,7 +68,7 @@ namespace AElf.Contracts.LotteryContract
             Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
             var address = input.Address ?? Context.Sender;
             var unDrawnLotteries = State.UnDrawnLotteries[address];
-            ClearUnDrawnLotteries(ref unDrawnLotteries);
+            ClearUnDrawnLotteries(ref unDrawnLotteries, true);
             var lotteries = State.ToBeClaimedLotteries[address] ?? new LotteryList();
             var lotteryIdList = lotteries.Ids.OrderByDescending(id => id);
             var lotteryDetails = new List<LotteryDetail>();
@@ -262,7 +262,7 @@ namespace AElf.Contracts.LotteryContract
         public override Int32Value GetClearLotteryCountLimit(Empty input)
         {
             return new Int32Value
-                {Value = State.ClearLotteryCountLimit.Value == 0 ? 30 : State.ClearLotteryCountLimit.Value};
+                {Value = State.ClearLotteryCountLimit.Value == 0 ? 1 : State.ClearLotteryCountLimit.Value};
         }
     }
 }
