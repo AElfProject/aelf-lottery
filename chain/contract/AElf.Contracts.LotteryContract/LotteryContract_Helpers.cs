@@ -7,6 +7,7 @@ using AElf.CSharp.Core.Extension;
 using AElf.Sdk.CSharp;
 using AElf.Types;
 using Google.Protobuf.Collections;
+using Google.Protobuf.WellKnownTypes;
 
 namespace AElf.Contracts.LotteryContract
 {
@@ -192,7 +193,7 @@ namespace AElf.Contracts.LotteryContract
             var toBeClearedCount = 0;
             foreach (var lotteryId in lotteryIds)
             {
-                if (toBeClearedCount >= 100)
+                if (toBeClearedCount >= GetClearLotteryCountLimit(new Empty()).Value)
                     break;
                 
                 var lottery = State.Lotteries[lotteryId];

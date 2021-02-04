@@ -49,5 +49,6 @@ namespace AElf.Contracts.LotteryContract
         public SingletonState<RewardsAmountBoard> RewardsAmountBoard { get; set; }
         public SingletonState<RewardsAmountBoard> TotalPeriodCountBoard { get; set; }
         
+        public Int32State ClearLotteryCountLimit { get; set; }
     }
 }

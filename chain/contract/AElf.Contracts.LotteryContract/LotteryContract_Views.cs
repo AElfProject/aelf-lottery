@@ -258,5 +258,11 @@ namespace AElf.Contracts.LotteryContract
                 ToBeClaimedCount = toBeClaimedLotteries.Ids.Count
             };
         }
+
+        public override Int32Value GetClearLotteryCountLimit(Empty input)
+        {
+            return new Int32Value
+                {Value = State.ClearLotteryCountLimit.Value == 0 ? 30 : State.ClearLotteryCountLimit.Value};
+        }
     }
 }

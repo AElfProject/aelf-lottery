@@ -37,6 +37,8 @@ service LotteryContract {
     }
     rpc TakeBackToken(TakeBackTokenInput) returns (google.protobuf.Empty) {
     }
+    rpc SetClearLotteryCountLimit(google.protobuf.Int32Value) returns (google.protobuf.Empty) {
+    }
 
     //View
     rpc GetPeriods (GetPeriodsInput) returns (GetPeriodsOutput) {
@@ -107,6 +109,9 @@ service LotteryContract {
         option (aelf.is_view) = true;
     }
     rpc GetLotteryCount(aelf.Address) returns (GetLotteryCountOutput){
+        option (aelf.is_view) = true;
+    }
+    rpc GetClearLotteryCountLimit(google.protobuf.Empty) returns (google.protobuf.Int32Value) {
         option (aelf.is_view) = true;
     }
 }

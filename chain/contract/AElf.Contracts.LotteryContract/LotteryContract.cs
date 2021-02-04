@@ -263,5 +263,13 @@ namespace AElf.Contracts.LotteryContract
             State.MaxMultiplied.Value = input.Value;
             return new Empty();
         }
+
+        public override Empty SetClearLotteryCountLimit(Int32Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            Assert(input.Value > 0, "Invalid input");
+            State.ClearLotteryCountLimit.Value = input.Value;
+            return new Empty();
+        }
     }
 }
