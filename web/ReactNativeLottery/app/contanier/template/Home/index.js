@@ -17,7 +17,7 @@ import {TextL, TextM} from '../../../components/template/CommonText';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import navigationService from '../../../utils/common/navigationService';
-import {ball} from '../../../assets/images';
+import {homeImage} from '../../../assets/images';
 import lotteryActions from '../../../redux/lotteryRedux';
 import lotteryUtils from '../../../utils/pages/lotteryUtils';
 import {LOTTERY_TIME} from '../../../config/lotteryConstant';
@@ -70,7 +70,7 @@ const Home = () => {
           {i18n.t('lottery.period')}
         </TextM>
         <WinningNumbers winningNumbers={luckyNumber} />
-        <View style={styles.tipToolBox}>
+        {/* <View style={styles.tipToolBox}>
           <View style={styles.toolItem}>
             <TextM>{i18n.t('lottery.threeFrom')}</TextM>
             <TextM style={styles.toolBottomText}>
@@ -91,7 +91,7 @@ const Home = () => {
               {lotteryUtils.getCombined(luckyNumber, 2)}
             </TextM>
           </View>
-        </View>
+        </View> */}
       </View>
     );
   }, [drawPeriod, language]);
@@ -179,7 +179,7 @@ const Home = () => {
               <Image
                 resizeMode="contain"
                 style={styles.ballBox}
-                source={ball}
+                source={homeImage[index]}
               />
               <TextL style={styles.bottomText}>{item.title}</TextL>
             </Touchable>
@@ -192,12 +192,21 @@ const Home = () => {
     const {createTime, startPeriodNumberOfDay, periodNumber, address, type} =
       lotteryCashed || {};
     if (lotteryCashed) {
+      console.log(
+        lotteryUtils.getPeriod(
+          createTime,
+          startPeriodNumberOfDay,
+          periodNumber,
+          true,
+        ),
+      );
       const express = i18n.t('lottery.express', {
         address: aelfUtils.formatAddressHide(address),
         period: lotteryUtils.getPeriod(
           createTime,
           startPeriodNumberOfDay,
           periodNumber,
+          true,
         ),
         details: lotteryUtils.getBetType(type),
       });
@@ -217,6 +226,7 @@ const Home = () => {
       <CommonHeader
         title={i18n.t('lottery.lottery')}
         leftTitle={i18n.t('lottery.play')}
+        titleBox={GStyle.flex1}
         leftOnPress={() => navigationService.navigate('HowToPlay')}
       />
       {Express}

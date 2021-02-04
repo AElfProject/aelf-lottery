@@ -59,7 +59,7 @@ const Registered = () => {
       setState({pwdDifferent: false});
     }
   }, [setState, state]);
-  const pwdComfirmBlur = useCallback(() => {
+  const pwdConfirmBlur = useCallback(() => {
     const {pwdConfirm, pwd} = state;
     if (!PASSWORD_REG.test(pwdConfirm)) {
       setState({pwdConfirmRule: true});
@@ -117,6 +117,7 @@ const Registered = () => {
           activeOpacity={1}
           onPress={() => Keyboard.dismiss()}>
           <Input
+            maxLength={30}
             leftTitleBox={styles.leftTitleBox}
             leftTextStyle={styles.leftTextStyle}
             leftTitle={i18n.t('login.userName')}
@@ -144,7 +145,7 @@ const Registered = () => {
             leftTitleBox={[styles.leftTitleBox, {marginBottom: 10}]}
             leftTextStyle={styles.leftTextStyle}
             leftTitle={i18n.t('login.confirmPwd')}
-            onBlur={pwdComfirmBlur}
+            onBlur={pwdConfirmBlur}
             onChangeText={value => setState({pwdConfirm: value})}
             placeholder={i18n.t('login.pleaseEnt')}
           />
@@ -160,7 +161,7 @@ const Registered = () => {
               !agree ||
               !USERNAME_REG.test(userName) ||
               !PASSWORD_REG.test(pwd) ||
-              !pwdConfirm === pwd
+              !(pwdConfirm === pwd)
             }
             onPress={registered}
             title={i18n.t('login.register')}

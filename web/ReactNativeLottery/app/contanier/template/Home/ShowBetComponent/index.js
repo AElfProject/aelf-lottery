@@ -10,6 +10,7 @@ import i18n from 'i18n-js';
 import {LOTTERY_TYPE} from '../../../../config/lotteryConstant';
 import {bottomBarHeigth, isIphoneX} from '../../../../utils/common/device';
 import navigationService from '../../../../utils/common/navigationService';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 const ShowBetComponent = props => {
   const {lotteryPrice, address} = useStateToProps(base => {
     const {lottery, user} = base;
@@ -54,10 +55,12 @@ const ShowBetComponent = props => {
   return (
     <View style={[styles.bottomBox, betComponentStyle]}>
       <TextL>
-        {i18n.t('lottery.currentlySelected')}
+        {i18n.t('lottery.currentlySelected')}&nbsp;
         <TextL style={styles.colorText}>{betNumber}</TextL>
-        {i18n.t('lottery.note')}, {i18n.t('lottery.total')}
+        &nbsp;
+        {i18n.t('lottery.note')}, {i18n.t('lottery.total')}&nbsp;
         <TextL style={styles.colorText}>{betValue}</TextL>
+        &nbsp;
         {i18n.t('lottery.unit')}
       </TextL>
       <TextM style={styles.winningTip}>
@@ -74,15 +77,15 @@ const ShowBetComponent = props => {
                   return (
                     <View key={index} style={styles.itemBox}>
                       <TextM>
-                        {item.title} [{' '}
+                        {item.title} [&nbsp;
                         {betList[index].map((i, j) => {
                           let text = item.playList[i];
                           if (j !== 0) {
                             text = `/${text}`;
                           }
                           return text;
-                        })}{' '}
-                        ]
+                        })}
+                        &nbsp;]
                       </TextM>
                     </View>
                   );
@@ -91,6 +94,7 @@ const ShowBetComponent = props => {
             : null}
         </View>
         <TextL onPress={onClear} style={styles.clearBox}>
+          <AntDesign size={pTd(35)} name={'delete'} />
           {i18n.t('lottery.clearSelection')}
         </TextL>
         <CommonButton
@@ -144,5 +148,6 @@ const styles = StyleSheet.create({
     marginTop: pTd(10),
     alignSelf: 'flex-end',
     textAlign: 'right',
+    color: Colors.fontGray,
   },
 });

@@ -66,9 +66,8 @@ const CumulativeWinning = () => {
               ? i18n.t('lottery.leaderBoard.notOnTheList')
               : i18n.t('lottery.leaderBoard.article', {count: onList + 1})}
             ｜{i18n.t('lottery.leaderBoard.cumulativeWinning')}
-            {aelfUtils.digits(
-              unitConverter.toLower(selfWinningInfo?.amount),
-            )}{' '}
+            {aelfUtils.digits(unitConverter.toLower(selfWinningInfo?.amount))}
+            &nbsp;
             {tokenSymbol}
           </TextS>
         </View>
@@ -150,8 +149,8 @@ const CumulativePeriod = () => {
           <TextM style={styles.headerDetails}>
             {isNaN(onList) || onList === -1
               ? i18n.t('lottery.leaderBoard.notOnTheList')
-              : i18n.t('lottery.leaderBoard.article', {count: onList + 1})}{' '}
-            | {i18n.t('lottery.leaderBoard.cumulativePeriod')}{' '}
+              : i18n.t('lottery.leaderBoard.article', {count: onList + 1})}
+            &nbsp;|&nbsp;{i18n.t('lottery.leaderBoard.cumulativePeriod')}&nbsp;
             {selfWinningInfo?.periodCount || 0}
           </TextM>
         </View>
@@ -250,7 +249,7 @@ const LeaderBoard = () => {
             fontSize: pTd(25),
           },
           style: {
-            marginHorizontal: pTd(80),
+            // marginHorizontal: pTd(40),
             elevation: 0,
             borderBottomWidth: pixelSize,
             borderColor: Colors.borderColor,

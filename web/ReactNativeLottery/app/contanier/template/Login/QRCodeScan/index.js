@@ -59,6 +59,7 @@ const QRCodeLogin = props => {
           setState({scanned: false});
         }, 1000);
         const {data} = result; //Determine whether to log in the QR code
+        console.log(result, '======result');
         if (data && typeof data === 'string' && data.includes('aelf')) {
           CommonToast.success(i18n.t('success'));
           if (scanResult) {
@@ -76,7 +77,7 @@ const QRCodeLogin = props => {
     [scanResult, scanned, setState],
   );
   /* Identify QR code */
-  const recoginze = useCallback(
+  const recognize = useCallback(
     async images => {
       try {
         const imageData = await BarCodeScanner.scanFromURLAsync(images.uri, [
@@ -88,8 +89,15 @@ const QRCodeLogin = props => {
         } else {
           CommonToast.text(i18n.t('login.qRCodeScan.imageFailed'));
         }
-      } catch {
-        CommonToast.text(i18n.t('login.qRCodeScan.imageFailed'));
+      } catch (error) {
+        const {message, stack} = error;
+        const Error =
+          typeof error === 'string'
+            ? `Error:${error}`
+            : `${message ? `Error: ${message}\n` : ''}${
+                stack ? `Stack: ${stack}` : ''
+              }`;
+        CommonToast.text(Error);
       }
     },
     [onBarCodeRead],
@@ -97,24 +105,33 @@ const QRCodeLogin = props => {
   /* Call album */
   const usePhotoAlbum = useCallback(async () => {
     try {
-      const camera = await ImagePicker.requestCameraPermissionsAsync();
-      const cameraRoll = await ImagePicker.requestCameraRollPermissionsAsync();
-      if (camera.status !== 'granted' && cameraRoll.status !== 'granted') {
+      const camera = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (camera.status !== 'granted') {
         permissionDenied(i18n.t('permission.cameraRoll'));
       } else {
         const images = await ImagePicker.launchImageLibraryAsync({
           allowMultipleSelection: false,
         });
-        if (images.uri) {
-          recoginze(images);
+        if (images.cancelled) {
+          CommonToast.text(i18n.t('login.qRCodeScan.UserCanceled'));
+        } else if (images.uri) {
+          recognize(images);
         } else {
           CommonToast.text(i18n.t('login.qRCodeScan.imageFailed'));
         }
       }
-    } catch (err) {
-      CommonToast.text(i18n.t('login.qRCodeScan.imageFailed'));
+    } catch (error) {
+      const {message, stack} = error;
+      const Error =
+        typeof error === 'string'
+          ? `Error:${error}`
+          : `${message ? `Error: ${message}\n` : ''}${
+              stack ? `Stack: ${stack}` : ''
+            }`;
+      console.log(message, stack);
+      CommonToast.text(Error);
     }
-  }, [recoginze]);
+  }, [recognize]);
 
   return (
     <View style={GStyle.container}>

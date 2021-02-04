@@ -1,13 +1,12 @@
-import i18n from 'i18n-js';
-import React, {memo} from 'react';
-import {CommonHeader} from '../../../../components/template';
-import {ScrollView, View, StyleSheet} from 'react-native';
-import {TextL, TextTitle} from '../../../../components/template/CommonText';
-import privacyPolicy from '../config/privacyPolicy';
+import React from 'react';
+import {View} from 'react-native';
 import {GStyle} from '../../../../assets/theme';
-import {pTd} from '../../../../utils/common';
-import {bottomBarHeigth} from '../../../../utils/common/device';
+import {CommonHeader, WebViewComponent} from '../../../../components/template';
+import i18n from 'i18n-js';
 import {useStateToProps} from '../../../../utils/pages/hooks';
+
+const ruleURI = 'https://lot-rules-mainnet-tryout.aelf.io/ssc-privacy-policy/';
+
 const PrivacyPolicy = () => {
   const {language} = useStateToProps(base => {
     const {settings} = base;
@@ -15,29 +14,18 @@ const PrivacyPolicy = () => {
       language: settings.language,
     };
   });
-  const terms = privacyPolicy[language || 'en'];
+  console.log(ruleURI + language);
   return (
     <View style={GStyle.container}>
       <CommonHeader
         canBack
         title={i18n.t('mineModule.aboutUs.privacyPolicy')}
       />
-      <ScrollView>
-        <View style={styles.container}>
-          <TextTitle style={styles.title}>{terms.title}</TextTitle>
-          <TextL>{terms.details}</TextL>
-        </View>
-      </ScrollView>
+      <WebViewComponent
+        startInLoadingState={true}
+        source={{uri: ruleURI + language || 'en'}}
+      />
     </View>
   );
 };
-export default memo(PrivacyPolicy);
-const styles = StyleSheet.create({
-  title: {
-    alignSelf: 'center',
-  },
-  container: {
-    paddingHorizontal: pTd(15),
-    paddingBottom: pTd(30) + bottomBarHeigth,
-  },
-});
+export default PrivacyPolicy;

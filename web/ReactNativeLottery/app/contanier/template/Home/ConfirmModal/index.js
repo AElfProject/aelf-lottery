@@ -62,15 +62,15 @@ const Component = props => {
                   return (
                     <View key={index} style={styles.itemBox}>
                       <TextM>
-                        {item.title} [{' '}
+                        {item.title} [&nbsp;
                         {betList[index].map((i, j) => {
                           let text = item.playList[i];
                           if (j !== 0) {
                             text = `/${text}`;
                           }
                           return text;
-                        })}{' '}
-                        ]
+                        })}
+                        &nbsp; ]
                       </TextM>
                     </View>
                   );

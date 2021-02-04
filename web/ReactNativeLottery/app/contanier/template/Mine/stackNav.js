@@ -1,5 +1,7 @@
 import PersonalCenter from './PersonalCenter';
 import EditUserName from './PersonalCenter/EditUserName';
+import AdvancedAccount from './PersonalCenter/AdvancedAccount';
+import ExportAccount from './PersonalCenter/AdvancedAccount/ExportAccount';
 
 import Receive from './Receive';
 import Transfer from './Transfer';
@@ -27,6 +29,8 @@ import MyBet from './MyBet';
 const stackNav = [
   {name: 'PersonalCenter', component: PersonalCenter},
   {name: 'EditUserName', component: EditUserName},
+  {name: 'AdvancedAccount', component: AdvancedAccount},
+  {name: 'ExportAccount', component: ExportAccount},
 
   {name: 'Receive', component: Receive},
   {name: 'Transfer', component: Transfer},

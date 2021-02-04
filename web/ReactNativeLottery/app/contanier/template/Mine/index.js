@@ -24,80 +24,103 @@ const Tool = () => {
       language: settings.language,
     };
   });
-  const Element = useMemo(() => {
-    const List = [
-      {
-        title: i18n.t('mineModule.transactionManagementT'),
-        onPress: () => navigationService.navigate('TransactionManagement'),
-      },
-      // {
-      //   title: i18n.t('mineModule.authorizeManagementT'),
-      //   onPress: () => navigationService.navigate('AuthorizeManagement'),
-      // },
-      {
-        title: i18n.t('mineModule.securityCenterT'),
-        onPress: () => navigationService.navigate('SecurityCenter'),
-      },
-      {
-        title: i18n.t('mineModule.generalSettingT'),
-        onPress: () => navigationService.navigate('GeneralSettings'),
-        style: {marginTop: 10},
-      },
-      {
-        title: i18n.t('mineModule.helpCenterT'),
-        onPress: () => navigationService.navigate('HelpCenter'),
-      },
-      {
-        title: i18n.t('mineModule.aboutUsT'),
-        onPress: () => navigationService.navigate('AboutUs'),
-        subtitle: i18n.t('mineModule.version', {
-          number: Constants.nativeAppVersion,
-        }),
-      },
-      {
-        title: i18n.t('mineModule.accountManagementT'),
-        onPress: () => navigationService.navigate('AccountManagement'),
-        style: {marginTop: 10},
-      },
+  const [List, toolList] = useMemo(() => {
+    return [
+      [
+        {
+          title: i18n.t('mineModule.transactionManagementT'),
+          onPress: () => navigationService.navigate('TransactionManagement'),
+        },
+        // {
+        //   title: i18n.t('mineModule.authorizeManagementT'),
+        //   onPress: () => navigationService.navigate('AuthorizeManagement'),
+        // },
+        {
+          title: i18n.t('mineModule.securityCenterT'),
+          onPress: () => navigationService.navigate('SecurityCenter'),
+        },
+        {
+          title: i18n.t('mineModule.generalSettingT'),
+          onPress: () => navigationService.navigate('GeneralSettings'),
+          style: {marginTop: 10},
+        },
+        {
+          title: i18n.t('mineModule.helpCenterT'),
+          onPress: () => navigationService.navigate('HelpCenter'),
+        },
+        {
+          title: i18n.t('mineModule.aboutUsT'),
+          onPress: () => navigationService.navigate('AboutUs'),
+          subtitle: i18n.t('mineModule.version', {
+            number: Constants.nativeAppVersion,
+          }),
+        },
+        {
+          title: i18n.t('mineModule.accountManagementT'),
+          onPress: () => navigationService.navigate('AccountManagement'),
+          style: {marginTop: 10},
+        },
+      ],
+      [
+        {
+          title: i18n.t('lottery.myBet'),
+          icon: <Icon name="star" size={30} color={Colors.primaryColor} />,
+          navigate: 'MyBet',
+        },
+        {
+          title: i18n.t('mineModule.collect'),
+          icon: (
+            <FontAwesome5
+              name="arrow-circle-down"
+              size={30}
+              color={Colors.primaryColor}
+            />
+          ),
+          navigate: 'Receive',
+        },
+        {
+          title: i18n.t('mineModule.transfer'),
+          icon: (
+            <FontAwesome5
+              name="arrow-circle-up"
+              size={30}
+              color={Colors.primaryColor}
+            />
+          ),
+          navigate: 'Transfer',
+        },
+        // {
+        //   title: i18n.t('mineModule.exchange'),
+        //   icon: (
+        //     <FontAwesome5
+        //       name="plus-circle"
+        //       size={30}
+        //       color={Colors.primaryColor}
+        //     />
+        //   ),
+        //   navigate: 'Transfer',
+        // },
+      ],
     ];
+    //We need to know when we switch languages
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+  const Element = useMemo(() => {
     return (
       <ScrollView>
         <View style={GStyle.secondContainer}>
           <View style={styles.toolBox}>
-            <Touchable
-              onPress={() => navigationService.navigate('MyBet')}
-              style={styles.toolItem}>
-              <Icon name="star" size={30} color={Colors.primaryColor} />
-              <TextL>{i18n.t('lottery.bet')}</TextL>
-            </Touchable>
-            <Touchable
-              onPress={() => navigationService.navigate('Receive')}
-              style={styles.toolItem}>
-              <FontAwesome5
-                name="arrow-circle-down"
-                size={30}
-                color={Colors.primaryColor}
-              />
-              <TextL>{i18n.t('mineModule.collect')}</TextL>
-            </Touchable>
-            <Touchable
-              onPress={() => navigationService.navigate('Transfer')}
-              style={styles.toolItem}>
-              <FontAwesome5
-                name="arrow-circle-up"
-                size={30}
-                color={Colors.primaryColor}
-              />
-              <TextL>{i18n.t('mineModule.transfer')}</TextL>
-            </Touchable>
-            {/* <Touchable style={styles.toolItem}>
-              <FontAwesome5
-                name="plus-circle"
-                size={30}
-                color={Colors.primaryColor}
-              />
-              <TextL>{i18n.t('mineModule.exchange')}</TextL>
-            </Touchable> */}
+            {toolList.map(item => {
+              return (
+                <Touchable
+                  key={item.navigate}
+                  style={styles.toolItem}
+                  onPress={() => navigationService.navigate(item.navigate)}>
+                  {item.icon}
+                  <TextL style={styles.toolText}>{item.title}</TextL>
+                </Touchable>
+              );
+            })}
           </View>
           {List.map((item, index) => (
             <ListItem key={index} {...item} />
@@ -105,9 +128,7 @@ const Tool = () => {
         </View>
       </ScrollView>
     );
-    //We need to know when we switch languages
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language]);
+  }, [List, toolList]);
   return Element;
 };
 const Mine = props => {
