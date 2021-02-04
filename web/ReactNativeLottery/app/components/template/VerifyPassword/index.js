@@ -43,12 +43,13 @@ const PayComponents = props => {
   const intervalRef = useRef();
   const onChange = useCallback(
     value => {
+      pwTip && setPwTip(false);
       intervalRef.current = value;
       if (value.length === 6) {
         determine();
       }
     },
-    [determine],
+    [determine, pwTip],
   );
 
   const determine = useCallback(() => {
@@ -87,9 +88,13 @@ const PasswordComponents = props => {
   const [loading, setLoading] = useState(false);
   const {callBack, keystore} = props;
   const intervalRef = useRef();
-  const onChange = useCallback(value => {
-    intervalRef.current = value;
-  }, []);
+  const onChange = useCallback(
+    value => {
+      pwTip && setPwTip(false);
+      intervalRef.current = value;
+    },
+    [pwTip],
+  );
 
   const determine = useCallback(async () => {
     setLoading(true);
@@ -97,7 +102,7 @@ const PasswordComponents = props => {
     const checkResult = aelfUtils.checkPassword(keystore, intervalRef.current);
     setLoading(false);
     if (checkResult) {
-      callBack && callBack(true);
+      callBack && callBack(true, intervalRef.current);
       OverlayModal.hide();
     } else {
       setPwTip(true);

@@ -19,6 +19,7 @@ const OneStar = () => {
     },
   ]);
   const [betList, setBetList] = useState([]);
+  const [multiplied, setMultiplied] = useState(1);
   const {lotteryRewards} = useStateToProps(base => {
     const {lottery} = base;
     return {
@@ -38,8 +39,9 @@ const OneStar = () => {
       data,
       betList,
       lotteryType,
+      multiplied,
     });
-  }, [betList, data]);
+  }, [betList, data, multiplied]);
   const onTool = useCallback(
     (first, type) => {
       const list = lotteryUtils.processingTool(data, betList, first, type);
@@ -49,26 +51,32 @@ const OneStar = () => {
   );
   return (
     <View style={GStyle.container}>
-      <CommonHeader title={i18n.t('lottery.oneStar')} canBack />
-      <View style={styles.titleBox}>
-        <TextL style={styles.titleStyle}>
-          {i18n.t('lottery.directElection')}
+      <CommonHeader title={i18n.t('lottery.oneStar')} canBack>
+        <View style={styles.titleBox}>
+          <TextL style={styles.titleStyle}>
+            {i18n.t('lottery.directElection')}
+          </TextL>
+        </View>
+        <TextL style={styles.tipStyle}>
+          {i18n.t('lottery.oneStarTip')}
+          {bonusAmount}
+          {i18n.t('lottery.unit')}
         </TextL>
-      </View>
-      <TextL style={styles.tipStyle}>
-        {i18n.t('lottery.oneStarTip')}
-        {bonusAmount}
-        {i18n.t('lottery.unit')}
-      </TextL>
-      <BetBody
-        onTool={onTool}
-        betList={betList}
-        data={data}
-        onBet={onBet}
-        onClear={() => setBetList([])}
-        bonusAmount={bonusAmount}
-        onSelect={onSelect}
-      />
+        <BetBody
+          data={data}
+          onBet={onBet}
+          onTool={onTool}
+          betList={betList}
+          onSelect={onSelect}
+          multiplied={multiplied}
+          bonusAmount={bonusAmount}
+          setMultiplied={setMultiplied}
+          onClear={() => {
+            setBetList([]);
+            setMultiplied(1);
+          }}
+        />
+      </CommonHeader>
     </View>
   );
 };

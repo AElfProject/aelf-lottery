@@ -1,6 +1,7 @@
 import moment from 'moment';
-import {splitString} from '.';
+import {splitString} from './index';
 import i18n from 'i18n-js';
+import {homeImage} from '../../assets/images';
 /**
  * processing Number
  * @param  {Array}   list         operation array
@@ -61,8 +62,8 @@ const processingTool = (data, list, first, type) => {
     return list;
   }
 };
-const getBetValue = (betNumber, betPerValue = 0) => {
-  return betNumber * betPerValue;
+const getBetValue = (betNumber, betPerValue = 0, multiplied = 1) => {
+  return betNumber * betPerValue * multiplied;
 };
 const getBetNumber = (data, betArr) => {
   let number = 0;
@@ -140,7 +141,7 @@ const getMillisecond = time => {
   }
   return tim;
 };
-const getPeriod = (time, start, periodNumber) => {
+const getPeriod = (time, start, periodNumber, noSpace) => {
   if (!time || start === undefined || periodNumber === undefined) {
     return '';
   }
@@ -151,7 +152,16 @@ const getPeriod = (time, start, periodNumber) => {
   //     moment(getMillisecond(time)).format(LOTTERY_DAY) + padLeft(period + 1, 3);
   // }
   // return period;
-  return periodNumber;
+  if (noSpace === true) {
+    return periodNumber;
+  }
+  if (noSpace === 1) {
+    return ' ' + periodNumber;
+  }
+  if (noSpace === 2) {
+    return periodNumber + ' ';
+  }
+  return ' ' + periodNumber + ' ';
 };
 const getWinningNumbers = winningNumbers => {
   let win = '';
@@ -188,6 +198,20 @@ const getCombined = (winningNumbers, number = 3) => {
   });
   return s.toString();
 };
+const getBetImage = type => {
+  switch (type) {
+    case 10:
+      return homeImage[3];
+    case 20:
+      return homeImage[2];
+    case 30:
+      return homeImage[1];
+    case 40:
+      return homeImage[0];
+    default:
+      return homeImage[4];
+  }
+};
 const getBetType = type => {
   let text = '';
   switch (type) {
@@ -195,24 +219,29 @@ const getBetType = type => {
       text = i18n.t('lottery.simple');
       break;
     case 10:
-      text = `${i18n.t('lottery.oneStar')}${i18n.t('lottery.directElection')}`;
+      text = `${i18n.t('lottery.oneStar')} ${i18n.t('lottery.directElection')}`;
       break;
     case 20:
-      text = `${i18n.t('lottery.twoStars')}${i18n.t('lottery.directElection')}`;
+      text = `${i18n.t('lottery.twoStars')} ${i18n.t(
+        'lottery.directElection',
+      )}`;
       break;
     case 30:
-      text = `${i18n.t('lottery.threeStars')}${i18n.t(
+      text = `${i18n.t('lottery.threeStars')} ${i18n.t(
         'lottery.directElection',
       )}`;
       break;
     case 40:
-      text = `${i18n.t('lottery.fiveStars')}${i18n.t(
+      text = `${i18n.t('lottery.fiveStars')} ${i18n.t(
         'lottery.directElection',
       )}`;
   }
   return text;
 };
 const getStartMonthTime = time => {
+  if (!time) {
+    return '';
+  }
   return moment(getMillisecond(time)).format('MM-DD HH:mm');
 };
 const getWinningSituation = (cashed, expired, reward, noDraw) => {
@@ -281,20 +310,26 @@ const getDrawBetStr = (type, betInfos) => {
   }
   return List;
 };
-const getSimpleAmount = (bonusAmount, betList, betValue) => {
+const getSimpleAmount = (
+  bonusAmount = 1,
+  betList,
+  betValue,
+  multiplied = 1,
+) => {
   let A = bonusAmount;
   let P = (bonusAmount || 1) - betValue;
+  const amount = bonusAmount * multiplied;
   if (Array.isArray(betList)) {
     let f = betList[0];
     let s = betList[1];
     if (Array.isArray(f) && Array.isArray(s)) {
       console.log(betList, '=====betList');
       if (f.length === 4 && s.length === 4) {
-        A = bonusAmount * 4;
-        P = bonusAmount * 4 - betValue;
+        A = amount * 4;
+        P = amount * 4 - betValue;
       } else if (f.length !== 1 || s.length !== 1) {
-        A = `${bonusAmount}~${bonusAmount * 4}`;
-        P = `${bonusAmount - betValue}~${bonusAmount * 4 - betValue}`;
+        A = `${amount}~${amount * 4}`;
+        P = `${amount - betValue}~${amount * 4 - betValue}`;
       }
     }
   }
@@ -312,6 +347,7 @@ export default {
   getThreeForm,
   getCombined,
   getBetType,
+  getBetImage,
   getStartMonthTime,
   getDrawBetNumber,
   getWinningSituation,

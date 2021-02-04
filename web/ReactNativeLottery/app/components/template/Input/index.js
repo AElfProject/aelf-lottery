@@ -1,8 +1,10 @@
 'use strict';
-import React, {memo} from 'react';
+import React, {memo, useState} from 'react';
 import {TextInput, StyleSheet, View, Text} from 'react-native';
 import {Colors} from '../../../assets/theme';
-
+import Octicons from 'react-native-vector-icons/Octicons';
+import {pTd} from '../../../utils/common';
+import Touchable from '../Touchable';
 const Input = props => {
   const {
     leftElement,
@@ -15,8 +17,10 @@ const Input = props => {
     style,
     pointerEvents,
     opacity,
+    secureTextEntry,
   } = props;
-  if (leftTitle || leftElement || rightElement) {
+  const [secureText, setSecureText] = useState(secureTextEntry);
+  if (leftTitle || leftElement || rightElement || secureTextEntry) {
     return (
       <View style={[styles.leftTitleBox, leftTitleBox]}>
         {leftElement ? (
@@ -29,15 +33,27 @@ const Input = props => {
           pointerEvents={disabled ? 'none' : pointerEvents}
           opacity={disabled ? 0.6 : opacity}
           {...props}
+          secureTextEntry={secureText}
           style={[styles.leftTitleInput, style]}
         />
-        {rightElement && rightElement}
+        {rightElement ? (
+          rightElement
+        ) : secureTextEntry ? (
+          <Touchable
+            style={{padding: pTd(10)}}
+            onPress={() => setSecureText(!secureText)}>
+            <Octicons
+              name={!secureText ? 'eye' : 'eye-closed'}
+              size={pTd(35)}
+            />
+          </Touchable>
+        ) : null}
       </View>
     );
   }
   return (
     <TextInput
-      placeholderTextColor={placeholderTextColor || '#999'}
+      placeholderTextColor={placeholderTextColor || Colors.fontGray}
       pointerEvents={disabled ? 'none' : pointerEvents}
       opacity={disabled ? 0.6 : opacity}
       {...props}

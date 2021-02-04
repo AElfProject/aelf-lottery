@@ -1,6 +1,6 @@
-import React, {memo, useState} from 'react';
-import {View, StyleSheet} from 'react-native';
-import {Touchable} from '../../../../components/template';
+import React, {memo, useMemo, useState} from 'react';
+import {View, StyleSheet, Keyboard} from 'react-native';
+import {Stepper, Touchable} from '../../../../components/template';
 import {TextL, TextM} from '../../../../components/template/CommonText';
 import {getWindowWidth} from '../../../../utils/common/device';
 import {Colors} from '../../../../assets/theme';
@@ -8,6 +8,7 @@ import {pTd} from '../../../../utils/common';
 const titleWidth = 50;
 import i18n from 'i18n-js';
 import {useStateToProps} from '../../../../utils/pages/hooks';
+const multipleToolList = [1, 10, 50, 100];
 const Item = memo(props => {
   const {language} = useStateToProps(base => {
     const {settings} = base;
@@ -97,7 +98,57 @@ const Item = memo(props => {
   );
 });
 const PlayComponent = props => {
-  const {data, betList} = props;
+  const {data, betList, multiplied, setMultiplied} = props;
+  const {maxMultiplied} = useStateToProps(base => {
+    const {lottery} = base;
+    return {
+      maxMultiplied: lottery.maxMultiplied,
+    };
+  });
+  const multipleComponent = useMemo(() => {
+    return (
+      <View style={styles.multipleContainer}>
+        <View style={styles.selectMultiple}>
+          <TextL style={styles.titleText}>{i18n.t('lottery.Times')}</TextL>
+          <View style={styles.multipleToolBox}>
+            {multipleToolList.map(v => {
+              const selected = multiplied === v;
+              return (
+                <Touchable
+                  key={v}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    setMultiplied(v);
+                  }}
+                  style={[
+                    styles.multipleItem,
+                    selected && styles.selectedMultipleItem,
+                  ]}>
+                  <TextM
+                    key={v}
+                    style={{
+                      color: selected ? Colors.fontWhite : Colors.fontBlack,
+                    }}>
+                    ×{v}
+                  </TextM>
+                </Touchable>
+              );
+            })}
+          </View>
+          <Stepper
+            min={1}
+            value={multiplied}
+            max={maxMultiplied}
+            onChange={setMultiplied}
+            inputLeftElement={<TextM>×</TextM>}
+          />
+        </View>
+        <TextM style={styles.multipleTip}>
+          {i18n.t('lottery.TimesTip', {maxMultiplied})}
+        </TextM>
+      </View>
+    );
+  }, [maxMultiplied, multiplied, setMultiplied]);
   return (
     <View>
       {data && data.length
@@ -114,12 +165,50 @@ const PlayComponent = props => {
             );
           })
         : null}
+      {multipleComponent}
     </View>
   );
 };
 export default memo(PlayComponent);
 const styles = StyleSheet.create({
+  selectMultiple: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  multipleToolBox: {
+    paddingLeft: pTd(10),
+    height: '100%',
+    width: '50%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginRight: pTd(20),
+  },
+  multipleItem: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
+    paddingHorizontal: pTd(10),
+  },
+  selectedMultipleItem: {
+    backgroundColor: Colors.primaryColor,
+    borderWidth: 0,
+  },
+  multipleContainer: {
+    paddingVertical: pTd(12),
+    paddingHorizontal: pTd(5),
+    paddingRight: pTd(15),
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderColor,
+  },
+  multipleTip: {
+    paddingLeft: pTd(10),
+    marginTop: pTd(20),
+    color: Colors.fontGray,
+  },
   container: {
+    paddingHorizontal: pTd(5),
     paddingVertical: pTd(12),
     borderTopWidth: 1,
     borderTopColor: Colors.borderColor,
@@ -154,7 +243,8 @@ const styles = StyleSheet.create({
   selectBox: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    marginHorizontal: pTd(10),
   },
   titleText: {
     textAlign: 'center',

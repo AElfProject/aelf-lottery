@@ -3,7 +3,7 @@ import {View, StyleSheet} from 'react-native';
 import {GStyle} from '../../../../assets/theme';
 import {CommonHeader} from '../../../../components/template';
 import i18n from 'i18n-js';
-import {TextL} from '../../../../components/template/CommonText';
+import {TextL, TextM} from '../../../../components/template/CommonText';
 import {bottomBarHeigth} from '../../../../utils/common/device';
 import {pTd} from '../../../../utils/common';
 import {useStateToProps} from '../../../../utils/pages/hooks';
@@ -20,7 +20,7 @@ const HowToPlay = () => {
     <View style={GStyle.container}>
       <CommonHeader title={i18n.t('lottery.howToPlay.title')} canBack>
         <View style={styles.container}>
-          <TextL>{howPlay?.details}</TextL>
+          <TextM>{howPlay?.details}</TextM>
         </View>
       </CommonHeader>
     </View>

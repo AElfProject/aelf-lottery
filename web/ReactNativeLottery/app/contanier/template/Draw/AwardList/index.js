@@ -6,7 +6,7 @@ import {
   ListComponent,
 } from '../../../../components/template';
 import {GStyle, Colors} from '../../../../assets/theme';
-import {awardLogo, ball} from '../../../../assets/images';
+import {awardLogo} from '../../../../assets/images';
 import {pTd} from '../../../../utils/common';
 import {TextM, TextS} from '../../../../components/template/CommonText';
 import {useFocusEffect} from '@react-navigation/native';
@@ -19,15 +19,16 @@ let isActive;
 const AwardList = () => {
   const list = useRef();
   const dispatch = useDispatch();
-  const [loadCompleted, setLoadCompleted] = useState(false);
+  const [loadCompleted, setLoadCompleted] = useState(true);
   const getRewardedList = useCallback(
     (loadingPaging, callBack) =>
       dispatch(lotteryActions.getRewardedList(loadingPaging, callBack)),
     [dispatch],
   );
-  const {rewardedList, currentPeriod} = useStateToProps(state => {
-    const {lottery} = state;
+  const {rewardedList, currentPeriod, language} = useStateToProps(state => {
+    const {lottery, settings} = state;
     return {
+      language: settings.language,
       rewardedList: lottery.rewardedList,
       currentPeriod: lottery.currentPeriod,
     };
@@ -91,13 +92,19 @@ const AwardList = () => {
         reward,
       } = item || {};
       const noDraw = currentPeriod?.periodNumber === periodNumber;
+      const rewardStyle =
+        reward && reward > 0 ? styles.colorText : styles.blackText;
       return (
         <Touchable
           disabled={noDraw}
           onPress={() => onGetLottery(item)}
           style={styles.itemBox}>
           <View style={styles.leftBox}>
-            <Image resizeMode="contain" style={styles.ballBox} source={ball} />
+            <Image
+              resizeMode="contain"
+              style={styles.ballBox}
+              source={lotteryUtils.getBetImage(type)}
+            />
             <View style={styles.titleBox}>
               <TextM>{i18n.t('lottery.draw.lottery')}</TextM>
               <TextS style={styles.marginText}>
@@ -113,13 +120,16 @@ const AwardList = () => {
                   createTime,
                   startPeriodNumberOfDay,
                   periodNumber,
+                  typeof language === 'string' && language.includes('zh')
+                    ? false
+                    : 2,
                 )}
               </TextM>
               {i18n.t('lottery.period')}
             </TextM>
           </View>
           <View style={styles.rightBox}>
-            <TextM style={reward && reward > 0 ? styles.colorText : {}}>
+            <TextM style={[styles.rightText, rewardStyle]}>
               {lotteryUtils.getWinningSituation(
                 cashed,
                 expired,
@@ -134,7 +144,7 @@ const AwardList = () => {
         </Touchable>
       );
     },
-    [currentPeriod, onGetLottery],
+    [currentPeriod, language, onGetLottery],
   );
   return (
     <View style={GStyle.container}>
@@ -192,23 +202,31 @@ const styles = StyleSheet.create({
     marginLeft: pTd(10),
   },
   leftBox: {
-    width: '36%',
+    width: '38%',
     flexDirection: 'row',
     alignItems: 'center',
   },
   intermediateBox: {
     flexDirection: 'row',
-    width: '40%',
+    width: '30%',
     alignItems: 'center',
   },
   intermediateText: {
     flex: 1,
+    textAlign: 'center',
   },
   rightBox: {
+    flex: 1,
     alignItems: 'flex-end',
-    width: '24%',
+    marginLeft: pTd(20),
+  },
+  rightText: {
+    textAlign: 'right',
   },
   colorText: {
     color: Colors.fontColor,
+  },
+  blackText: {
+    color: Colors.fontBlack,
   },
 });

@@ -4,6 +4,7 @@ import {
   CommonHeader,
   MyQRCode,
   CommonButton,
+  ListItem,
 } from '../../../../components/template';
 import styles from './styles';
 import {View} from 'react-native';
@@ -17,6 +18,7 @@ import {screenshots} from '../../../../utils/pages';
 import userActions from '../../../../redux/userRedux';
 import {useDispatch} from 'react-redux';
 import {useStateToProps} from '../../../../utils/pages/hooks';
+import navigationService from '../../../../utils/common/navigationService';
 const PersonalCenter = () => {
   const dispatch = useDispatch();
   const viewShot = useRef();
@@ -66,10 +68,11 @@ const PersonalCenter = () => {
               </TextM>
             </View>
           </View>
-          {/* <ListItem
+          <ListItem
+            onPress={() => navigationService.navigate('AdvancedAccount')}
             style={styles.premium}
-            title={i18n.t('mineModule.personalCenter.premiumAccount')}
-          /> */}
+            title={i18n.t('mineModule.personalCenter.advancedAccount')}
+          />
           {/* <ListItem
             style={styles.authentication}
             title={i18n.t('mineModule.personalCenter.authentication')}

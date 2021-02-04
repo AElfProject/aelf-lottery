@@ -6,8 +6,8 @@ import ShowBetComponent from '../ShowBetComponent';
 const BetBody = props => {
   return (
     <View style={styles.box}>
-      <PlayComponent {...props} />
-      <ShowBetComponent {...props} />
+      <PlayComponent key={'PlayComponent'} {...props} />
+      <ShowBetComponent key={'ShowBetComponent'} {...props} />
     </View>
   );
 };

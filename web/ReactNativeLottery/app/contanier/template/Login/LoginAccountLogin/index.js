@@ -57,11 +57,13 @@ const LoginAccountLogin = () => {
       ? userList.map(item => ({
           ...item,
           title: item.userName,
-          details: item.address,
+          ...(item.userName !== aelfUtils.formatAddress(item.address)
+            ? {details: item.address}
+            : {}),
         }))
       : [];
     return accountList.map((item, index) => {
-      const current = item.details === address;
+      const current = (item.details || item.userName) === address;
       return (
         <View
           key={index}

@@ -30,10 +30,13 @@ export default StyleSheet.create({
     alignSelf: 'center',
     color: Colors.fontColor,
   },
+  premiumAccountBox: {
+    marginTop: pTd(20),
+    marginHorizontal: pTd(5),
+  },
   loginAccountBox: {
-    // marginLeft: pTd(20),
-    // paddingLeft: pTd(20),
-    // borderLeftWidth: 1,
+    marginTop: pTd(20),
+    marginHorizontal: pTd(5),
     borderLeftColor: Colors.borderColor,
   },
   loginAccount: {
@@ -61,8 +64,10 @@ export default StyleSheet.create({
     color: Colors.fontColor,
   },
   premiumBox: {
+    marginHorizontal: pTd(10),
     justifyContent: 'center',
     flexDirection: 'row',
     marginTop: pTd(50),
+    flexWrap: 'wrap',
   },
 });

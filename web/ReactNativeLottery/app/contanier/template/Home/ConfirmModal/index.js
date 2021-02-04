@@ -1,6 +1,6 @@
 'use strict';
 
-import React, {useCallback} from 'react';
+import React, {useCallback, Fragment} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {statusBarHeight, getWindowWidth} from '../../../../utils/common/device';
 import {
@@ -33,18 +33,21 @@ const Component = props => {
       address: user.address,
     };
   });
-  console.log(balance, '====balance');
-  const {data, betList, title, lotteryType} = props;
+  const {data, betList, title, lotteryType, multiplied} = props;
   const betNumber = lotteryUtils.getBetNumber(data, betList);
-  const betValue = lotteryUtils.getBetValue(betNumber, lotteryPrice);
+  const betValue = lotteryUtils.getBetValue(
+    betNumber,
+    lotteryPrice,
+    multiplied,
+  );
   const onBuy = useCallback(() => {
     if (betValue > balance) {
       return CommonToast.fail(i18n.t('lottery.insufficientBalance'));
     }
     TransactionVerification.show(value => {
-      value && buy({lotteryType, betList});
+      value && buy({lotteryType, betList, multiplied});
     });
-  }, [balance, betList, betValue, buy, lotteryType]);
+  }, [balance, betList, betValue, buy, lotteryType, multiplied]);
   return (
     <View style={styles.sheetBox}>
       <View style={styles.topBox}>
@@ -60,19 +63,29 @@ const Component = props => {
             ? data.map((item, index) => {
                 if (Array.isArray(betList[index]) && betList[index].length) {
                   return (
-                    <View key={index} style={styles.itemBox}>
-                      <TextM>
-                        {item.title} [{' '}
-                        {betList[index].map((i, j) => {
-                          let text = item.playList[i];
-                          if (j !== 0) {
-                            text = `/${text}`;
-                          }
-                          return text;
-                        })}{' '}
-                        ]
-                      </TextM>
-                    </View>
+                    <Fragment key={index}>
+                      <View key={index} style={styles.itemBox}>
+                        <TextM>
+                          {item.title} [&nbsp;
+                          {betList[index].map((i, j) => {
+                            let text = item.playList[i];
+                            if (j !== 0) {
+                              text = `/${text}`;
+                            }
+                            return text;
+                          })}
+                          &nbsp; ]
+                        </TextM>
+                      </View>
+                      {index === data.length - 1 && (
+                        <View style={styles.itemBox}>
+                          <TextM>{i18n.t('lottery.Times')}&nbsp;</TextM>
+                          <TextM style={styles.multiplied}>
+                            [&nbsp;×{multiplied}&nbsp;]
+                          </TextM>
+                        </View>
+                      )}
+                    </Fragment>
                   );
                 }
               })

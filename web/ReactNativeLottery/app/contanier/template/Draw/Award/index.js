@@ -20,7 +20,9 @@ const TextComponent = memo(props => {
   const {title, details, detailsStyle} = props;
   return (
     <View style={styles.TextBox}>
-      <TextM style={styles.whiteColor}>{title}</TextM>
+      <View style={styles.textTitleBox}>
+        <TextM style={styles.whiteColor}>{title}</TextM>
+      </View>
       <TextM style={[styles.colorText, styles.detailsText, detailsStyle]}>
         {details}
       </TextM>
@@ -34,6 +36,7 @@ const Award = () => {
       lotteryDetails: lottery.lotteryDetails,
     };
   });
+  console.log(lotteryDetails, '====lotteryDetails');
   const simples = [
     i18n.t('lottery.big'),
     i18n.t('lottery.small'),
@@ -63,9 +66,11 @@ const Award = () => {
       price,
       luckyNumber,
       reward,
+      multiplied,
     } = lotteryDetails || {};
     const betNumber = lotteryUtils.getDrawBetNumber(betInfos);
     const bonusAmount = unitConverter.toLower(reward);
+    console.log(bonusAmount, '=======bonusAmount');
     const periods = lotteryUtils.getPeriod(
       createTime,
       startPeriodNumberOfDay,
@@ -81,16 +86,18 @@ const Award = () => {
             {i18n.t('lottery.draw.purchasePeriod')} {periods}
           </TextS>
           <TextS style={styles.whiteColor}>
-            {betNumber}
+            {betNumber}&nbsp;
             {i18n.t('lottery.note')}
           </TextS>
         </View>
         <View style={styles.intermediateBox}>
           <TextComponent
             title={i18n.t('lottery.draw.purchasingPrice')}
-            details={`${betNumber * unitConverter.toLower(price)}${i18n.t(
-              'lottery.unit',
-            )}`}
+            details={`${lotteryUtils.getBetValue(
+              betNumber,
+              unitConverter.toLower(price),
+              multiplied,
+            )}${i18n.t('lottery.unit')}`}
           />
           <TextComponent
             detailsStyle={reward && reward > 0 ? {} : {color: Colors.fontBlack}}
@@ -114,7 +121,7 @@ const Award = () => {
       </ImageBackground>
     );
   }, [lotteryDetails]);
-  const {createTime, betInfos, cashed, type, expired, id, reward} =
+  const {createTime, betInfos, cashed, type, expired, id, reward, multiplied} =
     lotteryDetails || {};
   const betList = lotteryUtils.getDrawBetStr(type, betInfos);
   const takeReward = useCallback(
@@ -142,8 +149,6 @@ const Award = () => {
                         <TextM>{title}</TextM>
                         <View style={styles.detailsBox}>
                           {list.map((item, index) => {
-                            console.log(item, '=====item');
-                            console.log(bets, '=====bets');
                             const style =
                               Array.isArray(bets) && bets.includes(item)
                                 ? {color: Colors.fontColor}
@@ -160,6 +165,12 @@ const Award = () => {
                   })
                 : null}
             </View>
+            {multiplied ? (
+              <View style={styles.multipleBox}>
+                <TextL>{i18n.t('lottery.Multiple')}</TextL>
+                <TextM style={styles.multiplied}>×{multiplied}</TextM>
+              </View>
+            ) : null}
             <TextS style={styles.timeText}>
               {i18n.t('lottery.draw.orderTime')}
               {aelfUtils.timeConversion(createTime)}
@@ -196,6 +207,10 @@ const styles = StyleSheet.create({
     borderBottomColor: 'white',
     borderBottomWidth: pixelSize,
   },
+  textTitleBox: {
+    height: pTd(80),
+    justifyContent: 'center',
+  },
   whiteColor: {
     color: 'white',
   },
@@ -214,7 +229,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailsText: {
-    marginTop: pTd(20),
+    marginTop: pTd(10),
   },
   bottomBox: {
     paddingTop: pTd(40),
@@ -255,5 +270,15 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-around',
+  },
+  multipleBox: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderColor,
+    paddingVertical: pTd(20),
+  },
+  multiplied: {
+    marginLeft: pTd(50),
+    marginTop: pTd(10),
+    color: Colors.fontColor,
   },
 });
