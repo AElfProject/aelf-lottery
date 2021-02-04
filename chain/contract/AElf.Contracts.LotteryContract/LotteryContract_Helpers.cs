@@ -57,7 +57,13 @@ namespace AElf.Contracts.LotteryContract
         {
             var lotteryList = State.DoneLotteries[Context.Sender] ?? new LotteryList();
             lotteryList.Ids.Add(lotteryId);
-            State.DoneLotteries[Context.Sender] = lotteryList;
+            if (lotteryList.Ids.Count > MaximalLotteryCountRecord)
+            {
+                State.DoneLotteries[Context.Sender] = new LotteryList
+                    {Ids = {lotteryList.Ids.Skip(lotteryList.Ids.Count - MaximalLotteryCountRecord)}};
+            }
+            else
+                State.DoneLotteries[Context.Sender] = lotteryList;
         }
         
         private void AddToBeClaimedLottery(long lotteryId)
@@ -86,7 +92,7 @@ namespace AElf.Contracts.LotteryContract
         private UnDrawnLotteries UpdateUnDrawnLottery(Address address)
         {
             var lotteryList = State.UnDrawnLotteries[address] ?? new UnDrawnLotteries();
-            ClearUnDrawnLotteries(lotteryList);
+            ClearUnDrawnLotteries(ref lotteryList);
             
             if (lotteryList.Ids.Count == 0)
             {
@@ -97,7 +103,7 @@ namespace AElf.Contracts.LotteryContract
             return lotteryList;
         }
 
-        private void ClearUnDrawnLotteries(UnDrawnLotteries unDrawnLotteries)
+        private void ClearUnDrawnLotteries(ref UnDrawnLotteries unDrawnLotteries)
         {
             var latestDrawPeriod = GetLatestDrawPeriod();
             if (latestDrawPeriod == null || unDrawnLotteries == null)
@@ -134,9 +140,11 @@ namespace AElf.Contracts.LotteryContract
                 return;
             
             // clear
-            var remaining = unDrawnLotteries.Ids.Skip(toBeCleared).ToList();
-            unDrawnLotteries.Ids.Clear();
-            unDrawnLotteries.Ids.AddRange(remaining);
+            unDrawnLotteries = new UnDrawnLotteries
+            {
+                LatestPeriodNumber = unDrawnLotteries.LatestPeriodNumber,
+                Ids = {unDrawnLotteries.Ids.Skip(toBeCleared)}
+            };
         }
 
         private void RemoveToBeClaimedLottery(long lotteryId)

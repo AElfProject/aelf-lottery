@@ -255,7 +255,8 @@ namespace AElf.Contracts.LotteryContract
                 new GetLotteriesInput
                 {
                     Offset = 0,
-                    Limit = 50
+                    Limit = 50,
+                    Address = AliceAddress
                 });
             getRewardedLotteriesOutput.Lotteries.Count.ShouldBe(1);
 
@@ -273,14 +274,16 @@ namespace AElf.Contracts.LotteryContract
                 new GetLotteriesInput
                 {
                     Offset = 0,
-                    Limit = 50
+                    Limit = 50,
+                    Address = AliceAddress
                 });
             getRewardedLotteriesOutput.Lotteries.Count.ShouldBe(0);
 
             var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
             {
                 Offset = 0,
-                Limit = 50
+                Limit = 50,
+                Address = AliceAddress
             });
             lotteriesOutput.Lotteries.Count.ShouldBe(21);
         }
@@ -1317,14 +1320,16 @@ namespace AElf.Contracts.LotteryContract
                 new GetLotteriesInput
                 {
                     Offset = 0,
-                    Limit = 10
+                    Limit = 10,
+                    Address = AliceAddress
                 });
             getRewardedLotteries.Lotteries.Count.ShouldBe(1);
 
             var getLotteriesResult = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
             {
                 Offset = 0,
-                Limit = 10
+                Limit = 10,
+                Address = AliceAddress
             });
 
             getLotteriesResult.Lotteries.Count.ShouldBe(2);
@@ -1516,7 +1521,8 @@ namespace AElf.Contracts.LotteryContract
                 var lotteries = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
                 {
                     Limit = 10,
-                    Offset = 0
+                    Offset = 0,
+                    Address = AliceAddress
                 });
 
                 lotteries.Lotteries.Count.ShouldBe(4);
@@ -1531,7 +1537,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Limit = 10,
-                        Offset = 0
+                        Offset = 0,
+                        Address = AliceAddress
                     });
                 rewardedLotteries.Lotteries.Count.ShouldBe(1);
                 rewardedLotteries.Lotteries[0].Id.ShouldBe(1);
@@ -1547,7 +1554,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Limit = 10,
-                        Offset = 0
+                        Offset = 0,
+                        Address = AliceAddress
                     });
                 rewardedLotteries.Lotteries.Count.ShouldBe(0);
             }
@@ -1574,7 +1582,8 @@ namespace AElf.Contracts.LotteryContract
                 var lotteries = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
                 {
                     Limit = 10,
-                    Offset = 0
+                    Offset = 0,
+                    Address = AliceAddress
                 });
 
                 lotteries.Lotteries.Count.ShouldBe(5);
@@ -1590,7 +1599,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Limit = 10,
-                        Offset = 0
+                        Offset = 0,
+                        Address = AliceAddress
                     });
                 rewardedLotteries.Lotteries.Count.ShouldBe(3);
                 rewardedLotteries.Lotteries[0].Id.ShouldBe(4);
@@ -1748,7 +1758,8 @@ namespace AElf.Contracts.LotteryContract
             var lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
             {
                 Offset = 0,
-                Limit = 10
+                Limit = 10,
+                Address = AliceAddress
             });
             lotteriesOutput.Lotteries.Count.ShouldBe(2);
             lotteriesOutput.Lotteries[0].ShouldBe(lotteryWithoutReward);
@@ -1757,7 +1768,8 @@ namespace AElf.Contracts.LotteryContract
             lotteriesOutput = await AliceLotteryContractStub.GetLotteries.CallAsync(new GetLotteriesInput
             {
                 Offset = 0,
-                Limit = 1
+                Limit = 1,
+                Address = AliceAddress
             });
             lotteriesOutput.Lotteries.Count.ShouldBe(1);
             lotteriesOutput.Lotteries[0].ShouldBe(lotteryWithoutReward);
@@ -1909,7 +1921,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 lotteriesOutput.Lotteries.Count.ShouldBe(3);
@@ -1923,7 +1936,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 1,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 lotteriesOutput.Lotteries.Count.ShouldBe(2);
@@ -1936,7 +1950,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 1,
-                        Limit = 1
+                        Limit = 1,
+                        Address = AliceAddress
                     });
 
                 lotteriesOutput.Lotteries.Count.ShouldBe(1);
@@ -1948,7 +1963,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 2,
-                        Limit = 1
+                        Limit = 1,
+                        Address = AliceAddress
                     });
 
                 lotteriesOutput.Lotteries.Count.ShouldBe(1);
@@ -1965,7 +1981,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 lotteriesOutput.Lotteries.Count.ShouldBe(3);
@@ -1999,7 +2016,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 lotteriesOutput.Lotteries.Count.ShouldBe(4);
@@ -2019,7 +2037,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 lotteriesOutput.Lotteries.Count.ShouldBe(4);
@@ -2037,7 +2056,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 lotteriesOutput.Lotteries.Count.ShouldBe(4);
@@ -2132,7 +2152,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 rewardedLotteries.Lotteries.Count.ShouldBe(2);
@@ -2145,7 +2166,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 1,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 rewardedLotteries.Lotteries.Count.ShouldBe(1);
@@ -2157,7 +2179,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 1,
-                        Limit = 1
+                        Limit = 1,
+                        Address = AliceAddress
                     });
 
                 rewardedLotteries.Lotteries.Count.ShouldBe(1);
@@ -2169,7 +2192,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 2,
-                        Limit = 1
+                        Limit = 1,
+                        Address = AliceAddress
                     });
 
                 rewardedLotteries.Lotteries.ShouldBeEmpty();
@@ -2185,7 +2209,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 rewardedLotteries.Lotteries.Count.ShouldBe(2);
@@ -2218,7 +2243,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 rewardedLotteries.Lotteries.Count.ShouldBe(3);
@@ -2237,7 +2263,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 rewardedLotteries.Lotteries.Count.ShouldBe(2);
@@ -2253,7 +2280,8 @@ namespace AElf.Contracts.LotteryContract
                     new GetLotteriesInput
                     {
                         Offset = 0,
-                        Limit = 10
+                        Limit = 10,
+                        Address = AliceAddress
                     });
 
                 rewardedLotteries.Lotteries.ShouldBeEmpty();

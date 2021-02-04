@@ -5,5 +5,6 @@ namespace AElf.Contracts.LotteryContract
         private const int RateDecimals = 4;
         private const int MaxQueryLimit = 50;
         private const int DefaultMaxMultiplied = 100;
+        private const int MaximalLotteryCountRecord = 1000;
     }
 }

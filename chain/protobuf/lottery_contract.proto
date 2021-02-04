@@ -106,6 +106,9 @@ service LotteryContract {
     rpc GetMaxMultiplied (google.protobuf.Empty) returns (google.protobuf.Int32Value) {
         option (aelf.is_view) = true;
     }
+    rpc GetLotteryCount(aelf.Address) returns (GetLotteryCountOutput){
+        option (aelf.is_view) = true;
+    }
 }
 
 message InitializeInput {
@@ -151,6 +154,7 @@ message GetPeriodsOutput {
 message GetLotteriesInput {
     int32 offset = 1;
     int32 limit = 2;
+    aelf.Address address = 3;
 }
 
 message GetLotteriesOutput {
@@ -279,4 +283,10 @@ message GetPeriodCountBoardOutput {
 message TakeBackTokenInput{
     string symbol = 1;
     int64 amount = 2;
+}
+
+message GetLotteryCountOutput{
+    int32 done_count = 1;
+    int32 un_drawn_count = 2;
+    int32 to_be_claimed_count = 3;
 }

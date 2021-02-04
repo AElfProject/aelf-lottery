@@ -40,7 +40,7 @@ namespace AElf.Contracts.LotteryContract
         {
             Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
             Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
-            var address = Context.Sender;
+            var address = input.Address ?? Context.Sender;
             var unDrawnLotteries = State.UnDrawnLotteries[address]?.Ids ?? new LotteryList().Ids;
             var toBeClaimedLotteries = State.ToBeClaimedLotteries[address] ?? new LotteryList();
             var doneLotteries = State.DoneLotteries[address] ?? new LotteryList();
@@ -66,8 +66,9 @@ namespace AElf.Contracts.LotteryContract
         {
             Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
             Assert(input.Limit <= MaxQueryLimit, $"Limit should be less than {MaxQueryLimit}");
-            var address = Context.Sender;
-            ClearUnDrawnLotteries(State.UnDrawnLotteries[address]);
+            var address = input.Address ?? Context.Sender;
+            var unDrawnLotteries = State.UnDrawnLotteries[address];
+            ClearUnDrawnLotteries(ref unDrawnLotteries);
             var lotteries = State.ToBeClaimedLotteries[address] ?? new LotteryList();
             var lotteryIdList = lotteries.Ids.OrderByDescending(id => id);
             var lotteryDetails = new List<LotteryDetail>();
@@ -241,6 +242,20 @@ namespace AElf.Contracts.LotteryContract
             return new Int32Value
             {
                 Value = State.MaxMultiplied.Value == 0 ? DefaultMaxMultiplied : State.MaxMultiplied.Value
+            };
+        }
+
+        public override GetLotteryCountOutput GetLotteryCount(Address input)
+        {
+            var unDrawnLotteries = State.UnDrawnLotteries[input]?.Ids ?? new LotteryList().Ids;
+            var toBeClaimedLotteries = State.ToBeClaimedLotteries[input] ?? new LotteryList();
+            var doneLotteries = State.DoneLotteries[input] ?? new LotteryList();
+            
+            return new GetLotteryCountOutput
+            {
+                DoneCount = doneLotteries.Ids.Count,
+                UnDrawnCount = unDrawnLotteries.Count,
+                ToBeClaimedCount = toBeClaimedLotteries.Ids.Count
             };
         }
     }
