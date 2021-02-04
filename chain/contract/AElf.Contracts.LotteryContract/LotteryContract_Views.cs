@@ -262,7 +262,7 @@ namespace AElf.Contracts.LotteryContract
         public override Int32Value GetClearLotteryCountLimit(Empty input)
         {
             return new Int32Value
-                {Value = State.ClearLotteryCountLimit.Value == 0 ? 1 : State.ClearLotteryCountLimit.Value};
+                {Value = State.ClearLotteryCountLimit.Value == 0 ? 30 : State.ClearLotteryCountLimit.Value};
         }
     }
 }
