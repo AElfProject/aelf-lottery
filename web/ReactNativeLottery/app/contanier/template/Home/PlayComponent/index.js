@@ -141,6 +141,7 @@ const PlayComponent = props => {
             max={maxMultiplied || 10}
             onChange={setMultiplied}
             inputLeftElement={<TextM>×</TextM>}
+            maxTip={i18n.t('lottery.maxMultipleTip')}
           />
         </View>
         <TextM style={styles.multipleTip}>

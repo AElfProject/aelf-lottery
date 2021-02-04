@@ -97,7 +97,7 @@ const Award = () => {
               betNumber,
               unitConverter.toLower(price),
               multiplied,
-            )}${i18n.t('lottery.unit')}`}
+            )} ${i18n.t('lottery.unit')}`}
           />
           <TextComponent
             detailsStyle={reward && reward > 0 ? {} : {color: Colors.fontBlack}}
@@ -106,7 +106,7 @@ const Award = () => {
           />
           <TextComponent
             title={i18n.t('lottery.draw.bonus')}
-            details={`${bonusAmount}${i18n.t('lottery.unit')}`}
+            details={`${bonusAmount} ${i18n.t('lottery.unit')}`}
           />
         </View>
         <View style={styles.bottomBox}>
@@ -229,6 +229,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailsText: {
+    textAlign: 'center',
     marginTop: pTd(10),
   },
   bottomBox: {

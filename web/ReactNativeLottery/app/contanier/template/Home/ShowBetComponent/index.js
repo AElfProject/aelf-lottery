@@ -65,23 +65,25 @@ const ShowBetComponent = props => {
   }, []);
   return (
     <View style={[styles.bottomBox, betComponentStyle]}>
-      <TextL>
-        {i18n.t('lottery.currentlySelected')}&nbsp;
-        <TextL style={styles.colorText}>{betNumber}</TextL>
-        &nbsp;
-        {i18n.t('lottery.note')},&nbsp;
-        <TextL style={styles.colorText}>×{multiplied}</TextL>&nbsp;
-        {i18n.t('lottery.times')}, {i18n.t('lottery.total')}&nbsp;
-        <TextL style={styles.colorText}>{betValue}</TextL>
-        &nbsp;
-        {i18n.t('lottery.unit')}
-      </TextL>
-      <TextM style={styles.winningTip}>
-        {i18n.t('lottery.winningTip', {
-          bonusAmount: Amount,
-          profit,
-        })}
-      </TextM>
+      <View style={styles.textBox}>
+        <TextL style>
+          {i18n.t('lottery.currentlySelected')}&nbsp;
+          <TextL style={styles.colorText}>{betNumber}</TextL>
+          &nbsp;
+          {i18n.t('lottery.note')},&nbsp;
+          <TextL style={styles.colorText}>×{multiplied}</TextL>&nbsp;
+          {i18n.t('lottery.times')}, {i18n.t('lottery.total')}&nbsp;
+          <TextL style={styles.colorText}>{betValue}</TextL>
+          &nbsp;
+          {i18n.t('lottery.unit')}
+        </TextL>
+        <TextM style={styles.winningTip}>
+          {i18n.t('lottery.winningTip', {
+            bonusAmount: betNumber === 0 ? 0 : Amount,
+            profit: betNumber === 0 ? 0 : profit,
+          })}
+        </TextM>
+      </View>
       <View style={styles.container}>
         <View style={styles.showBox}>
           {Array.isArray(data)
@@ -133,6 +135,9 @@ const ShowBetComponent = props => {
 export default memo(ShowBetComponent);
 
 const styles = StyleSheet.create({
+  textBox: {
+    paddingHorizontal: pTd(20),
+  },
   bottomBox: {
     marginTop: pTd(80),
     marginHorizontal: pTd(20),

@@ -272,9 +272,10 @@
 
   "_comment": "Lottery section",
   "lottery": {
-    "times": "times",
+    "times": "multiple",
     "Multiple": "Multiple",
-    "Times": "Times ",
+    "Times": "Multiple ",
+    "maxMultipleTip": "The maximum multiple is 100",
     "TimesTip": "Your chosen 'X' can only be an integer,can not be more than {{maxMultiplied}}",
     "drawT": "Draw",
     "bet": "Let's go",
@@ -347,7 +348,7 @@
       "purchasePeriod": "Choice Period",
       "purchasingPrice": "Choice Amount",
       "winningSituation": "About Winning",
-      "bonus": "Bonus",
+      "bonus": "Total Bonus",
       "lotteryNumbers": "Period check out numbers",
       "receive": "Collect Awards",
       "myBet": "My Choice",

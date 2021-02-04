@@ -17,6 +17,7 @@ const Stepper = props => {
     defaultValue,
     value,
     fontColor,
+    maxTip,
   } = props;
   const va = defaultValue || value;
   const [num, setNum] = useState(va ? String(va) : null);
@@ -36,7 +37,7 @@ const Stepper = props => {
     v => {
       if (reg.test(v) || !v) {
         if (v > max) {
-          CommonToast.text(`max ${max}`);
+          maxTip && CommonToast.text(maxTip);
           onSetValue(max);
         } else {
           onSetValue(v);
@@ -44,7 +45,7 @@ const Stepper = props => {
       }
       console.log(v);
     },
-    [max, onSetValue],
+    [max, maxTip, onSetValue],
   );
   const addDisabled = num >= max;
   const subDisabled = num <= min;
