@@ -183,7 +183,6 @@ namespace AElf.Contracts.LotteryContract
         {
             var lottery = State.Lotteries[lotteryId];
             if (lottery == null) return null;
-            Assert(lottery.Owner == Context.Sender, "Cannot query other people's lottery");
             var period = State.Periods[lottery.PeriodNumber];
             var date = period.CreateTime.ToDateTime().ToString("yyyyMMdd");
 

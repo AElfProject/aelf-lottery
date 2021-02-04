@@ -1801,11 +1801,6 @@ namespace AElf.Contracts.LotteryContract
                     }
                 }
             });
-            var result = await LotteryContractStub.GetLottery.CallWithExceptionAsync(new GetLotteryInput
-            {
-                LotteryId = 1
-            });
-            result.Value.ShouldContain("Cannot query other people's lottery");
         }
 
         [Fact]
