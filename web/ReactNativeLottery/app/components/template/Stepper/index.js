@@ -1,6 +1,5 @@
-import React, {memo, useEffect} from 'react';
+import React, {memo, useEffect, useCallback, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {useCallback, useState} from 'react/cjs/react.development';
 import {Colors} from '../../../assets/theme';
 import {pTd} from '../../../utils/common';
 import CommonToast from '../CommonToast';
@@ -19,7 +18,8 @@ const Stepper = props => {
     value,
     fontColor,
   } = props;
-  const [num, setNum] = useState(String(defaultValue || value));
+  const va = defaultValue || value;
+  const [num, setNum] = useState(va ? String(va) : null);
   useEffect(() => {
     if (value > 0) {
       setNum(String(value));
@@ -67,7 +67,7 @@ const Stepper = props => {
       <View style={styles.inputBox}>
         {inputLeftElement ? inputLeftElement : null}
         <Input
-          maxLength={max.toString().length}
+          maxLength={typeof max === 'number' ? max.toString().length : max}
           value={num}
           onChangeText={onChangeText}
           style={[styles.input, fontColor && {color: fontColor}]}

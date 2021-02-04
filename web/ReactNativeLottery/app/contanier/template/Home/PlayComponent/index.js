@@ -138,7 +138,7 @@ const PlayComponent = props => {
           <Stepper
             min={1}
             value={multiplied}
-            max={maxMultiplied}
+            max={maxMultiplied || 10}
             onChange={setMultiplied}
             inputLeftElement={<TextM>×</TextM>}
           />
