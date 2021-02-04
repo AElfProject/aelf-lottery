@@ -25,11 +25,14 @@ export default StyleSheet.create({
     backgroundColor: 'white',
     paddingVertical: pTd(30),
     flexDirection: 'row',
-    justifyContent: 'space-around',
     marginBottom: pTd(20),
   },
   toolItem: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  toolText: {
+    marginTop: pTd(10),
   },
 });

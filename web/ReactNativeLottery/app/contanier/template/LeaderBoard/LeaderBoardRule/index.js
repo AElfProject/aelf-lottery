@@ -14,6 +14,7 @@ const LeaderBoardRule = () => {
       language: settings.language,
     };
   });
+  console.log(ruleURI + language);
   return (
     <View style={GStyle.container}>
       <CommonHeader
