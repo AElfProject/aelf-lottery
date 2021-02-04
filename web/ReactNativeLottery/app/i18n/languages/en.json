@@ -30,6 +30,7 @@
   "latestVersion": "This is the latest version.",
   "toLogin": "Go to login",
   "toLoginTip": "You are not logged in, you need to log in to perform related operations",
+  "exitTip": "Press again to exit the application",
   "setPwd": {
     "title": "Set up payment password",
     "setPwd1": "Please set transaction password",

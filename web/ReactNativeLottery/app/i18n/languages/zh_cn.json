@@ -30,6 +30,7 @@
   "latestVersion": "已是最新版本",
   "toLogin": "去登录",
   "toLoginTip": "你还未登录，需先登录才能进行相关操作",
+  "exitTip": "再按一次退出应用",
   "setPwd": {
     "title": "设置支付密码",
     "setPwd1": "请设置交易密码",
