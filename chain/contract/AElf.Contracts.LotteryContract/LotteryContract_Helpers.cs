@@ -192,6 +192,9 @@ namespace AElf.Contracts.LotteryContract
             var toBeClearedCount = 0;
             foreach (var lotteryId in lotteryIds)
             {
+                if (toBeClearedCount >= 100)
+                    break;
+                
                 var lottery = State.Lotteries[lotteryId];
                 if (latestDrawPeriod == null || lottery.PeriodNumber > latestDrawPeriod.PeriodNumber) break;
                 var period = State.Periods[lottery.PeriodNumber];
