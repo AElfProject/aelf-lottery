@@ -61,7 +61,7 @@ namespace AElf.Contracts.LotteryContract
                 Lotteries = {lotteryDetails}
             };
         }
-
+        
         public override GetLotteriesOutput GetRewardedLotteries(GetLotteriesInput input)
         {
             Assert(input.Offset >= 0 && input.Limit > 0, "Invalid input");
@@ -85,6 +85,37 @@ namespace AElf.Contracts.LotteryContract
             return new GetLotteriesOutput
             {
                 Lotteries = {lotteryDetails.Skip(input.Offset).Take(input.Limit)}
+            };
+        }
+        
+        
+        public override GetRewardedLotteriesInBatchOutput GetRewardedLotteriesInBatch(GetRewardedLotteriesInBatchInput input)
+        {
+            Assert(input.Offset >= 0, "Invalid input");
+            var address = input.Address ?? Context.Sender;
+            var lotteries = (State.UnDrawnLotteries[address]?.Ids ?? new LotteryList().Ids).ToList();
+            lotteries.AddRange((State.ToBeClaimedLotteries[address] ?? new LotteryList()).Ids);
+            var lotteryIdList = lotteries.OrderByDescending(id => id).Skip(input.Offset).Take(MaxQueryLimit).ToList();
+            var lotteryDetails = new List<LotteryDetail>();
+            var returnOffset = input.Offset - 1;
+            foreach (var lotteryId in lotteryIdList)
+            {
+                returnOffset++;
+                var lotteryDetail = GetLotteryDetail(lotteryId);
+                if (lotteryDetail == null || lotteryDetail.Expired)
+                {
+                    returnOffset = -1;
+                    break;
+                }
+                
+                if (lotteryDetail.Reward != 0 && !lotteryDetail.Cashed)
+                    lotteryDetails.Add(lotteryDetail);
+            }
+
+            return new GetRewardedLotteriesInBatchOutput
+            {
+                Lotteries = {lotteryDetails},
+                Offset = returnOffset == lotteries.Count - 1 ? -1 : returnOffset
             };
         }
 
