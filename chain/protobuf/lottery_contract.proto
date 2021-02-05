@@ -53,6 +53,9 @@ service LotteryContract {
     rpc GetRewardedLotteries (GetLotteriesInput) returns (GetLotteriesOutput) {
         option (aelf.is_view) = true;
     }
+    rpc GetRewardedLotteriesInBatch (GetRewardedLotteriesInBatchInput) returns (GetRewardedLotteriesInBatchOutput) {
+        option (aelf.is_view) = true;
+    }
     rpc GetLatestCashedLottery (google.protobuf.Empty) returns (GetLatestCashedLotteryOutput) {
         option (aelf.is_view) = true;
     }
@@ -294,4 +297,14 @@ message GetLotteryCountOutput{
     int32 done_count = 1;
     int32 un_drawn_count = 2;
     int32 to_be_claimed_count = 3;
+}
+
+message GetRewardedLotteriesInBatchInput{
+    int32 offset = 1;
+    aelf.Address address = 2;
+}
+
+message GetRewardedLotteriesInBatchOutput{
+    int32 offset = 1;
+    repeated LotteryDetail lotteries = 2;
 }
