@@ -329,7 +329,9 @@ namespace AElf.Contracts.LotteryContract
         public override Empty TakeDividend(Empty input)
         {
             Assert(State.DividendRate.Value > 0, "DividendRate not set.");
+            Assert(Context.CurrentBlockTime > State.StakingShutdownTimestamp.Value, "Staking not shutdown.");
             Assert(State.Staking[Context.Sender] > 0, "No stake.");
+            State.Staking[Context.Sender] = 0;
             var amount = State.Staking[Context.Sender].Mul(State.DividendRate.Value)
                 .Div(GetDividendRateTotalShares(new Empty()).Value);
             State.TokenContract.Transfer.Send(new TransferInput
@@ -344,6 +346,7 @@ namespace AElf.Contracts.LotteryContract
 
         public override Empty SetDividendRate(Int64Value input)
         {
+            Assert(Context.CurrentBlockTime > State.StakingShutdownTimestamp.Value, "Staking not shutdown.");
             Assert(Context.Sender == State.Admin.Value, "No permission.");
             Assert(input.Value >= 0, "DividendRate cannot be negative.");
             State.DividendRate.Value = input.Value;
