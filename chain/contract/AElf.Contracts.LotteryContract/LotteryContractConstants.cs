@@ -8,6 +8,6 @@ namespace AElf.Contracts.LotteryContract
         private const int MaximumReturnAmount = 20;
 
         private const long TotalSharesForProfitRate = 10000;
-        private const long TotalSharesForDividendRate = 10000;
+        private const long DefaultTotalSharesForDividendRate = 10000;
     }
 }

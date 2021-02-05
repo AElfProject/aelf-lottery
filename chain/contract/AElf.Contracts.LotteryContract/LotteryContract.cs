@@ -330,7 +330,8 @@ namespace AElf.Contracts.LotteryContract
         {
             Assert(State.DividendRate.Value > 0, "DividendRate not set.");
             Assert(State.Staking[Context.Sender] > 0, "No stake.");
-            var amount = State.Staking[Context.Sender].Mul(State.DividendRate.Value).Div(TotalSharesForDividendRate);
+            var amount = State.Staking[Context.Sender].Mul(State.DividendRate.Value)
+                .Div(GetDividendRateTotalShares(new Empty()).Value);
             State.TokenContract.Transfer.Send(new TransferInput
             {
                 Amount = amount,
@@ -344,8 +345,16 @@ namespace AElf.Contracts.LotteryContract
         public override Empty SetDividendRate(Int64Value input)
         {
             Assert(Context.Sender == State.Admin.Value, "No permission.");
-            Assert(input.Value >= 0, "DividendRate cannot ne negative.");
+            Assert(input.Value >= 0, "DividendRate cannot be negative.");
             State.DividendRate.Value = input.Value;
+            return new Empty();
+        }
+
+        public override Empty SetDividendRateTotalShares(Int64Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            Assert(input.Value > 0, "DividendRate cannot be zero or negative.");
+            State.DividendRateTotalShares.Value = input.Value;
             return new Empty();
         }
     }

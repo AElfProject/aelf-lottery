@@ -43,6 +43,7 @@ namespace AElf.Contracts.LotteryContract
 
         public Int64State StakingTotal { get; set; }
         public Int64State DividendRate { get; set; }
+        public Int64State DividendRateTotalShares { get; set; }
 
         public Int64State ProfitRate { get; set; }
 
