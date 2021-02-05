@@ -24,7 +24,13 @@ import aelfUtils from '../utils/pages/aelfUtils';
 import unitConverter from '../utils/pages/unitConverter';
 import {LOTTERY_LIMIT} from '../config/lotteryConstant';
 import navigationService from '../utils/common/navigationService';
-const {contractNameAddressSets, lotterySellerAddress, tokenSymbol} = config;
+import {getFetchRequest} from '../utils/common/networkRequest';
+const {
+  contractNameAddressSets,
+  lotterySellerAddress,
+  tokenSymbol,
+  lotApi,
+} = config;
 function* buySaga({data}) {
   try {
     Loading.show();
@@ -342,42 +348,73 @@ function* getPeriodListSaga({loadingPaging, callBack}) {
     callBack && callBack(-1);
   }
 }
+let OFFSET = 0;
 function* getRewardedListSaga({loadingPaging, callBack}) {
   try {
     const userInfo = yield select(userSelectors.getUserInfo);
-    const {lotteryContract} = userInfo.contracts || {};
-    if (lotteryContract) {
+    const {address} = userInfo || {};
+    console.log(address, '=====address');
+    if (address) {
       const rewardedList = yield select(lotterySelectors.rewardedList);
       let offset = 0;
       if (loadingPaging && Array.isArray(rewardedList)) {
-        offset = rewardedList.length;
-      }
-      const result = yield lotteryContract.GetRewardedLotteries.call({
-        offset,
-        limit: LOTTERY_LIMIT,
-      });
-      console.log(result, '=====result');
-      const {lotteries} = result || {};
-      if (Array.isArray(lotteries)) {
-        let list = [];
-        if (loadingPaging) {
-          if (Array.isArray(rewardedList)) {
-            list = list.concat(rewardedList);
-          }
-        }
-        list = list.concat(lotteries);
-        if (lotteries.length < LOTTERY_LIMIT) {
-          callBack && callBack(0);
-        } else {
-          callBack && callBack(1);
-        }
-        yield put(lotteryActions.setRewardedList(list));
+        offset = OFFSET;
       } else {
-        if (!loadingPaging) {
-          yield put(lotteryActions.setRewardedList([]));
-        }
-        callBack && callBack(0);
+        OFFSET = 0;
       }
+      console.log(offset, '====offset');
+      const result = yield getFetchRequest(
+        `${lotApi}/getRewardedLotteriesInBatch?address=${address}&offset=${offset}&limit=50`,
+      );
+      console.log(result, '=====result');
+      const {code, data} = result || {};
+      if (code === 0) {
+        const {rewardedList: lotteries, offset: resultOffset} = data || {};
+        if (data?.code === 1) {
+          let list = [];
+          if (loadingPaging) {
+            if (Array.isArray(rewardedList)) {
+              list = list.concat(rewardedList);
+            }
+          }
+          OFFSET = resultOffset;
+          list = list.concat(lotteries);
+          callBack && callBack(1);
+          yield put(lotteryActions.setRewardedList(list));
+        } else {
+          if (!loadingPaging) {
+            yield put(lotteryActions.setRewardedList([]));
+          }
+          OFFSET = 0;
+          callBack && callBack(0);
+        }
+      }
+      // const result = yield lotteryContract.GetRewardedLotteries.call({
+      //   offset,
+      //   limit: LOTTERY_LIMIT,
+      // });
+      // console.log(result, '=====result');
+      // const {lotteries} = result || {};
+      // if (Array.isArray(lotteries)) {
+      //   let list = [];
+      //   if (loadingPaging) {
+      //     if (Array.isArray(rewardedList)) {
+      //       list = list.concat(rewardedList);
+      //     }
+      //   }
+      //   list = list.concat(lotteries);
+      //   if (lotteries.length < LOTTERY_LIMIT) {
+      //     callBack && callBack(0);
+      //   } else {
+      //     callBack && callBack(1);
+      //   }
+      //   yield put(lotteryActions.setRewardedList(list));
+      // } else {
+      //   if (!loadingPaging) {
+      //     yield put(lotteryActions.setRewardedList([]));
+      //   }
+      //   callBack && callBack(0);
+      // }
     } else {
       if (!loadingPaging) {
         yield put(lotteryActions.setRewardedList([]));

@@ -86,7 +86,7 @@ export default class ListComponent extends Component {
   };
   listProps = {
     //Improve performance
-    windowSize: 50,
+    windowSize: 300,
     maxToRenderPerBatch: 5,
     // removeClippedSubviews: false,
     // legacyImplementation: true

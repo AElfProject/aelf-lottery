@@ -57,8 +57,8 @@ Select 3 digits from 0 to 9. If the 3 digits you choose match the last three dig
 5. Pick 5 - Straight (Exact Order) (Excellent)
 Select 5 digits from 0 to 9. If the 5 digits you choose match the winning number in exact order, you can win. The prize for a single bet is 100,000 lucky coins.
 
-6.Choose or input x times
-Increased x times for 5 play options. X can only be an integer (x = 1,2,3...n). 5 play options includes ‘big, small, odd, even’(Average), ‘Pick number’ includes pick 1(Fair) , pick 2(Good), pick 3 (Very Good) and pick 5 (Excellent).
+6.Choose or input x Multiples
+Increased x Multiples for 5 play options. X can only be an integer (x = 1,2,3...n). 5 play options includes ‘big, small, odd, even’(Average), ‘Pick number’ includes pick 1(Fair) , pick 2(Good), pick 3 (Very Good) and pick 5 (Excellent).
 
 
 B. Prize rules

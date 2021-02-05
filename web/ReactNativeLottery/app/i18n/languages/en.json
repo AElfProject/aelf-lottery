@@ -273,10 +273,10 @@
 
   "_comment": "Lottery section",
   "lottery": {
-    "times": "multiple",
-    "Multiple": "Multiple",
-    "Times": "Multiple ",
-    "maxMultipleTip": "The maximum multiple is 100",
+    "times": "multiples",
+    "Multiple": "Multiples",
+    "Times": "Multiples ",
+    "maxMultipleTip": "The maximum multiples is 100",
     "TimesTip": "Your chosen 'X' can only be an integer,can not be more than {{maxMultiplied}}",
     "drawT": "Draw",
     "bet": "Let's go",

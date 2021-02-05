@@ -34,6 +34,7 @@ export default {
   // You can change the params for keyStore here
   keystoreOptions,
   httpProvider: `${walletURL}/chain`,
+  lotApi: `${walletURL}/api-lot/api/lot`,
   explorerURL,
   contractNames: {
     consensusContract: 'AElf.ContractNames.Consensus',
