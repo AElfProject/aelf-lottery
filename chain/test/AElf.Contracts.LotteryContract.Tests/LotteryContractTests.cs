@@ -2360,6 +2360,211 @@ namespace AElf.Contracts.LotteryContract
         }
 
         [Fact]
+        public async Task GetRewardedLotteriesInBatchTest()
+        {
+            await InitializeAsync(true);
+            await TokenContractStub.Transfer.SendAsync(new TransferInput
+            {
+                Amount = 1000_000_000_000,
+                Symbol = "ELF",
+                To = LotteryContractAddress
+            });
+            var output = await LotteryContractStub.GetLottery.CallAsync(new GetLotteryInput
+            {
+                LotteryId = 1
+            });
+            output.ShouldBe(new GetLotteryOutput());
+
+            var seller = Address.FromPublicKey(SampleAccount.Accounts[2].KeyPair.PublicKey);
+
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = seller,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+
+            {
+                var rewardedLotteriesInBranch = await AliceLotteryContractStub.GetRewardedLotteriesInBatch.CallAsync(
+                    new GetRewardedLotteriesInBatchInput
+                    {
+                        Address = AliceAddress,
+                        Offset = 0
+                    });
+
+                rewardedLotteriesInBranch.Offset.ShouldBe(-1);
+                rewardedLotteriesInBranch.Lotteries.Count.ShouldBe(0);
+            }
+
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 1
+            });
+
+            {
+                var rewardedLotteriesInBranch = await AliceLotteryContractStub.GetRewardedLotteriesInBatch.CallAsync(
+                    new GetRewardedLotteriesInBatchInput
+                    {
+                        Address = AliceAddress,
+                        Offset = 0
+                    });
+
+                rewardedLotteriesInBranch.Offset.ShouldBe(-1);
+                rewardedLotteriesInBranch.Lotteries.Count.ShouldBe(1);
+            }
+
+            await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+            {
+                Seller = seller,
+                Type = (int) LotteryType.OneBit,
+                BetInfos =
+                {
+                    new BetBody
+                    {
+                        Bets = {0}
+                    }
+                }
+            });
+
+            {
+                var rewardedLotteriesInBranch = await AliceLotteryContractStub.GetRewardedLotteriesInBatch.CallAsync(
+                    new GetRewardedLotteriesInBatchInput
+                    {
+                        Address = AliceAddress,
+                        Offset = 0
+                    });
+
+                rewardedLotteriesInBranch.Offset.ShouldBe(-1);
+                rewardedLotteriesInBranch.Lotteries.Count.ShouldBe(1);
+            }
+
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 2
+            });
+            {
+                var rewardedLotteriesInBranch = await AliceLotteryContractStub.GetRewardedLotteriesInBatch.CallAsync(
+                    new GetRewardedLotteriesInBatchInput
+                    {
+                        Address = AliceAddress,
+                        Offset = 0
+                    });
+
+                rewardedLotteriesInBranch.Offset.ShouldBe(-1);
+                rewardedLotteriesInBranch.Lotteries.Count.ShouldBe(2);
+            }
+
+
+            await AliceLotteryContractStub.TakeReward.SendAsync(new TakeRewardInput
+            {
+                LotteryId = 1
+            });
+
+            {
+                var rewardedLotteriesInBranch = await AliceLotteryContractStub.GetRewardedLotteriesInBatch.CallAsync(
+                    new GetRewardedLotteriesInBatchInput
+                    {
+                        Address = AliceAddress,
+                        Offset = 0
+                    });
+
+                rewardedLotteriesInBranch.Offset.ShouldBe(-1);
+                rewardedLotteriesInBranch.Lotteries.Count.ShouldBe(1);
+                rewardedLotteriesInBranch.Lotteries.First().Id.ShouldBe(2);
+            }
+
+            for (var i = 0; i < 25; i++)
+            {
+                await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+                {
+                    Seller = seller,
+                    Type = (int) LotteryType.OneBit,
+                    BetInfos =
+                    {
+                        new BetBody
+                        {
+                            Bets = {0}
+                        }
+                    }
+                });
+                await AliceLotteryContractStub.Buy.SendAsync(new BuyInput
+                {
+                    Seller = seller,
+                    Type = (int) LotteryType.OneBit,
+                    BetInfos =
+                    {
+                        new BetBody
+                        {
+                            Bets = {1}
+                        }
+                    }
+                });
+            }
+            
+            await LotteryContractStub.PrepareDraw.SendAsync(new Empty());
+            await LotteryContractStub.Draw.SendAsync(new Int64Value
+            {
+                Value = 3
+            });
+            
+            {
+                var rewardedLotteriesInBranch = await AliceLotteryContractStub.GetRewardedLotteriesInBatch.CallAsync(
+                    new GetRewardedLotteriesInBatchInput
+                    {
+                        Address = AliceAddress,
+                        Offset = 0
+                    });
+
+                rewardedLotteriesInBranch.Offset.ShouldBe(49);
+                rewardedLotteriesInBranch.Lotteries.Count.ShouldBe(25);
+                rewardedLotteriesInBranch.Lotteries.First().Id.ShouldBe(51);
+                rewardedLotteriesInBranch.Lotteries.Last().Id.ShouldBe(3);
+            }
+            
+            {
+                var rewardedLotteriesInBranch = await AliceLotteryContractStub.GetRewardedLotteriesInBatch.CallAsync(
+                    new GetRewardedLotteriesInBatchInput
+                    {
+                        Address = AliceAddress,
+                        Offset = 50
+                    });
+
+                rewardedLotteriesInBranch.Offset.ShouldBe(-1);
+                rewardedLotteriesInBranch.Lotteries.Count.ShouldBe(1);
+                rewardedLotteriesInBranch.Lotteries.Last().Id.ShouldBe(2);
+            }
+            
+            await AliceLotteryContractStub.TakeReward.SendAsync(new TakeRewardInput
+            {
+                LotteryId = 3
+            });
+            
+            {
+                var rewardedLotteriesInBranch = await AliceLotteryContractStub.GetRewardedLotteriesInBatch.CallAsync(
+                    new GetRewardedLotteriesInBatchInput
+                    {
+                        Address = AliceAddress,
+                        Offset = 0
+                    });
+
+                rewardedLotteriesInBranch.Offset.ShouldBe(-1);
+                rewardedLotteriesInBranch.Lotteries.Count.ShouldBe(25); //2, 5, 7, 9,..,51
+                rewardedLotteriesInBranch.Lotteries.First().Id.ShouldBe(51);
+                rewardedLotteriesInBranch.Lotteries[23].Id.ShouldBe(5);
+                rewardedLotteriesInBranch.Lotteries.Last().Id.ShouldBe(2);
+            }
+        }
+
+        [Fact]
         public async Task GetPeriod_Without_Draw()
         {
             await InitializeAsync();
@@ -2756,9 +2961,9 @@ namespace AElf.Contracts.LotteryContract
                 Symbol = "ELF",
                 Amount = 1000_000_000_000
             });
-            
+
             takeBack.TransactionResult.Error.ShouldContain("No permission.");
-            
+
             await LotteryContractStub.TakeBackToken.SendAsync(new TakeBackTokenInput
             {
                 Symbol = "ELF",
