@@ -50,8 +50,6 @@ service LotteryContract {
     }
     rpc SetStakingTimestamp(SetStakingTimestampInput) returns (google.protobuf.Empty) {
     }
-    rpc RegisterDividend (RegisterDividendDto) returns (google.protobuf.Empty) {
-    }
     rpc TakeBackToken(TakeBackTokenInput) returns (google.protobuf.Empty) {
     }
     rpc SetProfitsRate (google.protobuf.Int64Value) returns (google.protobuf.Empty) {
@@ -97,9 +95,6 @@ service LotteryContract {
         option (aelf.is_view) = true;
     }
     rpc GetAllLotteriesCount (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
-        option (aelf.is_view) = true;
-    }
-    rpc GetRegisteredDividend (aelf.Address) returns (RegisterDividendDto) {
         option (aelf.is_view) = true;
     }
     rpc GetStakingAmount(aelf.Address) returns (google.protobuf.Int64Value) {

@@ -253,15 +253,7 @@ namespace AElf.Contracts.LotteryContract
             State.IsSuspend.Value = false;
             return new Empty();
         }
-
-        public override Empty RegisterDividend(RegisterDividendDto input)
-        {
-            Assert(State.Dividends[Context.Sender] == null, "Already registered.");
-            Assert(State.Staking[Context.Sender] > 0, "Not stake yet.");
-            State.Dividends[Context.Sender] = input;
-            return new Empty();
-        }
-
+        
         public override Empty Stake(Int64Value input)
         {
             Assert(Context.CurrentBlockTime > State.StakingStartTimestamp.Value, "Staking not started.");
@@ -331,9 +323,9 @@ namespace AElf.Contracts.LotteryContract
             Assert(State.DividendRate.Value > 0, "DividendRate not set.");
             Assert(Context.CurrentBlockTime > State.StakingShutdownTimestamp.Value, "Staking not shutdown.");
             Assert(State.Staking[Context.Sender] > 0, "No stake.");
-            State.Staking[Context.Sender] = 0;
             var amount = State.Staking[Context.Sender].Mul(State.DividendRate.Value)
                 .Div(GetDividendRateTotalShares(new Empty()).Value);
+            State.Staking[Context.Sender] = 0;
             State.TokenContract.Transfer.Send(new TransferInput
             {
                 Amount = amount,

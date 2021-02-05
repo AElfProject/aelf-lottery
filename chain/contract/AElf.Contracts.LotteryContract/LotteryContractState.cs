@@ -48,9 +48,7 @@ namespace AElf.Contracts.LotteryContract
         public Int64State ProfitRate { get; set; }
 
         public BoolState IsSuspend { get; set; }
-
-        public MappedState<Address, RegisterDividendDto> Dividends { get; set; }
-
+        
         public SingletonState<Timestamp> StakingStartTimestamp { get; set; }
         public SingletonState<Timestamp> StakingShutdownTimestamp { get; set; }
     }

@@ -639,7 +639,7 @@ namespace AElf.Contracts.LotteryContract
                 boughtLotteries.Lotteries.Count.ShouldBe(1);
                 boughtLotteries.Lotteries.First().Id.ShouldBe(29);
             }
-            
+
             {
                 var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
                 {
@@ -658,7 +658,7 @@ namespace AElf.Contracts.LotteryContract
                     {"啊", 3}
                 }
             });
-            
+
             {
                 var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
                 {
@@ -671,7 +671,7 @@ namespace AElf.Contracts.LotteryContract
                 boughtLotteries.Lotteries.First().Id.ShouldBe(27);
                 boughtLotteries.Lotteries.Last().Id.ShouldBe(29);
             }
-            
+
             {
                 var boughtLotteries = await LotteryContractStub.GetBoughtLotteries.CallAsync(new GetBoughtLotteriesInput
                 {
@@ -786,24 +786,11 @@ namespace AElf.Contracts.LotteryContract
                 Amount = 100000000_00000000
             });
 
-            var registerDividend = await AliceLotteryContractStub.RegisterDividend.SendWithExceptionAsync(
-                new RegisterDividendDto
-                {
-                    Receiver = "123"
-                });
-            registerDividend.TransactionResult.Error.ShouldContain("Not stake yet.");
+
             GetRequiredService<IBlockTimeProvider>()
                 .SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(1)));
             await AliceLotteryContractStub.Stake.SendAsync(new Int64Value {Value = 100_000_000});
 
-            await AliceLotteryContractStub.RegisterDividend.SendAsync(
-                new RegisterDividendDto
-                {
-                    Receiver = "123"
-                });
-
-            var receiver = (await AliceLotteryContractStub.GetRegisteredDividend.CallAsync(AliceAddress)).Receiver;
-            receiver.ShouldBe("123");
 
             {
                 var stakingAmount = await AliceLotteryContractStub.GetStakingAmount.CallAsync(AliceAddress);
@@ -825,6 +812,54 @@ namespace AElf.Contracts.LotteryContract
                 var stakingTotal = await AliceLotteryContractStub.GetStakingTotal.CallAsync(new Empty());
                 stakingTotal.Value.ShouldBe(1100_000_000);
             }
+
+            {
+                var take = await AliceLotteryContractStub.TakeDividend.SendWithExceptionAsync(new Empty());
+                take.TransactionResult.Error.ShouldContain("DividendRate not set.");
+            }
+
+            {
+                var stake = await LotteryContractStub.SetDividendRate.SendWithExceptionAsync(new Int64Value
+                    {Value = 1000});
+                stake.TransactionResult.Error.ShouldContain("Staking not shutdown.");
+            }
+
+            GetRequiredService<IBlockTimeProvider>()
+                .SetBlockTime(Timestamp.FromDateTime(DateTime.UtcNow.AddSeconds(10)));
+
+            {
+                var stake = await AliceLotteryContractStub.Stake.SendWithExceptionAsync(new Int64Value
+                    {Value = 100_000_000});
+                stake.TransactionResult.Error.ShouldContain("Staking shutdown.");
+            }
+
+            {
+                var setDividendRate =
+                    await AliceLotteryContractStub.SetDividendRate.SendWithExceptionAsync(new Int64Value
+                        {Value = 1000});
+                setDividendRate.TransactionResult.Error.ShouldContain("No permission.");
+            }
+
+            await LotteryContractStub.SetDividendRate.SendAsync(new Int64Value {Value = 1000});
+
+            var stakingAmountBefore = await AliceLotteryContractStub.GetStakingAmount.CallAsync(AliceAddress);
+            var balanceBefore = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = AliceAddress,
+                Symbol = "ELF"
+            });
+
+            var total = await AliceLotteryContractStub.GetStakingTotal.CallAsync(new Empty());
+            await AliceLotteryContractStub.TakeDividend.SendAsync(new Empty());
+            var stakingAmountAfter = await AliceLotteryContractStub.GetStakingAmount.CallAsync(AliceAddress);
+            stakingAmountAfter.Value.ShouldBe(0);
+
+            var balanceAfter = await TokenContractStub.GetBalance.CallAsync(new GetBalanceInput
+            {
+                Owner = AliceAddress,
+                Symbol = "ELF"
+            });
+            (balanceAfter.Balance - balanceBefore.Balance).ShouldBe(stakingAmountBefore.Value / 10);
         }
 
         [Fact]
