@@ -197,5 +197,13 @@ namespace AElf.Contracts.LotteryContract
                 Value = State.ProfitRate.Value
             };
         }
+
+        public override Int64Value GetDividendRate(Empty input)
+        {
+            return new Int64Value
+            {
+                Value = State.DividendRate.Value
+            };
+        }
     }
 }

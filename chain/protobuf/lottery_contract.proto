@@ -24,6 +24,10 @@ service LotteryContract {
 	}
     rpc TakeReward (TakeRewardInput) returns (google.protobuf.Empty) {
     }
+    rpc TakeDividend(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    }
+    rpc SetDividendRate(google.protobuf.Int64Value) returns (google.protobuf.Empty) {
+    }
 
     // Management Actions
     rpc ResetMaximumBuyAmount (google.protobuf.Int64Value) returns (google.protobuf.Empty) {
@@ -106,6 +110,9 @@ service LotteryContract {
         option (aelf.is_view) = true;
     }
     rpc GetProfitsRate (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetDividendRate (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
 }

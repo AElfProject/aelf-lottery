@@ -42,6 +42,7 @@ namespace AElf.Contracts.LotteryContract
         public MappedState<Address, long> Staking { get; set; }
 
         public Int64State StakingTotal { get; set; }
+        public Int64State DividendRate { get; set; }
 
         public Int64State ProfitRate { get; set; }
 

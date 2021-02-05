@@ -325,5 +325,28 @@ namespace AElf.Contracts.LotteryContract
             State.ProfitRate.Value = input.Value;
             return new Empty();
         }
+
+        public override Empty TakeDividend(Empty input)
+        {
+            Assert(State.DividendRate.Value > 0, "DividendRate not set.");
+            Assert(State.Staking[Context.Sender] > 0, "No stake.");
+            var amount = State.Staking[Context.Sender].Mul(State.DividendRate.Value).Div(TotalSharesForDividendRate);
+            State.TokenContract.Transfer.Send(new TransferInput
+            {
+                Amount = amount,
+                Symbol = "ELF",
+                To = Context.Sender
+            });
+
+            return new Empty();
+        }
+
+        public override Empty SetDividendRate(Int64Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            Assert(input.Value >= 0, "DividendRate cannot ne negative.");
+            State.DividendRate.Value = input.Value;
+            return new Empty();
+        }
     }
 }
