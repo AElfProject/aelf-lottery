@@ -370,7 +370,7 @@ function* getRewardedListSaga({loadingPaging, callBack}) {
       const {code, data} = result || {};
       if (code === 0) {
         const {rewardedList: lotteries, offset: resultOffset} = data || {};
-        if (data?.code === 1) {
+        if (Array.isArray(lotteries)) {
           let list = [];
           if (loadingPaging) {
             if (Array.isArray(rewardedList)) {
@@ -379,7 +379,11 @@ function* getRewardedListSaga({loadingPaging, callBack}) {
           }
           OFFSET = resultOffset;
           list = list.concat(lotteries);
-          callBack && callBack(1);
+          if (data?.code === 1) {
+            callBack && callBack(1);
+          } else {
+            callBack && callBack(0);
+          }
           yield put(lotteryActions.setRewardedList(list));
         } else {
           if (!loadingPaging) {
