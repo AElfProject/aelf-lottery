@@ -58,8 +58,13 @@ function* buySaga({data}) {
       CommonToast.fail(i18n.t('lottery.lotterySaga.betFailed'));
     }
   } catch (error) {
+    const {Error: e} = error;
+    if (e) {
+      CommonToast.fail(e);
+    } else {
+      CommonToast.fail(i18n.t('lottery.lotterySaga.betFailed'));
+    }
     Loading.destroy();
-    CommonToast.fail(i18n.t('lottery.lotterySaga.betFailed'));
     console.log('buySaga', error);
   }
 }
@@ -299,9 +304,14 @@ function* takeRewardSaga({lotteryId}) {
       CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedFailed'));
     }
   } catch (error) {
-    Loading.destroy();
-    CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedFailed'));
     console.log('getLotterySaga', error);
+    const {Error: e} = error;
+    if (e) {
+      CommonToast.fail(e);
+    } else {
+      CommonToast.fail(i18n.t('lottery.lotterySaga.acceptedFailed'));
+    }
+    Loading.destroy();
   }
 }
 function* getPeriodListSaga({loadingPaging, callBack}) {
