@@ -350,7 +350,16 @@ const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
       } else if (
         s.length === 2 &&
         f.length === 2 &&
-        JSON.stringify(s.sort()) === JSON.stringify(f.sort())
+        s.length === 2 &&
+        f.length === 2 &&
+        ((s.includes('0') &&
+          s.includes('1') &&
+          f.includes('0') &&
+          f.includes('1')) ||
+          (s.includes('2') &&
+            s.includes('3') &&
+            f.includes('2') &&
+            f.includes('3')))
       ) {
       } else if (f.length !== 1 || s.length !== 1) {
         if (
@@ -361,13 +370,25 @@ const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
           (s.includes('0') &&
             s.includes('2') &&
             f.includes('0') &&
-            f.includes('2'))
+            f.includes('2') &&
+            s.length === 3 &&
+            f.length === 2) ||
+          (f.length === 3 && s.length === 2)
         ) {
-          A = `${amount}~${amount * 4}`;
-          P = `${amount - betValue}~${amount * 4 - betValue}`;
-        } else {
           A = `${amount}~${amount * 2}`;
           P = `${amount - betValue}~${amount * 2 - betValue}`;
+        } else {
+          const f1 = f.filter(i => i === '0' || i === '1');
+          const f2 = f.filter(i => i === '2' || i === '3');
+          const s1 = s.filter(i => i === '0' || i === '1');
+          const s2 = s.filter(i => i === '2' || i === '3');
+          let m = 0;
+          f1.length && m++;
+          f2.length && m++;
+          s1.length && m++;
+          s2.length && m++;
+          A = `${amount}~${amount * m}`;
+          P = `${amount - betValue}~${amount * m - betValue}`;
         }
       }
     }
