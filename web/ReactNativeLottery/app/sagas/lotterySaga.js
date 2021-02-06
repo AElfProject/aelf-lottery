@@ -392,33 +392,12 @@ function* getRewardedListSaga({loadingPaging, callBack}) {
           OFFSET = 0;
           callBack && callBack(0);
         }
+      } else {
+        if (!loadingPaging) {
+          yield put(lotteryActions.setRewardedList([]));
+        }
+        callBack && callBack(-1);
       }
-      // const result = yield lotteryContract.GetRewardedLotteries.call({
-      //   offset,
-      //   limit: LOTTERY_LIMIT,
-      // });
-      // console.log(result, '=====result');
-      // const {lotteries} = result || {};
-      // if (Array.isArray(lotteries)) {
-      //   let list = [];
-      //   if (loadingPaging) {
-      //     if (Array.isArray(rewardedList)) {
-      //       list = list.concat(rewardedList);
-      //     }
-      //   }
-      //   list = list.concat(lotteries);
-      //   if (lotteries.length < LOTTERY_LIMIT) {
-      //     callBack && callBack(0);
-      //   } else {
-      //     callBack && callBack(1);
-      //   }
-      //   yield put(lotteryActions.setRewardedList(list));
-      // } else {
-      //   if (!loadingPaging) {
-      //     yield put(lotteryActions.setRewardedList([]));
-      //   }
-      //   callBack && callBack(0);
-      // }
     } else {
       if (!loadingPaging) {
         yield put(lotteryActions.setRewardedList([]));
