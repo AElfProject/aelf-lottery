@@ -24,6 +24,12 @@ service LotteryContract {
 	}
     rpc TakeReward (TakeRewardInput) returns (google.protobuf.Empty) {
     }
+    rpc TakeDividend(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    }
+    rpc SetDividendRate(google.protobuf.Int64Value) returns (google.protobuf.Empty) {
+    }
+    rpc SetDividendRateTotalShares(google.protobuf.Int64Value) returns (google.protobuf.Empty) {
+    }
 
     // Management Actions
     rpc ResetMaximumBuyAmount (google.protobuf.Int64Value) returns (google.protobuf.Empty) {
@@ -43,8 +49,6 @@ service LotteryContract {
     rpc Stake (google.protobuf.Int64Value) returns (google.protobuf.Empty){
     }
     rpc SetStakingTimestamp(SetStakingTimestampInput) returns (google.protobuf.Empty) {
-    }
-    rpc RegisterDividend (RegisterDividendDto) returns (google.protobuf.Empty) {
     }
     rpc TakeBackToken(TakeBackTokenInput) returns (google.protobuf.Empty) {
     }
@@ -95,9 +99,6 @@ service LotteryContract {
     rpc GetAllLotteriesCount (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
-    rpc GetRegisteredDividend (aelf.Address) returns (RegisterDividendDto) {
-        option (aelf.is_view) = true;
-    }
     rpc GetStakingAmount(aelf.Address) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
@@ -114,6 +115,12 @@ service LotteryContract {
         option (aelf.is_view) = true;
     }
     rpc GetBoughtLotteryReturnLimit (google.protobuf.Empty) returns (google.protobuf.Int32Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetDividendRate (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
+        option (aelf.is_view) = true;
+    }
+    rpc GetDividendRateTotalShares (google.protobuf.Empty) returns (google.protobuf.Int64Value) {
         option (aelf.is_view) = true;
     }
 }

@@ -255,14 +255,6 @@ namespace AElf.Contracts.LotteryContract
             return new Empty();
         }
 
-        public override Empty RegisterDividend(RegisterDividendDto input)
-        {
-            Assert(State.Dividends[Context.Sender] == null, "Already registered.");
-            Assert(State.Staking[Context.Sender] > 0, "Not stake yet.");
-            State.Dividends[Context.Sender] = input;
-            return new Empty();
-        }
-
         public override Empty Stake(Int64Value input)
         {
             Assert(Context.CurrentBlockTime > State.StakingStartTimestamp.Value, "Staking not started.");
@@ -332,6 +324,41 @@ namespace AElf.Contracts.LotteryContract
             Assert(Context.Sender == State.Admin.Value, "No permission.");
             Assert(input.Value >= 0, "BoughtLotteryReturnLimit cannot be negative.");
             State.BoughtLotteryReturnLimit.Value = input.Value;
+            return new Empty();
+        }
+        
+        public override Empty TakeDividend(Empty input)
+        {
+            Assert(State.DividendRate.Value > 0, "DividendRate not set.");
+            Assert(Context.CurrentBlockTime > State.StakingShutdownTimestamp.Value, "Staking not shutdown.");
+            Assert(State.Staking[Context.Sender] > 0, "No stake.");
+            var amount = State.Staking[Context.Sender].Mul(State.DividendRate.Value)
+                .Div(GetDividendRateTotalShares(new Empty()).Value);
+            State.Staking[Context.Sender] = 0;
+            State.TokenContract.Transfer.Send(new TransferInput
+            {
+                Amount = amount,
+                Symbol = "ELF",
+                To = Context.Sender
+            });
+
+            return new Empty();
+        }
+
+        public override Empty SetDividendRate(Int64Value input)
+        {
+            Assert(Context.CurrentBlockTime > State.StakingShutdownTimestamp.Value, "Staking not shutdown.");
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            Assert(input.Value >= 0, "DividendRate cannot be negative.");
+            State.DividendRate.Value = input.Value;
+            return new Empty();
+        }
+
+        public override Empty SetDividendRateTotalShares(Int64Value input)
+        {
+            Assert(Context.Sender == State.Admin.Value, "No permission.");
+            Assert(input.Value > 0, "DividendRate cannot be zero or negative.");
+            State.DividendRateTotalShares.Value = input.Value;
             return new Empty();
         }
     }

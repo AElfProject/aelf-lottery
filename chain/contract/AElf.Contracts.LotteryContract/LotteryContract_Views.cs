@@ -160,12 +160,7 @@ namespace AElf.Contracts.LotteryContract
         {
             return new Int64Value {Value = State.SelfIncreasingIdForLottery.Value.Sub(1)};
         }
-
-        public override RegisterDividendDto GetRegisteredDividend(Address input)
-        {
-            return State.Dividends[input];
-        }
-
+        
         public override Int64Value GetStakingAmount(Address input)
         {
             return new Int64Value {Value = State.Staking[input]};
@@ -208,6 +203,24 @@ namespace AElf.Contracts.LotteryContract
                 Value = State.BoughtLotteryReturnLimit.Value == 0
                     ? MaximumReturnAmount
                     : State.BoughtLotteryReturnLimit.Value
+            };
+        }
+        
+        public override Int64Value GetDividendRate(Empty input)
+        {
+            return new Int64Value
+            {
+                Value = State.DividendRate.Value
+            };
+        }
+
+        public override Int64Value GetDividendRateTotalShares(Empty input)
+        {
+            return new Int64Value
+            {
+                Value = State.DividendRateTotalShares.Value == 0
+                    ? DefaultTotalSharesForDividendRate
+                    : State.DividendRateTotalShares.Value
             };
         }
     }

@@ -42,13 +42,13 @@ namespace AElf.Contracts.LotteryContract
         public MappedState<Address, long> Staking { get; set; }
 
         public Int64State StakingTotal { get; set; }
+        public Int64State DividendRate { get; set; }
+        public Int64State DividendRateTotalShares { get; set; }
 
         public Int64State ProfitRate { get; set; }
 
         public BoolState IsSuspend { get; set; }
-
-        public MappedState<Address, RegisterDividendDto> Dividends { get; set; }
-
+        
         public SingletonState<Timestamp> StakingStartTimestamp { get; set; }
         public SingletonState<Timestamp> StakingShutdownTimestamp { get; set; }
         
