@@ -33,7 +33,7 @@ const {
   tokenDecimalFormat,
 } = config;
 import lotteryActions from '../redux/lotteryRedux';
-const approveAmount = 10000000;
+const approveAmount = 500000000;
 function* onRegisteredSaga(actions) {
   Loading.show();
   yield delay(500);

@@ -31,10 +31,11 @@ Lucky Box选择区分为万位、千位、百位、十位和个位，各位号�
  
  
 注意：
-<1>假设当期的开奖号码为45678（组选三适用开奖号码为45668）。
-<2>前三码和后三码：前三码指开奖号码的前三位号码，后三码指开奖号码的后三位号码。示例：开奖号码为45678，前三码为456，后三码为678。
-<3>前两码和后两码：前两码指开奖号码的前两位号码，后两码指开号码的后两位号码。示例：开奖号码为45678，前两码为45，后两码为78。
-<4>定位和不定位：定位指选择号码与开奖号码按位一致，不定位指选择号码与开奖号码一致，顺序不限。示例：开奖号码为45678，78则定位中后两码，78或87则为不定位中后两码。`,
+<1>使用Lucky Box功能前，需要先进行授权才能进行交易，需保证账户ELF余额至少拥有0.5 ELF。
+<2>假设当期的开奖号码为45678（组选三适用开奖号码为45668）。
+<3>前三码和后三码：前三码指开奖号码的前三位号码，后三码指开奖号码的后三位号码。示例：开奖号码为45678，前三码为456，后三码为678。
+<4>前两码和后两码：前两码指开奖号码的前两位号码，后两码指开号码的后两位号码。示例：开奖号码为45678，前两码为45，后两码为78。
+<5>定位和不定位：定位指选择号码与开奖号码按位一致，不定位指选择号码与开奖号码一致，顺序不限。示例：开奖号码为45678，78则定位中后两码，78或87则为不定位中后两码。`,
   },
   en: {
     details: `
@@ -71,13 +72,15 @@ Very Good - pick 3 (Straight) - last three digits (exact order) - 1000 lucky coi
 Excellent - Pick 5 (Straight) -  five digits (exact order) - 100000 lucky coins
 
 Notes:
-<1> Suppose that the winning number is 45678 (For Box-3 way: the assuming winning number is 45668).
+<1> Before using the Lucky Box function, approval process is required before transactions can be made. The ELF account balance must be guaranteed to have at least 0.5 ELF.
 
-<2> The front 3 digits and the back 3 digits: The front 3 digits refer to the first 3 digits of the winning number, and the back 3 digits refer to the last 3 digits of the winning number. Example: the winning number is 45678, The front 3 digits are 456, and the back 3 digits are 678.
+<2> Suppose that the winning number is 45678 (For Box-3 way: the assuming winning number is 45668).
 
-<3> The front 2 digits and the back 2 digits: The front 2 digits refer to the first 2 digits of the winning number, and the back 2 digits refer to the last 2 digits of the winning number. Example: the winning number is 45678, The front 2 digits are 45, and the back 3 digits are 78.
+<3> The front 3 digits and the back 3 digits: The front 3 digits refer to the first 3 digits of the winning number, and the back 3 digits refer to the last 3 digits of the winning number. Example: the winning number is 45678, The front 3 digits are 456, and the back 3 digits are 678.
 
-<4> Exact order and Any order: Winning combination can be divided into in order and out of order. Exact order = in order, Any order = out of order. Example: winning number is ‘45678’, the last two digits of winning number in order should be ‘78’.`,
+<4> The front 2 digits and the back 2 digits: The front 2 digits refer to the first 2 digits of the winning number, and the back 2 digits refer to the last 2 digits of the winning number. Example: the winning number is 45678, The front 2 digits are 45, and the back 3 digits are 78.
+
+<5> Exact order and Any order: Winning combination can be divided into in order and out of order. Exact order = in order, Any order = out of order. Example: winning number is ‘45678’, the last two digits of winning number in order should be ‘78’.`,
   },
 };
 
