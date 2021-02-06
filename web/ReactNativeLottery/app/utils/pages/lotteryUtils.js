@@ -350,10 +350,9 @@ const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
       } else if (
         s.length === 2 &&
         f.length === 2 &&
-        JSON.stringify(s) === JSON.stringify(f)
+        JSON.stringify(s.sort()) === JSON.stringify(f.sort())
       ) {
       } else if (f.length !== 1 || s.length !== 1) {
-        console.log('asasa');
         if (
           (s.includes('1') &&
             s.includes('3') &&
