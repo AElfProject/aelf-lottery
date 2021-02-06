@@ -321,21 +321,15 @@ const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
       if (f.length === 4 && s.length === 4) {
         A = amount * 4;
         P = amount * 4 - betValue;
-      } else if (
-        (s.length === 4 && f.length === 1) ||
-        (f.length === 4 && s.length === 1)
-      ) {
-        A = amount * 2;
-        P = amount * 2 - betValue;
       } else {
         let t = 0,
-          o = 0;
+          o = 0,
+          m = 0;
         f.filter(i => i === '0' || i === '1').length && t++;
         f.filter(i => i === '2' || i === '3').length && t++;
 
         s.filter(i => i === '0' || i === '1').length && o++;
         s.filter(i => i === '2' || i === '3').length && o++;
-        let m = 0;
         if (t === 1 && o === 1) {
           m = 1;
         } else if ((t === 2 && o === 1) || (t === 1 && o === 2)) {
@@ -347,6 +341,12 @@ const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
           if ((s.length === 4 && t === 2) || (f.length === 4 && o === 2)) {
             A = `${amount * 2}~${amount * 4}`;
             P = `${amount * 2 - betValue}~${amount * 4 - betValue}`;
+          } else if (
+            (s.length === 4 && t === 1) ||
+            (f.length === 4 && o === 1)
+          ) {
+            A = amount * 2;
+            P = amount * 2 - betValue;
           } else {
             A = `${amount}~${amount * m}`;
             P = `${amount - betValue}~${amount * m - betValue}`;
