@@ -321,6 +321,12 @@ const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
       if (f.length === 4 && s.length === 4) {
         A = amount * 4;
         P = amount * 4 - betValue;
+      } else if (
+        (s.length === 4 && f.length === 1) ||
+        (f.length === 4 && s.length === 1)
+      ) {
+        A = amount * 2;
+        P = amount * 2 - betValue;
       } else {
         let t = 0,
           o = 0;
