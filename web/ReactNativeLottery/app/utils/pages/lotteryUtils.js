@@ -321,59 +321,26 @@ const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
       if (f.length === 4 && s.length === 4) {
         A = amount * 4;
         P = amount * 4 - betValue;
-      } else if (f.length === 2 && s.length === 1) {
-        if (
-          !(
-            (f.includes('0') && f.includes('1')) ||
-            (f.includes('2') && f.includes('3'))
-          )
-        ) {
-          A = `${amount}~${amount * 2}`;
-          P = `${amount - betValue}~${amount * 2 - betValue}`;
-        }
-      } else if (f.length === 1 && s.length === 2) {
-        if (
-          !(
-            (s.includes('0') && s.includes('1')) ||
-            (s.includes('2') && s.includes('3'))
-          )
-        ) {
-          A = `${amount}~${amount * 2}`;
-          P = `${amount - betValue}~${amount * 2 - betValue}`;
-        }
-      } else if (
-        (f.length === 4 && s.length === 3) ||
-        (s.length === 4 && f.length === 3)
-      ) {
-        A = `${amount * 2}~${amount * 4}`;
-        P = `${amount * 2 - betValue}~${amount * 4 - betValue}`;
-      } else if (
-        s.length === 2 &&
-        f.length === 2 &&
-        s.length === 2 &&
-        f.length === 2 &&
-        ((s.includes('0') &&
-          s.includes('1') &&
-          f.includes('0') &&
-          f.includes('1')) ||
-          (s.includes('2') &&
-            s.includes('3') &&
-            f.includes('2') &&
-            f.includes('3')))
-      ) {
-      } else if (f.length !== 1 || s.length !== 1) {
-        const f1 = f.filter(i => i === '0' || i === '1');
-        const f2 = f.filter(i => i === '2' || i === '3');
-        const s1 = s.filter(i => i === '0' || i === '1');
-        const s2 = s.filter(i => i === '2' || i === '3');
+      } else {
+        let t = 0,
+          o = 0;
+        f.filter(i => i === '0' || i === '1').length && t++;
+        f.filter(i => i === '2' || i === '3').length && t++;
+
+        s.filter(i => i === '0' || i === '1').length && o++;
+        s.filter(i => i === '2' || i === '3').length && o++;
         let m = 0;
-        f1.length && m++;
-        f2.length && m++;
-        s1.length && m++;
-        s2.length && m++;
-        m === 3 && m--;
-        A = `${amount}~${amount * m}`;
-        P = `${amount - betValue}~${amount * m - betValue}`;
+        if (t === 1 && o === 1) {
+          m = 1;
+        } else if ((t === 2 && o === 1) || (t === 1 && o === 2)) {
+          m = 2;
+        } else if (t === 2 && o === 2) {
+          m = 4;
+        }
+        if (m !== 1) {
+          A = `${amount}~${amount * m}`;
+          P = `${amount - betValue}~${amount * m - betValue}`;
+        }
       }
     }
   }
