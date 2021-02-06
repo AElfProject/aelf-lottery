@@ -310,26 +310,65 @@ const getDrawBetStr = (type, betInfos) => {
   }
   return List;
 };
-const getSimpleAmount = (
-  bonusAmount = 1,
-  betList,
-  betValue,
-  multiplied = 1,
-) => {
+const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
   let A = bonusAmount;
   let P = (bonusAmount || 1) - betValue;
-  const amount = bonusAmount * multiplied;
+  const amount = bonusAmount;
   if (Array.isArray(betList)) {
     let f = betList[0];
     let s = betList[1];
     if (Array.isArray(f) && Array.isArray(s)) {
-      console.log(betList, '=====betList');
       if (f.length === 4 && s.length === 4) {
         A = amount * 4;
         P = amount * 4 - betValue;
+      } else if (f.length === 2 && s.length === 1) {
+        if (
+          !(
+            (f.includes('0') && f.includes('1')) ||
+            (f.includes('2') && f.includes('3'))
+          )
+        ) {
+          A = `${amount}~${amount * 2}`;
+          P = `${amount - betValue}~${amount * 2 - betValue}`;
+        }
+      } else if (f.length === 1 && s.length === 2) {
+        if (
+          !(
+            (s.includes('0') && s.includes('1')) ||
+            (s.includes('2') && s.includes('3'))
+          )
+        ) {
+          A = `${amount}~${amount * 2}`;
+          P = `${amount - betValue}~${amount * 2 - betValue}`;
+        }
+      } else if (
+        (f.length === 4 && s.length === 3) ||
+        (s.length === 4 && f.length === 3)
+      ) {
+        A = `${amount * 2}~${amount * 4}`;
+        P = `${amount * 2 - betValue}~${amount * 4 - betValue}`;
+      } else if (
+        s.length === 2 &&
+        f.length === 2 &&
+        JSON.stringify(s) === JSON.stringify(f)
+      ) {
       } else if (f.length !== 1 || s.length !== 1) {
-        A = `${amount}~${amount * 4}`;
-        P = `${amount - betValue}~${amount * 4 - betValue}`;
+        if (
+          (s.includes('1') &&
+            s.includes('3') &&
+            f.includes('1') &&
+            s.includes('3')) ||
+          (s.includes('0') &&
+            s.includes('2') &&
+            f.includes('0') &&
+            s.includes('2'))
+        ) {
+          A = `${amount}~${amount * 4}`;
+          P = `${amount - betValue}~${amount * 4 - betValue}`;
+        } else {
+          A = `${amount}~${amount * 2}`;
+          P = `${amount - betValue}~${amount * 2 - betValue}`;
+        }
       }
     }
   }

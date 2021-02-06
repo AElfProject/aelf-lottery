@@ -26,7 +26,7 @@ const OneStar = () => {
       lotteryRewards: lottery.lotteryRewards,
     };
   });
-  const bonusAmount = lotteryRewards ? lotteryRewards[lotteryType] : 0;
+  const bonusAmount = lotteryRewards?.[lotteryType] ?? 1;
   const onSelect = useCallback(
     (first, second) => {
       setBetList(lotteryUtils.processingNumber(betList, first, second));

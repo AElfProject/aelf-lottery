@@ -43,12 +43,7 @@ const ShowBetComponent = props => {
   let Amount = bonusAmount * multiplied;
   let profit = (Amount || 1) - betValue;
   if (lotteryType === LOTTERY_TYPE.SIMPLE && disabled) {
-    const {A, P} = lotteryUtils.getSimpleAmount(
-      bonusAmount,
-      betList,
-      betValue,
-      multiplied,
-    );
+    const {A, P} = lotteryUtils.getSimpleAmount(Amount, betList, betValue);
     Amount = A;
     profit = P;
   }

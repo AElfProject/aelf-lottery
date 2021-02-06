@@ -115,6 +115,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     paddingHorizontal: 0,
     color: Colors.fontBlack,
+    padding: 0,
   },
   inputBox: {
     paddingLeft: pTd(10),
