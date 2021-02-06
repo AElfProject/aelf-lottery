@@ -38,6 +38,7 @@ export default {
   // You can change the params for keyStore here
   keystoreOptions,
   httpProvider: `${walletURL}/chain`,
+  lotApi: 'https://lottery-api.aelf.io/api/lot/',
   explorerURL,
   // contractNames & contractAddresses will be init by appInit of `/common/utils/aelfProvider`;
   contractNames: {
