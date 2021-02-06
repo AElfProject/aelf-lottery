@@ -353,15 +353,16 @@ const getSimpleAmount = (bonusAmount = 1, betList, betValue) => {
         JSON.stringify(s) === JSON.stringify(f)
       ) {
       } else if (f.length !== 1 || s.length !== 1) {
+        console.log('asasa');
         if (
           (s.includes('1') &&
             s.includes('3') &&
             f.includes('1') &&
-            s.includes('3')) ||
+            f.includes('3')) ||
           (s.includes('0') &&
             s.includes('2') &&
             f.includes('0') &&
-            s.includes('2'))
+            f.includes('2'))
         ) {
           A = `${amount}~${amount * 4}`;
           P = `${amount - betValue}~${amount * 4 - betValue}`;
